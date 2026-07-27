@@ -1,30 +1,11 @@
-HANK MANAGER 2.1 BETA
+HANK MANAGER 3.0
 
-NOVITÀ PRINCIPALE
-Il campo tattico non si apre più dalla Home o dalla barra inferiore.
-
-FLUSSO CORRETTO
-1. Apri Calendario.
-2. Apri la partita.
-3. Seleziona i convocati nel Match Center.
-4. Premi “PREPARA FORMAZIONE”.
-5. Vedrai esclusivamente i convocati.
-6. Per ciascuno scegli TITOLARE oppure RISERVA.
-7. I titolari compaiono sul campo e possono essere trascinati.
-8. Premi “SALVA NELLA PARTITA”.
-
-CORREZIONI
-- eliminato il riquadro nero sul campo;
-- formazione salvata separatamente per ogni partita;
-- massimo 11 titolari;
-- riserve separate;
-- cambio modulo della singola gara;
-- ritorno diretto al Match Center.
+- Barra: Home, Rosa, Calendario, Partita, Statistiche.
+- Rosa correttamente collegata.
+- Match Center con PLAY, pausa, azzeramento e Fine partita.
+- Campo tattico ricostruito con posizioni cliccabili.
+- Solo i convocati possono essere scelti.
+- I non titolari vanno automaticamente in panchina.
 
 INSTALLAZIONE
-1. Estrai lo ZIP.
-2. Elimina i vecchi file dalla cartella Documenti/GitHub/-hank-manager.
-3. Copia TUTTO il contenuto estratto:
-   index.html, manifest.json, service-worker.js, cartella css, cartella js.
-4. Commit to main.
-5. Push origin.
+Estrai lo ZIP, elimina i vecchi file nella cartella del repository, copia tutto, Commit to main e Push origin.

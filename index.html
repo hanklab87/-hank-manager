@@ -15,7 +15,7 @@
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 2.1 BETA</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 3.0</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -98,62 +98,12 @@
     <div id="events" style="margin-top:18px"></div>
   </section>
 <section id="tactical" class="screen">
-  <div class="page-head tactical-page-head">
-    <div>
-      <p class="eyebrow">HANK MANAGER · 2.1 BETA</p>
-      <h1 id="tacticalMatchTitle">Formazione partita</h1>
-      <p class="muted" id="tacticalMatchSubtitle">Prima seleziona i convocati nel Match Center.</p>
-    </div>
-    <button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button>
-  </div>
-
-  <div class="tactical-shell" id="tacticalPrintArea">
-    <div class="tactical-toolbar">
-      <div class="field">
-        <label>MODULO</label>
-        <select id="formationSelect" onchange="applyFormation(this.value)">
-          <option>4-3-3</option>
-          <option>4-2-3-1</option>
-          <option>4-4-2</option>
-          <option>3-5-2</option>
-          <option>3-4-2-1</option>
-          <option>3-4-3</option>
-          <option>4-3-1-2</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>RIEPILOGO</label>
-        <div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div>
-      </div>
-    </div>
-
-    <div class="pitch-wrap">
-      <div class="pitch" id="tacticalPitch">
-        <div class="halfway"></div><div class="circle"></div><div class="spot"></div>
-        <div class="box top"></div><div class="box bottom"></div>
-        <div class="six top"></div><div class="six bottom"></div>
-        <div class="arc top"></div><div class="arc bottom"></div>
-      </div>
-    </div>
-
-    <div class="lineup-actions">
-      <button class="primary" onclick="saveMatchLineup()">SALVA NELLA PARTITA</button>
-      <button class="secondary" onclick="window.print()">STAMPA / PDF</button>
-      <button class="secondary" onclick="resetFormation()">RIPRISTINA POSIZIONI</button>
-      <button class="secondary" onclick="clearMatchLineup()">SVUOTA FORMAZIONE</button>
-    </div>
-
-    <div class="bench-panel">
-      <div class="section-head"><div><h2>Giocatori convocati</h2><p class="muted small">Scegli chi parte titolare e chi va in panchina.</p></div></div>
-      <div id="calledPlayersList" class="called-players-list"></div>
-      <p class="tactical-mini-note">Solo i giocatori convocati nel Match Center compaiono qui. I titolari possono essere trascinati sul campo.</p>
-    </div>
-
-    <div class="saved-lineups">
-      <div class="section-head"><div><h2>Riserve</h2><p class="muted small">Panchina della partita selezionata.</p></div></div>
-      <div id="reservesList" class="reserves-list"></div>
-    </div>
-  </div>
+<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 3.0</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
+<div class="formation-layout"><div>
+<div class="tactical-toolbar"><div class="field"><label>MODULO</label><select id="formationSelect" onchange="applyFormation(this.value)"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-3</option><option>4-3-1-2</option></select></div><div class="field"><label>RIEPILOGO</label><div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div></div></div>
+<div class="clean-pitch" id="cleanPitch"></div>
+<div class="lineup-actions"><button class="primary" onclick="saveMatchLineup()">SALVA FORMAZIONE</button><button class="secondary" onclick="clearMatchLineup()">SVUOTA</button></div>
+</div><div class="bench-panel"><div class="section-head"><div><h2>Panchina</h2><p class="muted small">I convocati non titolari finiscono automaticamente qui.</p></div></div><div id="reservesList" class="reserves-list"></div></div></div>
 </section>
 </main>
 
@@ -173,11 +123,11 @@
 
 
 <div class="bottom-nav">
-  <button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
-  <button onclick="show('calendar')"><span>▣</span>Calendario</button>
-  <button onclick="show('roster')"><span>♙</span>Rosa</button>
-  <button onclick="openNextMatch()"><span>⚽</span>Partita</button>
-  <button onclick="showStats()"><span>▥</span>Statistiche</button>
+<button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
+<button onclick="show('squad');renderPlayers()"><span>♙</span>Rosa</button>
+<button onclick="show('calendar');renderEvents()"><span>▣</span>Calendario</button>
+<button onclick="openNextMatch()"><span>▶</span>Partita</button>
+<button onclick="showStats()"><span>▥</span>Statistiche</button>
 </div>
 
 </body>
