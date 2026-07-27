@@ -406,43 +406,11 @@ body{background:radial-gradient(circle at top,#122231 0,#071019 46%,#050b11 100%
 }
 
 
-/* ===== Hank Manager 5.0 Alpha ===== */
-.hero{
-position:relative;
-overflow:hidden;
-border-radius:28px;
-padding:24px;
-background:linear-gradient(135deg,#18314d 0%,#102235 55%,#0b1624 100%);
-border:1px solid rgba(255,255,255,.08);
-box-shadow:0 20px 60px rgba(0,0,0,.45);
-}
-.hero::after{
-content:"";
-position:absolute;
-right:-60px;top:-60px;
-width:220px;height:220px;
-background:radial-gradient(circle,rgba(69,228,107,.22),transparent 70%);
-}
-.hero .badge{background:#45e46b;color:#04110a;font-weight:700}
-.team-row{margin:20px 0}
-.dashboard-cards{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:14px;
-margin:18px 0 26px;
-}
-.stat-card{
-background:#122338;
-border:1px solid rgba(255,255,255,.06);
-border-radius:20px;
-padding:16px;
-}
-.stat-card small{color:#8ea2ba;display:block}
-.stat-card b{font-size:28px}
-.quick{
-transition:.25s ease;
-}
-.quick:hover{
-transform:translateY(-4px);
-border-color:#45e46b;
-}
+/* V5 Alpha */
+.hero{background:linear-gradient(135deg,#13253f,#0b1627);border:1px solid #2b3f5d;border-radius:24px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.hero .badge{background:#6BEA63;color:#08131f;font-weight:700}
+.team-row{align-items:center}
+.v5-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0}
+.v5-card{background:#101b2c;border:1px solid #233550;border-radius:18px;padding:16px}
+.v5-card h3{font-size:13px;color:#94a6bf;margin:0 0 6px}
+.v5-card .value{font-size:26px;font-weight:800;color:#fff}
