@@ -103,13 +103,26 @@ border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow
 .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .close{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:#101f33;color:var(--text)}
 .empty{text-align:center;padding:30px 15px;color:var(--muted)}
+
+.brand-logo-img{width:46px;height:46px;border-radius:15px;object-fit:cover;border:1px solid var(--line)}
+.sponsor-strip{display:flex;gap:8px;overflow:auto;margin-top:14px}
+.sponsor-chip{min-width:105px;padding:8px;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid var(--line);display:flex;align-items:center;gap:7px}
+.sponsor-chip img{width:30px;height:30px;border-radius:7px;object-fit:contain;background:#fff}
+.match-card{background:linear-gradient(145deg,#132741,#0d1c30);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:10px}
+.match-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;gap:8px}
+.comp{font-size:10px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:.07em}
+.status{font-size:10px;padding:5px 8px;border-radius:999px;background:rgba(247,200,94,.12);color:var(--amber)}
+.teams-line{font-size:16px;font-weight:900}.match-info{font-size:11px;color:var(--muted);line-height:1.55;margin-top:6px}
+.logo-preview{width:88px;height:88px;border-radius:22px;background:#091525;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin:0 auto 14px;color:var(--green);font-weight:900}
+.logo-preview img{width:100%;height:100%;object-fit:cover}
+.mini-danger{border:0;background:rgba(255,91,103,.14);color:var(--danger);border-radius:12px;padding:9px}
 </style>
 </head>
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
     <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA</div></div></div>
-    <div class="profile">EA</div>
+    <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
   <section id="welcome" class="screen active onboard">
@@ -137,11 +150,11 @@ border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow
     <div class="hero">
       <span class="badge">PROSSIMA PARTITA</span>
       <div class="team-row">
-        <div class="club"><div class="crest">MR</div><b>Maccabi Roma</b></div>
+        <div class="club"><div class="crest" id="homeCrest">MR</div><b id="homeTeamName">Maccabi Roma</b></div>
         <div class="vs">VS</div>
         <div class="club"><div class="crest">?</div><b>Da definire</b></div>
       </div>
-      <div class="meta"><span>📅 Nessuna data</span><span>📍 Campo da definire</span></div>
+      <div class="meta"><span>📅 Nessuna data</span><span>📍 Campo da definire</span></div><div id="homeSponsors" class="sponsor-strip"></div>
     </div>
 
     <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
@@ -178,7 +191,7 @@ border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow
   <section id="calendar" class="screen">
     <h1>Calendario</h1>
     <p class="muted" style="margin-top:7px">Partite, allenamenti e riunioni</p>
-    <div id="events" class="card empty" style="margin-top:18px">Nessun evento inserito.<br>Premi il pulsante + per cominciare.</div>
+    <div id="events" style="margin-top:18px"></div>
   </section>
 </main>
 
@@ -194,11 +207,14 @@ border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow
 
 <script>
 const defaultPlayers=[{"id": 1, "name": "Francesco Impellizzeri", "role": "Portiere", "number": 1, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 2, "name": "Yoseph Funaro", "role": "Portiere", "number": 2, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 3, "name": "Tommaso Maroder", "role": "Portiere", "number": 3, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 4, "name": "Morris David Bendaud", "role": "Portiere", "number": 4, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 5, "name": "Stefano Sabbatini", "role": "Portiere", "number": 5, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 6, "name": "Samuel Di Castro", "role": "Difensore", "number": 6, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 7, "name": "Marco Luziatelli", "role": "Difensore", "number": 7, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 8, "name": "Fabio Tesciuba", "role": "Difensore", "number": 8, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 9, "name": "Stefano Spagnoletto", "role": "Difensore", "number": 10, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 10, "name": "Marco Fiorentini", "role": "Terzino", "number": 12, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 11, "name": "Fabio Piperno", "role": "Terzino", "number": 13, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 12, "name": "Salvatore Sabia", "role": "Centrocampista", "number": 16, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 13, "name": "Gavriel Pavoncello", "role": "Terzino", "number": 17, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 14, "name": "Edoardo Maroder", "role": "Centrocampista", "number": 18, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 15, "name": "Alessio Gioia", "role": "Centrocampista", "number": 19, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 16, "name": "Rahmin Fellah", "role": "Centrocampista", "number": 20, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 17, "name": "Deniel Pavoncello", "role": "Centrocampista", "number": 21, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 18, "name": "Francesco Antonio Araujo", "role": "Attaccante", "number": 23, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 19, "name": "Alessandro Gazzo", "role": "Terzino", "number": 24, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 20, "name": "Massimiliano Moretti", "role": "Attaccante", "number": 25, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 21, "name": "Joshua Yosef Sasson", "role": "Attaccante", "number": 26, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 22, "name": "Gianni De Fatima Pires Araujo", "role": "Attaccante", "number": 27, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 23, "name": "Alberto Di Consiglio", "role": "Attaccante", "number": 28, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 24, "name": "Enrico Ascoli", "role": "Allenatore", "number": 31, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 25, "name": "Gianluca Gatti", "role": "Difensore", "number": 32, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 26, "name": "Marvin Miguel Pires Dos Santos", "role": "Attaccante", "number": 35, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 27, "name": "Alessandro Gabbani", "role": "Centrocampista", "number": 36, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}];
-let state=JSON.parse(localStorage.getItem('hank_v03')||'null')||{profile:null,players:defaultPlayers,events:[]};
+const defaultEvents=[{"id": 1001, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "1ª giornata", "homeAway": "Trasferta", "opponent": "Pizza Eschilo", "date": "2026-09-28", "time": "", "venue": "Campo Aldobrandini (Ostia Antica)", "status": "Da giocare"}, {"id": 1002, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "2ª giornata", "homeAway": "Trasferta", "opponent": "Lokomotiv", "date": "2026-10-05", "time": "", "venue": "Campo Bettini", "status": "Da giocare"}, {"id": 1003, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "3ª giornata", "homeAway": "Casa", "opponent": "Grifone", "date": "2026-10-27", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1004, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "4ª giornata", "homeAway": "Casa", "opponent": "Atletico SM", "date": "2026-11-10", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1005, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "5ª giornata", "homeAway": "Trasferta", "opponent": "Real Baseggio", "date": "2026-11-16", "time": "", "venue": "Campo Muratori", "status": "Da giocare"}, {"id": 1006, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "6ª giornata", "homeAway": "Casa", "opponent": "Milani", "date": "2026-12-01", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1007, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "7ª giornata", "homeAway": "Trasferta", "opponent": "Montagnola", "date": "2026-12-14", "time": "", "venue": "Campo Romulea", "status": "Da giocare"}, {"id": 1008, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "8ª giornata", "homeAway": "Casa", "opponent": "Union FB", "date": "2026-12-22", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1009, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "9ª giornata", "homeAway": "Trasferta", "opponent": "CRC", "date": "2027-01-11", "time": "", "venue": "Campo San Tarcisio", "status": "Da giocare"}, {"id": 1010, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "10ª giornata", "homeAway": "Trasferta", "opponent": "Unicum", "date": "2027-01-25", "time": "", "venue": "Campo La Borghesiana", "status": "Da giocare"}, {"id": 1011, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "11ª giornata", "homeAway": "Casa", "opponent": "Borgorosso", "date": "2027-02-02", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1012, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "12ª giornata", "homeAway": "Casa", "opponent": "Pizza Eschilo", "date": "2027-02-09", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1013, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "13ª giornata", "homeAway": "Casa", "opponent": "Lokomotiv", "date": "2027-02-23", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1014, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "14ª giornata", "homeAway": "Trasferta", "opponent": "Grifone", "date": "2027-03-01", "time": "", "venue": "Campo Elis", "status": "Da giocare"}, {"id": 1015, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "15ª giornata", "homeAway": "Trasferta", "opponent": "Atletico SM", "date": "2027-03-22", "time": "", "venue": "Campo Ferrovieri", "status": "Da giocare"}, {"id": 1016, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "16ª giornata", "homeAway": "Casa", "opponent": "Real Baseggio", "date": "2027-04-06", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1017, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "17ª giornata", "homeAway": "Trasferta", "opponent": "Milani", "date": "2027-04-12", "time": "", "venue": "Campo San Tarcisio", "status": "Da giocare"}, {"id": 1018, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "18ª giornata", "homeAway": "Casa", "opponent": "Montagnola", "date": "2027-04-20", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1019, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "19ª giornata", "homeAway": "Trasferta", "opponent": "Union FB", "date": "2027-04-26", "time": "", "venue": "Campo Atletico 2000", "status": "Da giocare"}, {"id": 1020, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "20ª giornata", "homeAway": "Casa", "opponent": "CRC", "date": "2027-05-04", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1021, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "21ª giornata", "homeAway": "Casa", "opponent": "Unicum", "date": "2027-05-11", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1022, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "22ª giornata", "homeAway": "Casa", "opponent": "Borgorosso", "date": "2027-05-18", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}];
+let state=JSON.parse(localStorage.getItem('hank_v04')||'null')||{profile:null,players:defaultPlayers,events:defaultEvents,branding:{logo:'',sponsors:[]}};
 if(!state.players||state.players.length<20) state.players=defaultPlayers;
+if(!state.events||state.events.length<22) state.events=defaultEvents;
+if(!state.branding) state.branding={logo:'',sponsors:[]};
 let currentFilter='Tutti';
 
-function save(){localStorage.setItem('hank_v03',JSON.stringify(state))}
+function save(){localStorage.setItem('hank_v04',JSON.stringify(state))}
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   const inside=['home','squad','calendar'].includes(id);
@@ -206,7 +222,7 @@ function show(id){
   nav.classList.toggle('hidden',!inside);
   fab.classList.toggle('hidden',!['squad','calendar'].includes(id));
   document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
-  if(id==='home')nHome.classList.add('active');
+  if(id==='home'){nHome.classList.add('active');renderBranding();renderNextMatch();}
   if(id==='squad'){nSquad.classList.add('active');renderPlayers()}
   if(id==='calendar'){nCalendar.classList.add('active');renderEvents()}
   window.scrollTo(0,0);
@@ -252,22 +268,94 @@ function addPlayer(){
 }
 function openAddEvent(){
   sheet.innerHTML=`<div class="sheet-head"><h2>Nuovo evento</h2><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="field"><label>TIPO</label><select id="etype"><option>Partita</option><option>Allenamento</option><option>Riunione</option></select></div>
-  <div class="field"><label>TITOLO / AVVERSARIO</label><input id="etitle"></div>
+  <div class="field"><label>TIPO EVENTO</label><select id="etype" onchange="toggleMatchFields()"><option>Partita</option><option>Allenamento</option><option>Riunione</option><option>Altro</option></select></div>
+  <div id="matchFields">
+    <div class="field"><label>COMPETIZIONE</label><select id="ecompetition" onchange="toggleCustomCompetition()"><option>Campionato</option><option>Coppa</option><option>Torneo</option><option>Amichevole</option><option>Personalizza</option></select></div>
+    <div class="field hidden" id="customCompField"><label>NOME COMPETIZIONE</label><input id="ecustomcompetition" placeholder="Es. Trofeo Cesari"></div>
+    <div class="field"><label>GIORNATA / FASE</label><input id="eround" placeholder="Es. 1ª giornata, Semifinale"></div>
+    <div class="field"><label>CASA O TRASFERTA</label><select id="ehomeaway"><option>Casa</option><option>Trasferta</option><option>Campo neutro</option></select></div>
+    <div class="field"><label>AVVERSARIO</label><input id="eopponent"></div>
+  </div>
   <div class="field"><label>DATA</label><input id="edate" type="date"></div>
   <div class="field"><label>ORA</label><input id="etime" type="time"></div>
-  <button class="primary" onclick="addEvent()">SALVA EVENTO</button>`;modal.classList.add('open');
+  <div class="field"><label>CAMPO / LUOGO</label><input id="evenue"></div>
+  <button class="primary" onclick="addEvent()">SALVA EVENTO</button>`;
+  modal.classList.add('open');
 }
+function toggleMatchFields(){document.getElementById('matchFields').classList.toggle('hidden',document.getElementById('etype').value!=='Partita')}
+function toggleCustomCompetition(){document.getElementById('customCompField').classList.toggle('hidden',document.getElementById('ecompetition').value!=='Personalizza')}
 function addEvent(){
-  if(!etitle.value.trim()||!edate.value)return alert('Inserisci titolo e data');
-  state.events.push({id:Date.now(),type:etype.value,title:etitle.value.trim(),date:edate.value,time:etime.value});
-  save();closeModal();renderEvents();
+  const type=document.getElementById('etype').value;
+  const date=document.getElementById('edate').value;
+  if(!date)return alert('Inserisci la data');
+  const isMatch=type==='Partita';
+  const opponent=isMatch?document.getElementById('eopponent').value.trim():'';
+  if(isMatch&&!opponent)return alert('Inserisci l’avversario');
+  state.events.push({id:Date.now(),type,
+    competition:isMatch?document.getElementById('ecompetition').value:'',
+    customCompetition:isMatch?document.getElementById('ecustomcompetition').value.trim():'',
+    round:isMatch?document.getElementById('eround').value.trim():'',
+    homeAway:isMatch?document.getElementById('ehomeaway').value:'',
+    opponent,date,time:document.getElementById('etime').value,
+    venue:document.getElementById('evenue').value.trim(),status:isMatch?'Da giocare':''});
+  save();closeModal();renderEvents();renderNextMatch();
 }
 function renderEvents(){
-  events.innerHTML=state.events.length?state.events.sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<div class="player" style="margin-bottom:10px"><div><div class="pname">${e.title}</div><div class="prole">${e.type} · ${new Date(e.date+'T12:00:00').toLocaleDateString('it-IT')} ${e.time||''}</div></div><div class="badge">${e.type}</div></div>`).join(''):'Nessun evento inserito.<br>Premi il pulsante + per cominciare.';
+  const team=state.profile?.team||'Maccabi Roma';
+  const arr=[...state.events].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  events.innerHTML=arr.length?arr.map(e=>{
+    if(e.type!=='Partita')return `<div class="match-card"><div class="match-top"><span class="comp">${e.type}</span></div><div class="teams-line">${e.type}</div><div class="match-info">📅 ${formatDate(e.date)} ${e.time||''}<br>📍 ${e.venue||'Luogo da definire'}</div></div>`;
+    const comp=e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):e.competition;
+    const home=e.homeAway==='Trasferta'?e.opponent:team;
+    const away=e.homeAway==='Trasferta'?team:e.opponent;
+    return `<div class="match-card"><div class="match-top"><span class="comp">${comp}${e.round?' · '+e.round:''}</span><span class="status">${e.status||'Da giocare'}</span></div><div class="teams-line">${home} — ${away}</div><div class="match-info">📅 ${formatDate(e.date)} ${e.time||'Orario da definire'}<br>📍 ${e.venue||'Campo da definire'} · ${e.homeAway}</div></div>`;
+  }).join(''):'<div class="card empty">Nessun evento inserito.</div>';
 }
+function renderNextMatch(){
+  const next=[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>a.date.localeCompare(b.date))[0];
+  if(!next)return;
+  const team=state.profile?.team||'Maccabi Roma';
+  const home=next.homeAway==='Trasferta'?next.opponent:team;
+  const away=next.homeAway==='Trasferta'?team:next.opponent;
+  const clubs=document.querySelectorAll('.hero .club');
+  if(clubs.length>=2){clubs[0].querySelector('b').textContent=home;clubs[0].querySelector('.crest').textContent=initials(home);clubs[1].querySelector('b').textContent=away;clubs[1].querySelector('.crest').textContent=initials(away)}
+  const meta=document.querySelector('.hero .meta');
+  if(meta)meta.innerHTML=`<span>📅 ${formatDate(next.date)} ${next.time||''}</span><span>📍 ${next.venue}</span>`;
+}
+function openBranding(){
+  const sponsors=state.branding.sponsors||[];
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">IDENTITÀ SQUADRA</p><h2>Logo e sponsor</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  <div class="logo-preview" id="logoPreview">${state.branding.logo?`<img src="${state.branding.logo}">`:'MR'}</div>
+  <div class="field"><label>LOGO DELLA SOCIETÀ</label><input id="logoInput" type="file" accept="image/*" onchange="loadTeamLogo(this)"></div>
+  <div class="section-head"><div><h2>Sponsor</h2><p class="muted small">Puoi inserirne più di uno</p></div></div>
+  <div class="field"><label>NOME SPONSOR</label><input id="sponsorName"></div>
+  <div class="field"><label>LOGO SPONSOR</label><input id="sponsorLogo" type="file" accept="image/*"></div>
+  <button class="primary" onclick="addSponsor()">AGGIUNGI SPONSOR</button>
+  <div class="list">${sponsors.map((s,i)=>`<div class="player"><div class="player-left">${s.logo?`<img src="${s.logo}" style="width:42px;height:42px;object-fit:contain;background:white;border-radius:10px">`:''}<div><div class="pname">${s.name}</div><div class="prole">Sponsor</div></div></div><button class="mini-danger" onclick="removeSponsor(${i})">Elimina</button></div>`).join('')}</div>`;
+  modal.classList.add('open');
+}
+function loadTeamLogo(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();r.onload=()=>{state.branding.logo=r.result;save();document.getElementById('logoPreview').innerHTML=`<img src="${r.result}">`;renderBranding()};r.readAsDataURL(file);
+}
+function addSponsor(){
+  const name=document.getElementById('sponsorName').value.trim();
+  const file=document.getElementById('sponsorLogo').files[0];
+  if(!name)return alert('Inserisci il nome dello sponsor');
+  if(!file){state.branding.sponsors.push({name,logo:''});save();openBranding();renderBranding();return}
+  const r=new FileReader();r.onload=()=>{state.branding.sponsors.push({name,logo:r.result});save();openBranding();renderBranding()};r.readAsDataURL(file);
+}
+function removeSponsor(i){state.branding.sponsors.splice(i,1);save();openBranding();renderBranding()}
+function renderBranding(){
+  const team=state.profile?.team||'Maccabi Roma';
+  document.getElementById('homeTeamName').textContent=team;
+  if(state.branding.logo)document.getElementById('homeCrest').innerHTML=`<img src="${state.branding.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
+  else document.getElementById('homeCrest').textContent=initials(team);
+  document.getElementById('homeSponsors').innerHTML=(state.branding.sponsors||[]).map(s=>`<div class="sponsor-chip">${s.logo?`<img src="${s.logo}">`:''}<span class="small">${s.name}</span></div>`).join('');
+}
+function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
 function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
-if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home')}
+if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home');renderBranding();renderNextMatch()}
 </script>
 </body>
 </html>
