@@ -12,7 +12,8 @@ state.events=state.events.map(e=>({...e,
   availability:e.availability&&typeof e.availability==='object'?e.availability:{},
   homeScore:e.homeScore??'',
   awayScore:e.awayScore??'',
-  notes:e.notes||''
+  notes:e.notes||'',
+  matchMinutes:Number(e.matchMinutes||90)
 }));
 
 state.tactical=state.tactical&&typeof state.tactical==='object'?state.tactical:{
@@ -52,7 +53,19 @@ state.events=state.events.map(e=>({
     events:[],
     onField:{},
     bench:[],
-    playerMinutes:{}
+    playerMinutes:{},
+    phase:'not_started',
+    period:0
+  }
+}));
+
+state.events=state.events.map(e=>({
+  ...e,
+  matchMinutes:Number(e.matchMinutes||90),
+  live:{
+    ...(e.live||{}),
+    phase:e.live?.phase||(e.live?.finished?'finished':e.live?.elapsedSeconds>=(Number(e.matchMinutes||90)*30)?'second_half':'not_started'),
+    period:Number(e.live?.period||0)
   }
 }));
 
@@ -160,6 +173,7 @@ function openAddEvent(){
     <div class="field"><label>GIORNATA / FASE</label><input id="eround" placeholder="Es. 1ª giornata, Semifinale"></div>
     <div class="field"><label>CASA O TRASFERTA</label><select id="ehomeaway"><option>Casa</option><option>Trasferta</option><option>Campo neutro</option></select></div>
     <div class="field"><label>AVVERSARIO</label><input id="eopponent"></div>
+    <div class="field"><label>DURATA PARTITA</label><select id="ematchminutes"><option value="40">2 × 20 minuti</option><option value="50">2 × 25 minuti</option><option value="60">2 × 30 minuti</option><option value="70">2 × 35 minuti</option><option value="80">2 × 40 minuti</option><option value="90" selected>2 × 45 minuti</option></select></div>
   </div>
   <div class="field"><label>DATA</label><input id="edate" type="date"></div>
   <div class="field"><label>ORA</label><input id="etime" type="time"></div>
@@ -183,7 +197,8 @@ function addEvent(){
     homeAway:isMatch?document.getElementById('ehomeaway').value:'',
     opponent,date,time:document.getElementById('etime').value,
     venue:document.getElementById('evenue').value.trim(),status:isMatch?'Da giocare':'',
-    callups:[],scorers:[],matchEvents:[],availability:{},homeScore:'',awayScore:'',notes:''});
+    callups:[],scorers:[],matchEvents:[],availability:{},homeScore:'',awayScore:'',notes:'',
+    matchMinutes:isMatch?Number(document.getElementById('ematchminutes').value||90):0});
   save();closeModal();renderEvents();renderNextMatch();
 }
 function renderEvents(){
@@ -305,6 +320,7 @@ function openMatchCenter(id){
   <div class="field"><label>STATO</label><select id="mcStatus">
     ${['Da giocare','In corso','Terminata','Rinviata'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}
   </select></div>
+  <div class="field"><label>DURATA PARTITA</label><select id="mcMatchMinutes">${[40,50,60,70,80,90].map(x=>`<option value="${x}" ${Number(e.matchMinutes||90)===x?'selected':''}>2 × ${x/2} minuti</option>`).join('')}</select></div>
   <div class="form-grid">
     <div class="field"><label>DATA</label><input id="mcDate" type="date" value="${e.date||''}"></div>
     <div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div>
@@ -346,6 +362,7 @@ function openMatchCenter(id){
 }
 function collectMatchForm(e){
   e.status=document.getElementById('mcStatus').value;
+  e.matchMinutes=Number(document.getElementById('mcMatchMinutes')?.value||e.matchMinutes||90);
   e.date=document.getElementById('mcDate').value;
   e.time=document.getElementById('mcTime').value;
   e.venue=document.getElementById('mcVenue').value.trim();
@@ -547,6 +564,8 @@ function startLiveMatch(id){
   e.live.onField={...(e.lineup.slotAssignments||{})};
   e.live.bench=[...(e.lineup.reserves||[])];
   e.live.playerMinutes=e.live.playerMinutes&&typeof e.live.playerMinutes==='object'?e.live.playerMinutes:{};
+  e.live.phase=e.live.phase||'not_started';
+  e.live.period=Number(e.live.period||0);
   Object.values(e.live.onField).forEach(pid=>{
     if(!e.live.playerMinutes[pid])e.live.playerMinutes[pid]={startedAt:Math.floor(getLiveElapsed(e)/60),endedAt:null,minutes:0,starter:true};
   });
@@ -560,16 +579,33 @@ function getLiveElapsed(e){
   if(l.running&&l.startedAt)s+=Math.floor((Date.now()-Number(l.startedAt))/1000);
   return Math.max(0,s)
 }
+function getLivePhaseLabel(e){
+  const phase=e.live?.phase||'not_started';
+  return {not_started:'PRONTA PER INIZIARE',first_half:e.live?.running?'1° TEMPO IN CORSO':'1° TEMPO IN PAUSA',halftime:'INTERVALLO',second_half:e.live?.running?'2° TEMPO IN CORSO':'2° TEMPO IN PAUSA',finished:'PARTITA TERMINATA'}[phase]||'LIVE MATCH';
+}
 function renderLiveMatch(){
   const e=getLiveEvent();if(!e)return;
   const l=e.live;
+  const half=Number(e.matchMinutes||90)/2;
   document.getElementById('liveMatchTitle').textContent=`${state.profile?.team||'Maccabi Roma'} vs ${e.opponent}`;
   document.getElementById('liveHomeName').textContent=state.profile?.team||'Maccabi Roma';
   document.getElementById('liveAwayName').textContent=e.opponent;
   document.getElementById('liveHomeScore').textContent=l.homeScore||0;
   document.getElementById('liveAwayScore').textContent=l.awayScore||0;
   document.getElementById('liveClock').textContent=formatClock(getLiveElapsed(e));
-  document.getElementById('livePlayPause').textContent=l.running?'⏸ PAUSA':'▶ PLAY';
+  const phaseLabel=document.getElementById('livePhaseLabel');if(phaseLabel)phaseLabel.textContent=getLivePhaseLabel(e);
+  const durationLabel=document.getElementById('liveDurationLabel');if(durationLabel)durationLabel.textContent=`2 × ${half} minuti · Totale ${e.matchMinutes||90}'`;
+  const play=document.getElementById('livePlayPause');
+  if(play){
+    if(l.running)play.textContent='⏸ PAUSA';
+    else if(l.phase==='halftime')play.textContent='▶ INIZIA 2° TEMPO';
+    else if(l.phase==='second_half')play.textContent='▶ RIPRENDI 2° TEMPO';
+    else if(l.phase==='first_half')play.textContent='▶ RIPRENDI 1° TEMPO';
+    else play.textContent='▶ INIZIA PARTITA';
+    play.disabled=l.phase==='finished';
+  }
+  const halfBtn=document.getElementById('liveHalfTime');
+  if(halfBtn)halfBtn.classList.toggle('hidden',!['first_half'].includes(l.phase));
   renderLivePitch();renderLiveBench();renderLiveEvents();
   if(l.running)startLiveClock();
 }
@@ -596,13 +632,38 @@ function renderLiveEvents(){
 function toggleLiveTimer(){
   const e=getLiveEvent();if(!e)return;
   const l=e.live;
-  if(l.running){l.elapsedSeconds=getLiveElapsed(e);l.running=false;l.startedAt=null}
-  else{l.running=true;l.startedAt=Date.now();e.status='In corso'}
-  save();renderLiveMatch()
+  if(l.phase==='finished')return;
+  if(l.running){
+    l.elapsedSeconds=getLiveElapsed(e);l.running=false;l.startedAt=null;
+  }else{
+    if(l.phase==='not_started'){l.phase='first_half';l.period=1;}
+    else if(l.phase==='halftime'){
+      l.elapsedSeconds=Math.max(Number(l.elapsedSeconds||0),Number(e.matchMinutes||90)*30);
+      l.phase='second_half';l.period=2;
+    }
+    l.running=true;l.startedAt=Date.now();e.status='In corso';
+  }
+  save();renderLiveMatch();
+}
+function endFirstHalf(){
+  const e=getLiveEvent();if(!e)return;
+  const l=e.live;
+  if(l.phase!=='first_half')return;
+  if(!confirm('Confermi la fine del primo tempo?'))return;
+  l.elapsedSeconds=Number(e.matchMinutes||90)*30;
+  l.running=false;l.startedAt=null;l.phase='halftime';l.period=1;
+  l.events.push({id:Date.now(),type:'period',minute:Number(e.matchMinutes||90)/2,label:'⏸ Fine primo tempo',detail:'Intervallo'});
+  save();clearInterval(liveTimerInterval);renderLiveMatch();
 }
 function startLiveClock(){
   clearInterval(liveTimerInterval);
-  liveTimerInterval=setInterval(()=>{const e=getLiveEvent(),el=document.getElementById('liveClock');if(!e||!el){clearInterval(liveTimerInterval);return}el.textContent=formatClock(getLiveElapsed(e));if(!e.live.running)clearInterval(liveTimerInterval)},1000)
+  liveTimerInterval=setInterval(()=>{
+    const e=getLiveEvent(),el=document.getElementById('liveClock');
+    if(!e||!el){clearInterval(liveTimerInterval);return}
+    const elapsed=getLiveElapsed(e);el.textContent=formatClock(elapsed);
+    const phaseLabel=document.getElementById('livePhaseLabel');if(phaseLabel)phaseLabel.textContent=getLivePhaseLabel(e);
+    if(!e.live.running)clearInterval(liveTimerInterval);
+  },1000)
 }
 function editLiveMinute(){
   const e=getLiveEvent();if(!e)return;
@@ -677,7 +738,7 @@ function finishLiveMatch(){
     if(m.starter)p.stats.starts=Number(p.stats.starts||0)+1;
     else p.stats.subAppearances=Number(p.stats.subAppearances||0)+1;
   });
-  e.homeScore=e.live.homeScore;e.awayScore=e.live.awayScore;e.status='Terminata';e.live.active=false;e.live.finished=true;
+  e.homeScore=e.live.homeScore;e.awayScore=e.live.awayScore;e.status='Terminata';e.live.active=false;e.live.finished=true;e.live.phase='finished';e.live.period=2;
   save();clearInterval(liveTimerInterval);alert('Partita terminata e statistiche aggiornate.');show('calendar');renderEvents();renderDashboard()
 }
 function undoLastLiveEvent(){

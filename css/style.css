@@ -414,3 +414,14 @@ body{background:radial-gradient(circle at top,#122231 0,#071019 46%,#050b11 100%
 .v5-card{background:#101b2c;border:1px solid #233550;border-radius:18px;padding:16px}
 .v5-card h3{font-size:13px;color:#94a6bf;margin:0 0 6px}
 .v5-card .value{font-size:26px;font-weight:800;color:#fff}
+
+
+/* Live Match: tempi di gioco */
+.live-phase-label{font-size:11px;font-weight:900;letter-spacing:.12em;color:var(--hm-green);margin-bottom:4px}
+.live-duration-label{font-size:11px;color:var(--hm-muted);margin:4px 0 10px}
+.live-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+.live-controls .compact-btn{min-width:135px}
+@media(max-width:600px){
+  .live-controls{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .live-controls .compact-btn{min-width:0;width:100%}
+}

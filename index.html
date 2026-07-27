@@ -15,7 +15,7 @@
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title"><span class="brand-lockup"><span class="brand-mark">HM</span><span>HANK <b>MANAGER</b></span></span></div><div class="brand-sub">HANK MANAGER · V5 ALPHA</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title"><span class="brand-lockup"><span class="brand-mark">HM</span><span>HANK <b>MANAGER</b></span></span></div><div class="brand-sub">MACCABI ROMA · 4.0</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -51,13 +51,7 @@
       <div class="meta"><span>📅 Nessuna data</span><span>📍 Campo da definire</span></div><div id="homeSponsors" class="sponsor-strip"></div>
     </div>
 
-    <div class="v5-stats">
-<div class="v5-card"><h3>ULTIMO RISULTATO</h3><div class="value">2-1 ✅</div></div>
-<div class="v5-card"><h3>CLASSIFICA</h3><div class="value">3°</div></div>
-<div class="v5-card"><h3>DISPONIBILI</h3><div class="value">18/21</div></div>
-<div class="v5-card"><h3>PROSSIMA GARA</h3><div class="value">LUN 21:15</div></div>
-</div>
-<div id="dashboardV07"></div>
+    <div id="dashboardV07"></div>
 
 
     <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
@@ -239,11 +233,14 @@
       <strong id="liveHomeScore">0</strong>
     </div>
     <div class="live-center">
+      <div id="livePhaseLabel" class="live-phase-label">PRONTA PER INIZIARE</div>
       <div id="liveClock" class="live-clock">00:00</div>
+      <div id="liveDurationLabel" class="live-duration-label">2 × 45 minuti · Totale 90'</div>
       <div class="live-controls">
-        <button class="primary compact-btn" id="livePlayPause" onclick="toggleLiveTimer()">▶ PLAY</button>
+        <button class="primary compact-btn" id="livePlayPause" onclick="toggleLiveTimer()">▶ INIZIA PARTITA</button>
+        <button class="secondary compact-btn hidden" id="liveHalfTime" onclick="endFirstHalf()">⏸ FINE 1° TEMPO</button>
         <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MINUTO</button>
-        <button class="danger compact-btn" onclick="finishLiveMatch()">■ FINE</button>
+        <button class="danger compact-btn" onclick="finishLiveMatch()">■ FINE PARTITA</button>
       </div>
     </div>
     <div class="live-team">
