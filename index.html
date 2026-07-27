@@ -27,7 +27,7 @@ h1,h2,h3,p{margin:0}h1{font-size:28px}.muted{color:var(--muted)}.small{font-size
 </head>
 <body>
 <main class="app">
-<div class="brand"><div class="logo">H</div><div>HANK MANAGER <span class="small muted">v0.2</span></div></div>
+<div class="brand"><div class="logo">H</div><div>HANK MANAGER <span class="small muted">v0.2.1</span></div></div>
 
 <section id="welcome" class="screen active">
   <div class="card hero"><div class="teammark">HM</div><h1>La tua squadra.<br>Una stagione intera.</h1><p class="muted" style="margin-top:10px">Crea il profilo della squadra e inizia a gestirla.</p></div>
@@ -106,9 +106,9 @@ data.players=data.players||[];data.events=data.events||[];
 
 function save(){localStorage.setItem('hankData',JSON.stringify(data))}
 function show(id){screens.forEach(x=>x.classList.toggle('active',x.id===id));const inApp=['home','squad','calendar'].includes(id);nav.classList.toggle('hide',!inApp);document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));if(id==='home'){navHome.classList.add('active');renderHome()}if(id==='squad'){navSquad.classList.add('active');renderPlayers()}if(id==='calendar'){navCalendar.classList.add('active');renderEvents()}window.scrollTo(0,0)}
-function nextAccount(){if(!name.value.trim()||!email.value.trim())return alert('Inserisci nome ed email.');show('team')}
-function nextTeam(){if(!teamName.value.trim()||!shortName.value.trim())return alert('Inserisci nome squadra e sigla.');show('settings')}
-function createTeam(){if(!field.value.trim())return alert('Inserisci il campo di casa.');data={...data,name:name.value.trim(),email:email.value.trim(),role:role.value,teamName:teamName.value.trim(),shortName:shortName.value.trim().toUpperCase(),season:season.value.trim(),competition:competition.value.trim(),field:field.value.trim(),playersOnField:players.value,duration:duration.value};save();show('home')}
+function nextAccount(){if(!document.getElementById('name').value.trim()||!document.getElementById('email').value.trim())return alert('Inserisci nome ed email.');show('team')}
+function nextTeam(){if(!document.getElementById('teamName').value.trim()||!document.getElementById('shortName').value.trim())return alert('Inserisci nome squadra e sigla.');show('settings')}
+function createTeam(){if(!document.getElementById('field').value.trim())return alert('Inserisci il campo di casa.');data={...data,name:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),role:document.getElementById('role').value,teamName:document.getElementById('teamName').value.trim(),shortName:document.getElementById('shortName').value.trim().toUpperCase(),season:document.getElementById('season').value.trim(),competition:document.getElementById('competition').value.trim(),field:document.getElementById('field').value.trim(),playersOnField:document.getElementById('players').value,duration:document.getElementById('duration').value};save();show('home')}
 function renderHome(){hello.textContent='Ciao '+(data.name?data.name.split(' ')[0]:'Mister')+' 👋';const future=[...data.events].filter(e=>e.type==='Partita').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));const e=future[0];nextMatchCard.innerHTML=e?`<div class="small muted">PROSSIMA PARTITA</div><div class="match"><div><div class="crest">${data.shortName||'HM'}</div><h3>${(data.teamName||'LA TUA SQUADRA').toUpperCase()}</h3></div><div class="vs">VS</div><div><div class="crest">${initials(e.opponent)}</div><h3>${e.opponent.toUpperCase()}</h3></div></div><p class="small muted" style="text-align:center">${formatDate(e.date)} · ${e.time} · ${e.venue}</p>`:`<div class="hero"><h2>Nessuna partita</h2><p class="muted" style="margin:8px 0 14px">Inserisci la prima gara dal calendario.</p><button class="primary" onclick="openEvent()">CREA LA PRIMA PARTITA</button></div>`}
 function openModal(html){sheet.innerHTML=html;modal.classList.add('open')}
 function closeModal(){modal.classList.remove('open')}
