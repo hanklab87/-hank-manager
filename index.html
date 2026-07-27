@@ -15,7 +15,7 @@
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 3.1</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title"><span class="brand-lockup"><span class="brand-mark">HM</span><span>HANK <b>MANAGER</b></span></span></div><div class="brand-sub">MACCABI ROMA · 4.0</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -98,7 +98,7 @@
     <div id="events" style="margin-top:18px"></div>
   </section>
 <section id="tactical" class="screen">
-<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 3.1</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
+<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.0</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
 <div class="formation-layout"><div>
 <div class="tactical-toolbar"><div class="field"><label>MODULO</label><select id="formationSelect" onchange="applyFormation(this.value)"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-3</option><option>4-3-1-2</option></select></div><div class="field"><label>RIEPILOGO</label><div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div></div></div>
 <div class="clean-pitch" id="cleanPitch"></div>
@@ -122,6 +122,101 @@
 
 
 
+
+
+<section id="society" class="screen">
+  <div class="page-header modern-header">
+    <div>
+      <p class="eyebrow">IDENTITÀ DEL CLUB</p>
+      <h1>Società</h1>
+      <p class="muted">Tutti i dati del club in un unico posto.</p>
+    </div>
+    <button class="icon-action" onclick="openSocietyEditor()" aria-label="Modifica società">✎</button>
+  </div>
+
+  <div class="club-hero card-modern">
+    <div class="club-logo-large" id="clubLogoPreview">HM</div>
+    <div>
+      <p class="eyebrow">SQUADRA</p>
+      <h2 id="societyTeamName">Maccabi Roma</h2>
+      <p class="muted" id="societyFounded">Società sportiva dilettantistica</p>
+    </div>
+  </div>
+
+  <div class="modern-grid two">
+    <article class="card-modern">
+      <div class="section-head">
+        <div><p class="eyebrow">INFORMAZIONI GENERALI</p><h2>Dati societari</h2></div>
+      </div>
+      <div id="societyGeneral" class="info-list-modern"></div>
+    </article>
+
+    <article class="card-modern">
+      <div class="section-head">
+        <div><p class="eyebrow">CONTATTI E STAFF</p><h2>Riferimenti</h2></div>
+      </div>
+      <div id="societyContacts" class="info-list-modern"></div>
+    </article>
+  </div>
+
+  <article class="card-modern">
+    <div class="section-head">
+      <div><p class="eyebrow">NOTE</p><h2>Informazioni utili</h2></div>
+    </div>
+    <p id="societyNotes" class="muted">Nessuna nota inserita.</p>
+  </article>
+</section>
+
+
+<section id="matchDetails" class="screen">
+  <div class="modern-header">
+    <button class="icon-action" onclick="show('calendar');renderEvents()">←</button>
+    <div>
+      <p class="eyebrow" id="matchCompetitionLabel">CAMPIONATO</p>
+      <h1>Scheda partita</h1>
+    </div>
+  </div>
+
+  <article class="match-hero-modern card-modern">
+    <div class="competition-pill" id="matchCompetition">Campionato</div>
+    <div class="match-teams-modern">
+      <div class="team-side">
+        <div class="mini-club-logo">HM</div>
+        <strong id="matchHomeTeam">Maccabi Roma</strong>
+      </div>
+      <div class="match-score-main" id="matchMainScore">0 - 0</div>
+      <div class="team-side">
+        <div class="mini-club-logo opponent">FC</div>
+        <strong id="matchAwayTeam">Avversario</strong>
+      </div>
+    </div>
+    <div class="match-meta-modern">
+      <span id="matchDate">Data</span>
+      <span id="matchTime">Ora</span>
+      <span id="matchVenue">Campo</span>
+    </div>
+  </article>
+
+  <div class="match-action-grid">
+    <button class="match-action convocati" onclick="openCurrentMatchCallups()">
+      <span>👥</span><strong>Convocati</strong><small>Seleziona i presenti</small>
+    </button>
+    <button class="match-action formazione" onclick="openCurrentMatchLineup()">
+      <span>👕</span><strong>Formazione</strong><small>Scegli modulo e titolari</small>
+    </button>
+    <button class="match-action live" onclick="openCurrentMatchLive()">
+      <span>▶</span><strong>Live Match</strong><small>Avvia la partita</small>
+    </button>
+    <button class="match-action stats" onclick="openCurrentMatchManualStats()">
+      <span>▥</span><strong>Statistiche</strong><small>Inserimento manuale</small>
+    </button>
+  </div>
+
+  <article class="card-modern">
+    <div class="section-head"><div><p class="eyebrow">STATO PREPARAZIONE</p><h2>Riepilogo</h2></div></div>
+    <div id="matchPreparationSummary" class="preparation-grid"></div>
+  </article>
+</section>
 
 <section id="liveMatch" class="screen">
   <div class="live-topbar">
@@ -176,6 +271,10 @@
 <button onclick="show('calendar');renderEvents()"><span>▣</span>Calendario</button>
 <button onclick="openNextMatch()"><span>▶</span>Partita</button>
 <button onclick="showStats()"><span>▥</span>Statistiche</button>
+
+    <button onclick="show('society');renderSociety()" data-screen="society">
+      <span>🏛</span><small>Società</small>
+    </button>
 </div>
 
 </body>

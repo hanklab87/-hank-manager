@@ -55,6 +55,42 @@ state.events=state.events.map(e=>({
     playerMinutes:{}
   }
 }));
+
+state.society=state.society&&typeof state.society==='object'?state.society:{
+  name:state.profile?.team||'Maccabi Roma',
+  legalName:'',
+  founded:'',
+  category:'',
+  group:'',
+  homeGround:'',
+  address:'',
+  colors:'',
+  president:'',
+  coach:'',
+  assistantCoach:'',
+  manager:'',
+  phone:'',
+  email:'',
+  vatNumber:'',
+  fiscalCode:'',
+  notes:''
+};
+state.players=state.players.map(p=>({
+  ...p,
+  firstName:p.firstName||((p.name||'').split(' ')[0]||''),
+  lastName:p.lastName||((p.name||'').split(' ').slice(1).join(' ')||''),
+  birthDate:p.birthDate||'',
+  fiscalCode:p.fiscalCode||'',
+  phone:p.phone||'',
+  email:p.email||'',
+  medicalCertificate:p.medicalCertificate||'',
+  medicalExpiry:p.medicalExpiry||'',
+  documentNote:p.documentNote||'',
+  preferredFoot:p.preferredFoot||'',
+  notes:p.notes||''
+}));
+let currentMatchDetailsId=null;
+
 let currentLiveEventId=null;
 let liveTimerInterval=null;
 
@@ -169,7 +205,7 @@ function renderEvents(){
     const awayVisual=isAway
       ? logoHtml
       : `<div class="team-badge-mini">${initials(away)}</div>`;
-    return `<div class="match-card clickable" onclick="openMatchCenter(${e.id})">
+    return `<div class="match-card clickable" onclick="openMatchDetails(${e.id})">
       <div class="match-top">
         <span class="comp">${comp}${e.round?' · '+e.round:''}</span>
         <span class="status">${matchOutcomeLabel(e,team)}</span>
@@ -661,11 +697,108 @@ function undoLastLiveEvent(){
   save();renderLiveMatch()
 }
 
+
+function renderSociety(){
+  const s=state.society||{};
+  const team=s.name||state.profile?.team||'Hank Manager FC';
+  const el=id=>document.getElementById(id);
+  if(el('societyTeamName'))el('societyTeamName').textContent=team;
+  if(el('societyFounded'))el('societyFounded').textContent=s.founded?`Fondata nel ${s.founded}`:'Società sportiva dilettantistica';
+  if(el('clubLogoPreview'))el('clubLogoPreview').textContent=(team.match(/\b\w/g)||['H','M']).slice(0,2).join('').toUpperCase();
+  const general=[
+    ['Ragione sociale',s.legalName],['Categoria',s.category],['Girone',s.group],
+    ['Campo di casa',s.homeGround],['Indirizzo',s.address],['Colori sociali',s.colors],
+    ['Codice fiscale',s.fiscalCode],['Partita IVA',s.vatNumber]
+  ];
+  const contacts=[
+    ['Presidente',s.president],['Allenatore',s.coach],['Vice allenatore',s.assistantCoach],
+    ['Dirigente',s.manager],['Telefono',s.phone],['Email',s.email]
+  ];
+  const rows=a=>a.map(([k,v])=>`<div class="info-row-modern"><span>${k}</span><strong>${escapeHtml(v||'Non inserito')}</strong></div>`).join('');
+  if(el('societyGeneral'))el('societyGeneral').innerHTML=rows(general);
+  if(el('societyContacts'))el('societyContacts').innerHTML=rows(contacts);
+  if(el('societyNotes'))el('societyNotes').textContent=s.notes||'Nessuna nota inserita.';
+}
+function openSocietyEditor(){
+  const s=state.society||{};
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">DATI CLUB</p><h2>Modifica società</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  <div class="form-grid">
+    ${societyField('Nome squadra','name',s.name)}
+    ${societyField('Ragione sociale','legalName',s.legalName)}
+    ${societyField('Anno di fondazione','founded',s.founded)}
+    ${societyField('Categoria','category',s.category)}
+    ${societyField('Girone','group',s.group)}
+    ${societyField('Campo di casa','homeGround',s.homeGround)}
+    ${societyField('Indirizzo','address',s.address)}
+    ${societyField('Colori sociali','colors',s.colors)}
+    ${societyField('Presidente','president',s.president)}
+    ${societyField('Allenatore','coach',s.coach)}
+    ${societyField('Vice allenatore','assistantCoach',s.assistantCoach)}
+    ${societyField('Dirigente','manager',s.manager)}
+    ${societyField('Telefono','phone',s.phone)}
+    ${societyField('Email','email',s.email)}
+    ${societyField('Codice fiscale società','fiscalCode',s.fiscalCode)}
+    ${societyField('Partita IVA','vatNumber',s.vatNumber)}
+    <label class="field full"><span>Note</span><textarea id="soc_notes">${escapeHtml(s.notes||'')}</textarea></label>
+  </div>
+  <button class="primary full-btn" onclick="saveSociety()">SALVA SOCIETÀ</button>`;
+  modal.classList.add('open')
+}
+function societyField(label,key,value){return `<label class="field"><span>${label}</span><input id="soc_${key}" value="${escapeHtml(value||'')}"></label>`}
+function saveSociety(){
+  const keys=['name','legalName','founded','category','group','homeGround','address','colors','president','coach','assistantCoach','manager','phone','email','fiscalCode','vatNumber'];
+  keys.forEach(k=>state.society[k]=(document.getElementById('soc_'+k)?.value||'').trim());
+  state.society.notes=(document.getElementById('soc_notes')?.value||'').trim();
+  state.profile=state.profile||{};state.profile.team=state.society.name||state.profile.team;
+  save();closeModal();renderSociety();renderDashboard()
+}
+
+
+function openMatchDetails(id){
+  currentMatchDetailsId=id;
+  const e=state.events.find(x=>String(x.id)===String(id));if(!e)return;
+  show('matchDetails');renderMatchDetails();
+}
+function getCurrentMatchDetails(){return state.events.find(x=>String(x.id)===String(currentMatchDetailsId))}
+function renderMatchDetails(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  ensureEventLineup(e);
+  const team=state.society?.name||state.profile?.team||'Maccabi Roma';
+  const txt=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  txt('matchCompetition',e.competition||e.type||'Campionato');
+  txt('matchCompetitionLabel',(e.competition||e.type||'Campionato').toUpperCase());
+  txt('matchHomeTeam',team);txt('matchAwayTeam',e.opponent||'Avversario');
+  txt('matchMainScore',`${Number(e.homeScore||0)} - ${Number(e.awayScore||0)}`);
+  txt('matchDate',e.date||'Data non inserita');txt('matchTime',e.time||'Orario non inserito');txt('matchVenue',e.venue||e.field||'Campo non inserito');
+  const callups=(e.callups||[]).length,starters=(e.lineup?.starters||[]).length;
+  const ready=starters===11;
+  const host=document.getElementById('matchPreparationSummary');
+  if(host)host.innerHTML=`
+    <div class="preparation-item"><strong>${callups}</strong><small>Convocati</small></div>
+    <div class="preparation-item"><strong>${starters}/11</strong><small>Titolari scelti</small></div>
+    <div class="preparation-item"><strong>${ready?'Pronta':'Da completare'}</strong><small>Live Match</small></div>`;
+}
+function openCurrentMatchCallups(){const e=getCurrentMatchDetails();if(e)openMatchCenter(e.id,'callups')}
+function openCurrentMatchLineup(){const e=getCurrentMatchDetails();if(e)openMatchCenter(e.id,'lineup')}
+function openCurrentMatchLive(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  if((e.callups||[]).length===0){alert('Prima seleziona i convocati.');return}
+  if((e.lineup?.starters||[]).length!==11){alert('Prima completa la formazione con 11 titolari.');return}
+  startLiveMatch(e.id)
+}
+function openCurrentMatchManualStats(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">INSERIMENTO MANUALE</p><h2>Statistiche partita</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  <p class="muted">Questa sezione permetterà di inserire risultato, marcatori, assist, ammonizioni, espulsioni e sostituzioni anche senza utilizzare il Live Match.</p>
+  <button class="primary full-btn" onclick="closeModal()">OK</button>`;
+  modal.classList.add('open')
+}
+
 function exportBackup(){
   try{
     const payload={
       app:'Hank Manager',
-      version:'3.1-live',
+      version:'4.0-modern-foundation',
       exportedAt:new Date().toISOString(),
       state
     };

@@ -1,27 +1,26 @@
-HANK MANAGER 3.1 LIVE MATCH
+HANK MANAGER 4.0 – MODERN FOUNDATION
 
-NOVITÀ
-- Convocati con una sola spunta: presente / non presente.
-- Formazione con il campo già approvato.
-- Dopo il salvataggio della formazione si apre la modalità Live Match.
-- Cronometro con Play, Pausa e modifica manuale del minuto.
-- Campo live con i titolari.
-- Tocca un giocatore per registrare:
-  Gol, Assist, Ammonizione, Espulsione, Sostituzione.
-- Gol aggiorna automaticamente il punteggio.
-- Sostituzione aggiorna campo, panchina ed evento.
-- Conteggio minuti giocati.
-- Presenze da titolare e da subentrato.
-- Pulsante Annulla ultimo evento.
-- Fine partita aggiorna tutte le statistiche.
+QUESTA È LA PRIMA RELEASE DEL NUOVO DESIGN.
+
+INCLUDE:
+- Nuova identità visiva scura e moderna.
+- Logo provvisorio HM integrato nell'interfaccia.
+- Nuova sezione Società.
+- Dati generali, contatti, staff, codici fiscali e note del club.
+- Preparazione delle nuove schede giocatore con:
+  nome, cognome, data di nascita, codice fiscale, telefono, email,
+  certificato medico, scadenza, documento, piede preferito e note.
+- Nuova Scheda Partita.
+- Nella Scheda Partita: Convocati, Formazione, Live Match, Statistiche manuali.
+- Live Match bloccato finché convocati e formazione non sono pronti.
+- Nuovo stile card, pulsanti, colori e navigazione.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
-2. Apri la cartella del repository GitHub.
-3. Elimina i vecchi file.
-4. Copia tutto il contenuto estratto.
-5. Scrivi nel Summary:
-   Hank Manager 3.1 - Live Match
-6. Commit to main.
-7. Push origin.
-8. Attendi Vercel e aggiorna il sito con Ctrl+F5.
+2. Copia tutto nella cartella del repository sostituendo i file precedenti.
+3. Summary:
+   Hank Manager 4.0 - Modern Foundation
+4. Commit to main.
+5. Push origin.
+6. Attendi Vercel.
+7. Aggiorna con Ctrl+F5.
