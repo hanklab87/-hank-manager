@@ -146,12 +146,32 @@ border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow
 .danger-full{width:100%;border:1px solid rgba(255,91,103,.25);background:rgba(255,91,103,.10);color:var(--danger);border-radius:14px;padding:12px;font-weight:850;margin-top:10px}
 textarea{min-height:92px;resize:vertical}
 
+
+.bottom-nav{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(560px,calc(100% - 22px));background:rgba(7,18,31,.94);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:22px;padding:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;z-index:50;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.bottom-nav button{border:0;background:transparent;color:var(--muted);border-radius:15px;padding:8px 3px;font-size:10px;font-weight:850;display:grid;gap:3px;place-items:center}
+.bottom-nav button span{font-size:18px}.bottom-nav button.active{background:rgba(84,227,141,.12);color:var(--green)}
+body{padding-bottom:95px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.dash-stat{background:linear-gradient(145deg,#132741,#0d1c30);border:1px solid var(--line);border-radius:18px;padding:14px}
+.dash-stat strong{display:block;font-size:24px;margin-top:5px}.dash-stat small{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.form-dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}
+.form-win{background:var(--green)}.form-draw{background:var(--amber)}.form-loss{background:var(--danger)}
+.timeline-event{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:9px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px}
+.event-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(84,227,141,.10);font-size:17px}
+.event-minute{font-size:11px;color:var(--muted);font-weight:900}
+.event-title{font-size:12px;font-weight:900}.event-note{font-size:10px;color:var(--muted);margin-top:2px}
+.player-stat-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:11px;margin-top:8px}
+.stat-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.stat-badge{font-size:9px;font-weight:900;border-radius:999px;padding:5px 7px;background:rgba(255,255,255,.06);color:var(--muted)}
+.availability-select{min-width:120px}
+.section-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.section-tabs button{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:999px;padding:8px 11px;font-size:10px;font-weight:850}
+.section-tabs button.active{color:var(--green);border-color:rgba(84,227,141,.35);background:rgba(84,227,141,.10)}
+
 </style>
 </head>
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · v0.6</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · v0.7</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -186,6 +206,8 @@ textarea{min-height:92px;resize:vertical}
       </div>
       <div class="meta"><span>📅 Nessuna data</span><span>📍 Campo da definire</span></div><div id="homeSponsors" class="sponsor-strip"></div>
     </div>
+
+    <div id="dashboardV07"></div>
 
     <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
     <div class="grid">
@@ -245,6 +267,9 @@ if(!state.branding) state.branding={logo:'',sponsors:[]};
 state.events=state.events.map(e=>({...e,
   callups:Array.isArray(e.callups)?e.callups:[],
   scorers:Array.isArray(e.scorers)?e.scorers:[],
+  matchEvents:Array.isArray(e.matchEvents)?e.matchEvents:
+    (Array.isArray(e.scorers)?e.scorers.map(s=>({type:'Gol',playerId:s.playerId,minute:s.minute||'',note:''})):[]),
+  availability:e.availability&&typeof e.availability==='object'?e.availability:{},
   homeScore:e.homeScore??'',
   awayScore:e.awayScore??'',
   notes:e.notes||''
@@ -259,7 +284,7 @@ function show(id){
   nav.classList.toggle('hidden',!inside);
   fab.classList.toggle('hidden',!['squad','calendar'].includes(id));
   document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
-  if(id==='home'){nHome.classList.add('active');renderBranding();renderNextMatch();}
+  if(id==='home'){nHome.classList.add('active');renderBranding();renderNextMatch();renderDashboard();}
   if(id==='squad'){nSquad.classList.add('active');renderPlayers()}
   if(id==='calendar'){nCalendar.classList.add('active');renderEvents()}
   window.scrollTo(0,0);
@@ -335,7 +360,7 @@ function addEvent(){
     homeAway:isMatch?document.getElementById('ehomeaway').value:'',
     opponent,date,time:document.getElementById('etime').value,
     venue:document.getElementById('evenue').value.trim(),status:isMatch?'Da giocare':'',
-    callups:[],scorers:[],homeScore:'',awayScore:'',notes:''});
+    callups:[],scorers:[],matchEvents:[],availability:{},homeScore:'',awayScore:'',notes:''});
   save();closeModal();renderEvents();renderNextMatch();
 }
 function renderEvents(){
@@ -360,7 +385,7 @@ function renderEvents(){
     return `<div class="match-card clickable" onclick="openMatchCenter(${e.id})">
       <div class="match-top">
         <span class="comp">${comp}${e.round?' · '+e.round:''}</span>
-        <span class="status">${e.status||'Da giocare'}</span>
+        <span class="status">${matchOutcomeLabel(e,team)}</span>
       </div>
       <div class="match-team-row">
         <div class="team-with-logo home-side">${homeVisual}<strong>${home}</strong></div>
@@ -431,12 +456,16 @@ function openMatchCenter(id){
   const awayVisual=isAway&&teamLogo?`<img class="mc-logo" src="${teamLogo}">`:`<div class="mc-badge">${initials(away)}</div>`;
   const selected=new Set(e.callups||[]);
   const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
-  const scorerOptions=players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('');
-  const scorerList=(e.scorers||[]).map((s,i)=>{
-    const p=state.players.find(x=>String(x.id)===String(s.playerId));
-    return `<div class="scorer-row"><span>⚽ ${p?escapeHtml(p.name):'Giocatore'}${s.minute?` · ${escapeHtml(s.minute)}'`:''}</span><button class="mini-danger" onclick="removeScorer(${id},${i})">✕</button></div>`;
+  const playerOptions=players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('');
+  const timeline=[...(e.matchEvents||[])].sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999)).map((ev,i)=>{
+    const p=state.players.find(x=>String(x.id)===String(ev.playerId));
+    return `<div class="timeline-event">
+      <div class="event-icon">${eventIcon(ev.type)}</div>
+      <div><div class="event-title">${escapeHtml(ev.type)} · ${p?escapeHtml(p.name):escapeHtml(ev.playerName||'Avversario')}</div><div class="event-note">${escapeHtml(ev.note||'')}</div></div>
+      <div><div class="event-minute">${ev.minute?escapeHtml(ev.minute)+"'":''}</div><button class="mini-danger" onclick="removeMatchEvent(${id},${i})">✕</button></div>
+    </div>`;
   }).join('');
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">MATCH CENTER</p><h2>${escapeHtml(e.round||'Partita')}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">MATCH CENTER · v0.7</p><h2>${escapeHtml(e.round||'Partita')}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
   <div class="match-center-head">
     <div class="mc-competition">${escapeHtml(e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):(e.competition||'Partita'))}</div>
     <div class="mc-score">
@@ -461,16 +490,26 @@ function openMatchCenter(id){
     <div class="field"><label>GOL TRASFERTA</label><input id="mcAwayScore" type="number" min="0" value="${e.awayScore}"></div>
   </div>
 
-  <div class="section-head"><div><h2>Convocazioni</h2><p class="muted small">${selected.size} selezionati</p></div></div>
-  <div class="callups">${players.map(p=>`<div class="callup-row"><label><input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}><span class="number-pill">${p.number}</span><span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${p.role}</span></span></label></div>`).join('')}</div>
+  <div class="section-head"><div><h2>Disponibilità e convocazioni</h2><p class="muted small">${selected.size} convocati</p></div></div>
+  <div class="callups">${players.map(p=>{
+    const av=(e.availability||{})[p.id]||'Disponibile';
+    return `<div class="callup-row"><label><input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}><span class="number-pill">${p.number}</span><span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${p.role}</span></span></label>
+      <select class="availability-select" data-player="${p.id}">
+      ${['Disponibile','Assente','Infortunato','Squalificato','In ritardo','Da confermare'].map(x=>`<option ${av===x?'selected':''}>${x}</option>`).join('')}
+      </select></div>`;
+  }).join('')}</div>
 
-  <div class="section-head" style="margin-top:18px"><div><h2>Marcatori</h2></div></div>
+  <div class="section-head" style="margin-top:18px"><div><h2>Eventi partita</h2><p class="muted small">Gol, assist, cartellini e autogol</p></div></div>
+  <div class="field"><label>TIPO EVENTO</label><select id="matchEventType" onchange="toggleEventPlayerMode()">
+    <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
+  </select></div>
   <div class="form-grid">
-    <div class="field"><label>GIOCATORE</label><select id="scorerPlayer">${scorerOptions}</select></div>
-    <div class="field"><label>MINUTO</label><input id="scorerMinute" placeholder="Es. 23"></div>
+    <div class="field"><label>GIOCATORE</label><select id="matchEventPlayer">${playerOptions}</select></div>
+    <div class="field"><label>MINUTO</label><input id="matchEventMinute" placeholder="Es. 23"></div>
   </div>
-  <button class="secondary" onclick="addScorer(${id})">＋ AGGIUNGI MARCATORE</button>
-  <div id="scorerList">${scorerList||'<p class="muted small" style="margin-top:10px">Nessun marcatore inserito.</p>'}</div>
+  <div class="field"><label>NOTA FACOLTATIVA</label><input id="matchEventNote" placeholder="Es. secondo giallo, assist di tacco..."></div>
+  <button class="secondary" onclick="addMatchEvent(${id})">＋ AGGIUNGI EVENTO</button>
+  <div id="matchTimeline">${timeline||'<p class="muted small" style="margin-top:10px">Nessun evento inserito.</p>'}</div>
 
   <div class="field" style="margin-top:18px"><label>NOTE DEL MISTER</label><textarea id="mcNotes" placeholder="Indicazioni, analisi e commenti...">${escapeHtml(e.notes||'')}</textarea></div>
   <button class="primary" onclick="saveMatchCenter(${id})">SALVA SCHEDA PARTITA</button>
@@ -486,24 +525,37 @@ function collectMatchForm(e){
   e.awayScore=document.getElementById('mcAwayScore').value;
   e.notes=document.getElementById('mcNotes').value.trim();
   e.callups=[...document.querySelectorAll('.callupCheck:checked')].map(x=>Number(x.value));
+  e.availability={};
+  document.querySelectorAll('.availability-select').forEach(x=>e.availability[x.dataset.player]=x.value);
 }
 function saveMatchCenter(id){
   const e=state.events.find(x=>x.id===id);if(!e)return;
   collectMatchForm(e);
-  save();closeModal();renderEvents();renderNextMatch();
+  save();closeModal();renderEvents();renderNextMatch();renderDashboard();
 }
-function addScorer(id){
+function addMatchEvent(id){
   const e=state.events.find(x=>x.id===id);if(!e)return;
   collectMatchForm(e);
-  const playerId=Number(document.getElementById('scorerPlayer').value);
-  const minute=document.getElementById('scorerMinute').value.trim();
-  e.scorers=e.scorers||[];
-  e.scorers.push({playerId,minute});
+  const type=document.getElementById('matchEventType').value;
+  const playerId=Number(document.getElementById('matchEventPlayer').value);
+  const minute=document.getElementById('matchEventMinute').value.trim();
+  const note=document.getElementById('matchEventNote').value.trim();
+  e.matchEvents=e.matchEvents||[];
+  e.matchEvents.push({type,playerId,minute,note});
   save();openMatchCenter(id);
 }
-function removeScorer(id,index){
+function removeMatchEvent(id,index){
   const e=state.events.find(x=>x.id===id);if(!e)return;
-  e.scorers.splice(index,1);save();openMatchCenter(id);
+  e.matchEvents.splice(index,1);save();openMatchCenter(id);
+}
+function eventIcon(type){
+  return ({'Gol':'⚽','Assist':'🎯','Ammonizione':'🟨','Espulsione':'🟥','Autogol':'🔁','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•';
+}
+function matchOutcomeLabel(e,team){
+  if(e.status!=='Terminata'||e.homeScore===''||e.awayScore==='')return e.status||'Da giocare';
+  const isAway=e.homeAway==='Trasferta';
+  const gf=Number(isAway?e.awayScore:e.homeScore),ga=Number(isAway?e.homeScore:e.awayScore);
+  return gf>ga?'Vittoria':gf<ga?'Sconfitta':'Pareggio';
 }
 function deleteEvent(id){
   if(!confirm('Vuoi eliminare definitivamente questa partita?'))return;
@@ -553,9 +605,67 @@ function renderBranding(){
   else document.getElementById('homeCrest').textContent=initials(team);
   document.getElementById('homeSponsors').innerHTML=(state.branding.sponsors||[]).map(s=>`<div class="sponsor-chip">${s.logo?`<img src="${s.logo}">`:''}<span class="small">${s.name}</span></div>`).join('');
 }
+
+function seasonStats(){
+  const played=state.events.filter(e=>e.type==='Partita'&&e.status==='Terminata'&&e.homeScore!==''&&e.awayScore!=='');
+  let wins=0,draws=0,losses=0,gf=0,ga=0;
+  played.forEach(e=>{
+    const isAway=e.homeAway==='Trasferta';
+    const f=Number(isAway?e.awayScore:e.homeScore),a=Number(isAway?e.homeScore:e.awayScore);
+    gf+=f;ga+=a;if(f>a)wins++;else if(f<a)losses++;else draws++;
+  });
+  return {played:played.length,wins,draws,losses,gf,ga};
+}
+function playerStats(){
+  const map={};
+  state.players.forEach(p=>map[p.id]={player:p,goals:0,assists:0,yellow:0,red:0,ownGoals:0,apps:0});
+  state.events.filter(e=>e.type==='Partita').forEach(e=>{
+    (e.callups||[]).forEach(id=>{if(map[id])map[id].apps++});
+    (e.matchEvents||[]).forEach(ev=>{
+      const s=map[ev.playerId];if(!s)return;
+      if(ev.type==='Gol'||ev.type==='Rigore segnato')s.goals++;
+      if(ev.type==='Assist')s.assists++;
+      if(ev.type==='Ammonizione')s.yellow++;
+      if(ev.type==='Espulsione')s.red++;
+      if(ev.type==='Autogol')s.ownGoals++;
+    });
+  });
+  return Object.values(map);
+}
+function renderDashboard(){
+  const s=seasonStats();
+  const top=playerStats().sort((a,b)=>b.goals-a.goals||b.assists-a.assists).slice(0,5);
+  const host=document.getElementById('dashboardV07');if(!host)return;
+  host.innerHTML=`<div class="dashboard-grid">
+    <div class="dash-stat"><small>Partite</small><strong>${s.played}</strong></div>
+    <div class="dash-stat"><small>Vittorie</small><strong>${s.wins}</strong></div>
+    <div class="dash-stat"><small>Gol fatti</small><strong>${s.gf}</strong></div>
+    <div class="dash-stat"><small>Gol subiti</small><strong>${s.ga}</strong></div>
+  </div>
+  <div class="section-head" style="margin-top:20px"><div><h2>Classifica marcatori</h2><p class="muted small">Aggiornata dagli eventi partita</p></div></div>
+  <div>${top.map((x,i)=>`<div class="player-stat-card"><div class="player-left"><span class="number-pill">${i+1}</span><div><div class="pname">${escapeHtml(x.player.name)}</div><div class="prole">${escapeHtml(x.player.role)}</div></div></div><div class="stat-badges"><span class="stat-badge">⚽ ${x.goals}</span><span class="stat-badge">🎯 ${x.assists}</span><span class="stat-badge">🟨 ${x.yellow}</span><span class="stat-badge">🟥 ${x.red}</span></div></div>`).join('')||'<div class="card empty">Nessuna statistica disponibile.</div>'}</div>`;
+}
+function openNextMatch(){
+  const today=new Date().toISOString().slice(0,10);
+  const next=[...state.events].filter(e=>e.type==='Partita'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date))[0]
+    ||[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>b.date.localeCompare(a.date))[0];
+  if(next)openMatchCenter(next.id);else alert('Nessuna partita disponibile');
+}
+function showStats(){
+  show('home');setTimeout(()=>{document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'})},50);
+}
 function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
 function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
-if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home');renderBranding();renderNextMatch()}
+if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home');renderBranding();renderNextMatch();renderDashboard()}
 </script>
+
+<div class="bottom-nav">
+  <button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
+  <button onclick="show('calendar')"><span>▣</span>Calendario</button>
+  <button onclick="show('roster')"><span>♙</span>Rosa</button>
+  <button onclick="openNextMatch()"><span>⚽</span>Partita</button>
+  <button onclick="showStats()"><span>▥</span>Statistiche</button>
+</div>
+
 </body>
 </html>
