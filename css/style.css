@@ -221,3 +221,28 @@ linear-gradient(rgba(255,255,255,.025),rgba(255,255,255,.025)),
   .bench-panel,.saved-lineups{grid-column:2}
   .bench-panel{grid-row:1 / span 2;margin-top:0}
 }
+
+/* Hank Manager 2.1 - tactical flow per match */
+.pitch .box,.pitch .six,.pitch .arc{background:transparent!important;box-shadow:none!important}
+.tactical-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.compact-btn{width:auto!important;margin:0!important;padding:10px 13px!important}
+.lineup-counter{min-height:46px;display:flex;align-items:center;padding:0 13px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:900;font-size:12px}
+.called-players-list{display:grid;gap:8px;max-height:650px;overflow:auto;padding-right:2px}
+.called-player{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:15px;padding:10px}
+.called-player-info{min-width:0;display:flex;align-items:center;gap:9px}
+.called-player-info .number-pill{flex:0 0 auto}
+.called-player-info strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.called-player-info small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+.player-choice-actions{display:flex;gap:5px}
+.player-choice-actions button{border:1px solid var(--line);border-radius:10px;padding:7px 8px;font-size:9px;font-weight:900;background:rgba(255,255,255,.05);color:var(--muted)}
+.player-choice-actions button.active-start{background:rgba(84,227,141,.16);border-color:rgba(84,227,141,.45);color:var(--green)}
+.player-choice-actions button.active-bench{background:rgba(255,194,87,.14);border-color:rgba(255,194,87,.4);color:var(--amber)}
+.reserves-list{display:grid;gap:7px}
+.reserve-row{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:13px;padding:9px}
+.reserve-row strong{font-size:11px}.reserve-row small{display:block;color:var(--muted);font-size:9px}
+.empty-tactical{padding:18px;border:1px dashed var(--line);border-radius:16px;text-align:center;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:520px){
+  .tactical-page-head{align-items:center}
+  .called-player{grid-template-columns:1fr}
+  .player-choice-actions{display:grid;grid-template-columns:1fr 1fr}
+}

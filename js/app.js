@@ -26,6 +26,18 @@ state.tactical.onField=Array.isArray(state.tactical.onField)?state.tactical.onFi
 state.tactical.positions=state.tactical.positions&&typeof state.tactical.positions==='object'?state.tactical.positions:{};
 state.tactical.saved=Array.isArray(state.tactical.saved)?state.tactical.saved:[];
 
+state.events=state.events.map(e=>({
+  ...e,
+  lineup:e.lineup&&typeof e.lineup==='object'?e.lineup:{
+    formation:'4-3-3',
+    starters:[],
+    reserves:[],
+    positions:{}
+  }
+}));
+let currentTacticalEventId=null;
+
+
 let currentFilter='Tutti';
 
 function save(){localStorage.setItem('hank_v04',JSON.stringify(state))}
@@ -252,6 +264,9 @@ function openMatchCenter(id){
       </select></div>`;
   }).join('')}</div>
 
+  <button class="primary" style="margin-top:14px" onclick="openMatchTactical(${id})">⚽ PREPARA FORMAZIONE</button>
+  <p class="muted small" style="margin-top:7px">Prima salva i convocati: nel campo tattico compariranno soltanto loro.</p>
+
   <div class="section-head" style="margin-top:18px"><div><h2>Eventi partita</h2><p class="muted small">Gol, assist, cartellini e autogol</p></div></div>
   <div class="field"><label>TIPO EVENTO</label><select id="matchEventType" onchange="toggleEventPlayerMode()">
     <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
@@ -408,33 +423,51 @@ function showStats(){
   show('home');setTimeout(()=>{document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'})},50);
 }
 
+
 const FORMATION_PRESETS={
-  '4-3-3':[
-    [50,91],[18,73],[39,77],[61,77],[82,73],[28,54],[50,59],[72,54],[20,27],[50,21],[80,27]
-  ],
-  '4-2-3-1':[
-    [50,91],[18,73],[39,77],[61,77],[82,73],[38,58],[62,58],[20,39],[50,36],[80,39],[50,19]
-  ],
-  '4-4-2':[
-    [50,91],[18,73],[39,77],[61,77],[82,73],[18,51],[39,56],[61,56],[82,51],[37,25],[63,25]
-  ],
-  '3-5-2':[
-    [50,91],[27,75],[50,79],[73,75],[12,50],[32,57],[50,61],[68,57],[88,50],[37,24],[63,24]
-  ],
-  '3-4-2-1':[
-    [50,91],[27,75],[50,79],[73,75],[15,52],[38,58],[62,58],[85,52],[35,34],[65,34],[50,17]
-  ],
-  '3-4-3':[
-    [50,91],[27,75],[50,79],[73,75],[17,53],[40,59],[60,59],[83,53],[20,27],[50,20],[80,27]
-  ],
-  '4-3-1-2':[
-    [50,91],[18,73],[39,77],[61,77],[82,73],[28,55],[50,60],[72,55],[50,39],[37,22],[63,22]
-  ]
+  '4-3-3':[[50,91],[18,73],[39,77],[61,77],[82,73],[28,54],[50,59],[72,54],[20,27],[50,21],[80,27]],
+  '4-2-3-1':[[50,91],[18,73],[39,77],[61,77],[82,73],[38,58],[62,58],[20,39],[50,36],[80,39],[50,19]],
+  '4-4-2':[[50,91],[18,73],[39,77],[61,77],[82,73],[18,51],[39,56],[61,56],[82,51],[37,25],[63,25]],
+  '3-5-2':[[50,91],[27,75],[50,79],[73,75],[12,50],[32,57],[50,61],[68,57],[88,50],[37,24],[63,24]],
+  '3-4-2-1':[[50,91],[27,75],[50,79],[73,75],[15,52],[38,58],[62,58],[85,52],[35,34],[65,34],[50,17]],
+  '3-4-3':[[50,91],[27,75],[50,79],[73,75],[17,53],[40,59],[60,59],[83,53],[20,27],[50,20],[80,27]],
+  '4-3-1-2':[[50,91],[18,73],[39,77],[61,77],[82,73],[28,55],[50,60],[72,55],[50,39],[37,22],[63,22]]
 };
 let tacticalDrag=null;
 
-function tacticalPlayers(){
-  return state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
+function getTacticalEvent(){
+  return state.events.find(e=>String(e.id)===String(currentTacticalEventId));
+}
+function ensureEventLineup(e){
+  if(!e.lineup||typeof e.lineup!=='object')e.lineup={formation:'4-3-3',starters:[],reserves:[],positions:{}};
+  e.lineup.formation=e.lineup.formation||'4-3-3';
+  e.lineup.starters=Array.isArray(e.lineup.starters)?e.lineup.starters:[];
+  e.lineup.reserves=Array.isArray(e.lineup.reserves)?e.lineup.reserves:[];
+  e.lineup.positions=e.lineup.positions&&typeof e.lineup.positions==='object'?e.lineup.positions:{};
+  const called=new Set((e.callups||[]).map(String));
+  e.lineup.starters=e.lineup.starters.filter(id=>called.has(String(id))).slice(0,11);
+  e.lineup.reserves=e.lineup.reserves.filter(id=>called.has(String(id))&&!e.lineup.starters.some(s=>String(s)===String(id)));
+}
+function openMatchTactical(id){
+  const e=state.events.find(x=>x.id===id);if(!e)return;
+  collectMatchForm(e);
+  if(!(e.callups||[]).length){
+    alert('Prima seleziona e salva almeno un convocato.');
+    return;
+  }
+  ensureEventLineup(e);
+  const assigned=new Set([...e.lineup.starters,...e.lineup.reserves].map(String));
+  (e.callups||[]).forEach(id=>{if(!assigned.has(String(id)))e.lineup.reserves.push(id)});
+  save();
+  currentTacticalEventId=id;
+  closeModal();
+  show('tactical');
+  renderTacticalBoard();
+}
+function backToMatchCenter(){
+  const id=currentTacticalEventId;
+  show('calendar');
+  if(id)openMatchCenter(id);
 }
 function roleClass(role){
   const r=(role||'').toLowerCase();
@@ -444,46 +477,94 @@ function roleClass(role){
   if(r.includes('att'))return 'att';
   return '';
 }
-function defaultTacticalIds(){
-  const ps=tacticalPlayers();
-  const selected=[];
-  const take=(filter,n)=>ps.filter(filter).slice(0,n).forEach(p=>{if(!selected.includes(p.id))selected.push(p.id)});
-  take(p=>(p.role||'').toLowerCase().includes('port'),1);
-  take(p=>/difensore|terzino/i.test(p.role||''),4);
-  take(p=>/centrocampista/i.test(p.role||''),3);
-  take(p=>/attaccante/i.test(p.role||''),3);
-  ps.forEach(p=>{if(selected.length<11&&!selected.includes(p.id))selected.push(p.id)});
-  return selected.slice(0,11);
-}
-function ensureTacticalSetup(){
-  state.tactical=state.tactical||{currentFormation:'4-3-3',onField:[],positions:{},saved:[]};
-  if(!state.tactical.onField.length){
-    state.tactical.onField=defaultTacticalIds();
-    const preset=FORMATION_PRESETS[state.tactical.currentFormation]||FORMATION_PRESETS['4-3-3'];
-    state.tactical.positions={};
-    state.tactical.onField.forEach((id,i)=>state.tactical.positions[id]={x:preset[i]?.[0]||50,y:preset[i]?.[1]||50});
-    save();
-  }
-}
 function renderTacticalBoard(){
   const pitch=document.getElementById('tacticalPitch');if(!pitch)return;
-  ensureTacticalSetup();
-  document.getElementById('formationSelect').value=state.tactical.currentFormation||'4-3-3';
+  const e=getTacticalEvent();
   pitch.querySelectorAll('.tactical-player').forEach(x=>x.remove());
-  state.tactical.onField.forEach(id=>{
+  if(!e){
+    document.getElementById('tacticalMatchTitle').textContent='Formazione partita';
+    document.getElementById('tacticalMatchSubtitle').textContent='Apri una partita dal calendario e seleziona i convocati.';
+    document.getElementById('calledPlayersList').innerHTML='<div class="empty-tactical">Il campo tattico si apre esclusivamente dalla pagina di una partita.</div>';
+    document.getElementById('reservesList').innerHTML='';
+    return;
+  }
+  ensureEventLineup(e);
+  const team=state.profile?.team||'Maccabi Roma';
+  document.getElementById('tacticalMatchTitle').textContent=`${team} · ${e.opponent||'Partita'}`;
+  document.getElementById('tacticalMatchSubtitle').textContent=`${e.round||''} · ${formatDate(e.date)} ${e.time||''}`;
+  document.getElementById('formationSelect').value=e.lineup.formation;
+  document.getElementById('lineupCounter').textContent=`${e.lineup.starters.length} titolari · ${e.lineup.reserves.length} riserve`;
+
+  const preset=FORMATION_PRESETS[e.lineup.formation]||FORMATION_PRESETS['4-3-3'];
+  e.lineup.starters.forEach((id,i)=>{
     const p=state.players.find(x=>String(x.id)===String(id));if(!p)return;
-    const pos=state.tactical.positions[id]||{x:50,y:50};
+    const pos=e.lineup.positions[id]||{x:preset[i]?.[0]||50,y:preset[i]?.[1]||50};
     const el=document.createElement('div');
-    el.className='tactical-player';
-    el.dataset.player=id;
+    el.className='tactical-player';el.dataset.player=id;
     el.style.left=pos.x+'%';el.style.top=pos.y+'%';
     el.innerHTML=`<div class="player-token ${roleClass(p.role)}">${p.number}</div><span class="token-name">${escapeHtml(p.name.split(' ').slice(-1)[0])}</span>`;
     el.addEventListener('pointerdown',startTacticalDrag);
-    el.addEventListener('dblclick',()=>togglePlayerOnPitch(id));
     pitch.appendChild(el);
   });
-  renderBench();
-  renderSavedLineups();
+  renderCalledPlayers();
+  renderReserves();
+}
+function renderCalledPlayers(){
+  const e=getTacticalEvent(),host=document.getElementById('calledPlayersList');if(!e||!host)return;
+  const players=(e.callups||[]).map(id=>state.players.find(p=>String(p.id)===String(id))).filter(Boolean)
+    .sort((a,b)=>a.role.localeCompare(b.role)||Number(a.number)-Number(b.number));
+  host.innerHTML=players.map(p=>{
+    const starter=e.lineup.starters.some(id=>String(id)===String(p.id));
+    const reserve=e.lineup.reserves.some(id=>String(id)===String(p.id));
+    return `<div class="called-player">
+      <div class="called-player-info"><span class="number-pill">${p.number}</span><div><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)}</small></div></div>
+      <div class="player-choice-actions">
+        <button class="${starter?'active-start':''}" onclick="setLineupRole(${p.id},'starter')">TITOLARE</button>
+        <button class="${reserve?'active-bench':''}" onclick="setLineupRole(${p.id},'reserve')">RISERVA</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty-tactical">Nessun convocato disponibile.</div>';
+}
+function renderReserves(){
+  const e=getTacticalEvent(),host=document.getElementById('reservesList');if(!e||!host)return;
+  host.innerHTML=e.lineup.reserves.map(id=>{
+    const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
+    return `<div class="reserve-row"><span class="number-pill">${p.number}</span><div><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)}</small></div></div>`;
+  }).join('')||'<div class="empty-tactical">Nessuna riserva selezionata.</div>';
+}
+function setLineupRole(id,role){
+  const e=getTacticalEvent();if(!e)return;
+  ensureEventLineup(e);
+  e.lineup.starters=e.lineup.starters.filter(x=>String(x)!==String(id));
+  e.lineup.reserves=e.lineup.reserves.filter(x=>String(x)!==String(id));
+  if(role==='starter'){
+    if(e.lineup.starters.length>=11){alert('Hai già selezionato 11 titolari.');return}
+    e.lineup.starters.push(id);
+    const i=e.lineup.starters.length-1,preset=FORMATION_PRESETS[e.lineup.formation]||FORMATION_PRESETS['4-3-3'];
+    e.lineup.positions[id]={x:preset[i]?.[0]||50,y:preset[i]?.[1]||50};
+  }else{
+    e.lineup.reserves.push(id);delete e.lineup.positions[id];
+  }
+  save();renderTacticalBoard();
+}
+function applyFormation(name){
+  const e=getTacticalEvent();if(!e)return;
+  e.lineup.formation=name;
+  const preset=FORMATION_PRESETS[name]||FORMATION_PRESETS['4-3-3'];
+  e.lineup.starters.forEach((id,i)=>e.lineup.positions[id]={x:preset[i]?.[0]||50,y:preset[i]?.[1]||50});
+  save();renderTacticalBoard();
+}
+function resetFormation(){
+  const e=getTacticalEvent();if(e)applyFormation(e.lineup.formation||'4-3-3');
+}
+function clearMatchLineup(){
+  const e=getTacticalEvent();if(!e||!confirm('Vuoi svuotare titolari e riserve di questa partita?'))return;
+  e.lineup.starters=[];e.lineup.reserves=[...(e.callups||[])];e.lineup.positions={};save();renderTacticalBoard();
+}
+function saveMatchLineup(){
+  const e=getTacticalEvent();if(!e)return;
+  save();
+  alert(`Formazione salvata: ${e.lineup.starters.length} titolari e ${e.lineup.reserves.length} riserve.`);
 }
 function startTacticalDrag(ev){
   ev.preventDefault();
@@ -497,87 +578,23 @@ function startTacticalDrag(ev){
 function moveTacticalDrag(ev){
   if(!tacticalDrag)return;
   const rect=tacticalDrag.pitch.getBoundingClientRect();
-  let x=((ev.clientX-rect.left)/rect.width)*100;
-  let y=((ev.clientY-rect.top)/rect.height)*100;
+  let x=((ev.clientX-rect.left)/rect.width)*100,y=((ev.clientY-rect.top)/rect.height)*100;
   x=Math.max(6,Math.min(94,x));y=Math.max(5,Math.min(95,y));
   tacticalDrag.el.style.left=x+'%';tacticalDrag.el.style.top=y+'%';
-  state.tactical.positions[tacticalDrag.id]={x:+x.toFixed(2),y:+y.toFixed(2)};
+  const e=getTacticalEvent();if(e)e.lineup.positions[tacticalDrag.id]={x:+x.toFixed(2),y:+y.toFixed(2)};
 }
-function endTacticalDrag(ev){
+function endTacticalDrag(){
   if(!tacticalDrag)return;
   tacticalDrag.el.classList.remove('dragging');
   tacticalDrag.el.removeEventListener('pointermove',moveTacticalDrag);
   tacticalDrag=null;save();
 }
-function renderBench(){
-  const host=document.getElementById('benchList');if(!host)return;
-  const on=new Set(state.tactical.onField.map(String));
-  host.innerHTML=tacticalPlayers().map(p=>`<button class="bench-chip ${on.has(String(p.id))?'on-field':''}" onclick="togglePlayerOnPitch(${p.id})"><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)}</small></button>`).join('');
-}
-function togglePlayerOnPitch(id){
-  const idx=state.tactical.onField.findIndex(x=>String(x)===String(id));
-  if(idx>=0){
-    state.tactical.onField.splice(idx,1);delete state.tactical.positions[id];
-  }else{
-    if(state.tactical.onField.length>=11){alert('Sul campo possono esserci al massimo 11 giocatori.');return}
-    state.tactical.onField.push(id);
-    const preset=FORMATION_PRESETS[state.tactical.currentFormation]||FORMATION_PRESETS['4-3-3'];
-    const i=state.tactical.onField.length-1;
-    state.tactical.positions[id]={x:preset[i]?.[0]||50,y:preset[i]?.[1]||50};
-  }
-  save();renderTacticalBoard();
-}
-function applyFormation(name){
-  state.tactical.currentFormation=name;
-  const preset=FORMATION_PRESETS[name]||FORMATION_PRESETS['4-3-3'];
-  if(!state.tactical.onField.length)state.tactical.onField=defaultTacticalIds();
-  state.tactical.onField.slice(0,11).forEach((id,i)=>state.tactical.positions[id]={x:preset[i][0],y:preset[i][1]});
-  save();renderTacticalBoard();
-}
-function resetFormation(){applyFormation(state.tactical.currentFormation||'4-3-3')}
-function clearPitch(){
-  if(!confirm('Vuoi rimuovere tutti i giocatori dal campo?'))return;
-  state.tactical.onField=[];state.tactical.positions={};save();renderTacticalBoard();
-}
-function saveCurrentLineup(){
-  ensureTacticalSetup();
-  const input=document.getElementById('lineupName');
-  const name=(input.value||'').trim()||`${state.tactical.currentFormation} · ${new Date().toLocaleDateString('it-IT')}`;
-  state.tactical.saved=state.tactical.saved||[];
-  state.tactical.saved.unshift({
-    id:Date.now(),name,formation:state.tactical.currentFormation,
-    onField:[...state.tactical.onField],
-    positions:JSON.parse(JSON.stringify(state.tactical.positions)),
-    createdAt:new Date().toISOString()
-  });
-  save();input.value='';renderSavedLineups();
-}
-function loadLineup(id){
-  const l=(state.tactical.saved||[]).find(x=>x.id===id);if(!l)return;
-  state.tactical.currentFormation=l.formation||'4-3-3';
-  state.tactical.onField=[...(l.onField||[])];
-  state.tactical.positions=JSON.parse(JSON.stringify(l.positions||{}));
-  save();renderTacticalBoard();
-}
-function deleteLineup(id){
-  if(!confirm('Eliminare questa formazione salvata?'))return;
-  state.tactical.saved=(state.tactical.saved||[]).filter(x=>x.id!==id);save();renderSavedLineups();
-}
-function renderSavedLineups(){
-  const host=document.getElementById('savedLineupsList');if(!host)return;
-  const rows=(state.tactical.saved||[]).map(l=>{
-    const names=(l.onField||[]).map(id=>state.players.find(p=>String(p.id)===String(id))?.name).filter(Boolean);
-    return `<div class="saved-lineup-card"><div><strong>${escapeHtml(l.name)}</strong><small>${escapeHtml(l.formation||'')} · ${names.length} giocatori</small></div><div class="saved-lineup-buttons"><button onclick="loadLineup(${l.id})">APRI</button><button onclick="deleteLineup(${l.id})">✕</button></div></div>`;
-  }).join('');
-  host.innerHTML=rows||'<p class="muted small">Nessuna formazione salvata.</p>';
-}
-
 
 function exportBackup(){
   try{
     const payload={
       app:'Hank Manager',
-      version:'2.0-beta',
+      version:'2.1-beta',
       exportedAt:new Date().toISOString(),
       state
     };

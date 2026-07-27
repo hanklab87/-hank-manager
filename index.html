@@ -15,7 +15,7 @@
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 2.0 BETA</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 2.1 BETA</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -53,15 +53,12 @@
 
     <div id="dashboardV07"></div>
 
-<button class="secondary" onclick="show('tactical');renderTacticalBoard()" style="margin-top:10px">⚽ APRI CAMPO TATTICO</button>
-
 
     <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
     <div class="grid">
       <button class="quick" onclick="show('squad')"><div class="quick-icon">👥</div><b>Rosa</b><span>27 membri</span></button>
       <button class="quick" onclick="show('calendar')"><div class="quick-icon">📅</div><b>Calendario</b><span>Partite e allenamenti</span></button>
       <button class="quick" onclick="alert('Convocazioni in arrivo nella prossima versione')"><div class="quick-icon">✅</div><b>Convocazioni</b><span>Disponibilità e assenze</span></button>
-      <button class="quick" onclick="show('tactical');renderTacticalBoard()"><div class="quick-icon">⚽</div><b>Formazione</b><span>Campo tattico e moduli</span></button>
     </div>
 
     
@@ -101,12 +98,13 @@
     <div id="events" style="margin-top:18px"></div>
   </section>
 <section id="tactical" class="screen">
-  <div class="page-head">
+  <div class="page-head tactical-page-head">
     <div>
-      <p class="eyebrow">HANK MANAGER · 2.0 BETA</p>
-      <h1>Campo tattico</h1>
-      <p class="muted">Prepara, salva e stampa le formazioni.</p>
+      <p class="eyebrow">HANK MANAGER · 2.1 BETA</p>
+      <h1 id="tacticalMatchTitle">Formazione partita</h1>
+      <p class="muted" id="tacticalMatchSubtitle">Prima seleziona i convocati nel Match Center.</p>
     </div>
+    <button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button>
   </div>
 
   <div class="tactical-shell" id="tacticalPrintArea">
@@ -124,8 +122,8 @@
         </select>
       </div>
       <div class="field">
-        <label>NOME FORMAZIONE</label>
-        <input id="lineupName" placeholder="Es. Titolari vs Lokomotiv">
+        <label>RIEPILOGO</label>
+        <div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div>
       </div>
     </div>
 
@@ -139,21 +137,21 @@
     </div>
 
     <div class="lineup-actions">
-      <button class="primary" onclick="saveCurrentLineup()">SALVA FORMAZIONE</button>
+      <button class="primary" onclick="saveMatchLineup()">SALVA NELLA PARTITA</button>
       <button class="secondary" onclick="window.print()">STAMPA / PDF</button>
-      <button class="secondary" onclick="resetFormation()">RIPRISTINA MODULO</button>
-      <button class="secondary" onclick="clearPitch()">SVUOTA CAMPO</button>
+      <button class="secondary" onclick="resetFormation()">RIPRISTINA POSIZIONI</button>
+      <button class="secondary" onclick="clearMatchLineup()">SVUOTA FORMAZIONE</button>
     </div>
 
     <div class="bench-panel">
-      <div class="section-head"><div><h2>Rosa e panchina</h2><p class="muted small">Tocca un giocatore per inserirlo o rimuoverlo dal campo.</p></div></div>
-      <div id="benchList" class="bench-list"></div>
-      <p class="tactical-mini-note">Puoi trascinare liberamente ogni giocatore sul campo. Le posizioni vengono salvate insieme alla formazione.</p>
+      <div class="section-head"><div><h2>Giocatori convocati</h2><p class="muted small">Scegli chi parte titolare e chi va in panchina.</p></div></div>
+      <div id="calledPlayersList" class="called-players-list"></div>
+      <p class="tactical-mini-note">Solo i giocatori convocati nel Match Center compaiono qui. I titolari possono essere trascinati sul campo.</p>
     </div>
 
     <div class="saved-lineups">
-      <div class="section-head"><div><h2>Formazioni salvate</h2><p class="muted small">Richiama rapidamente una formazione precedente.</p></div></div>
-      <div id="savedLineupsList"></div>
+      <div class="section-head"><div><h2>Riserve</h2><p class="muted small">Panchina della partita selezionata.</p></div></div>
+      <div id="reservesList" class="reserves-list"></div>
     </div>
   </div>
 </section>
@@ -178,7 +176,7 @@
   <button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
   <button onclick="show('calendar')"><span>▣</span>Calendario</button>
   <button onclick="show('roster')"><span>♙</span>Rosa</button>
-  <button onclick="show('tactical');renderTacticalBoard()"><span>⚽</span>Tattica</button>
+  <button onclick="openNextMatch()"><span>⚽</span>Partita</button>
   <button onclick="showStats()"><span>▥</span>Statistiche</button>
 </div>
 

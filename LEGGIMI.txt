@@ -1,26 +1,30 @@
-HANK MANAGER 2.0 BETA
+HANK MANAGER 2.1 BETA
 
-COME INSTALLARE
-1. Estrai tutto il contenuto dello ZIP.
-2. Apri: Documenti/GitHub/-hank-manager
-3. Elimina i vecchi file presenti nella cartella.
-4. Copia nella cartella TUTTI questi elementi:
-   - index.html
-   - manifest.json
-   - service-worker.js
-   - cartella css
-   - cartella js
-5. Apri GitHub Desktop.
-6. Esegui Commit to main.
-7. Esegui Push origin.
-8. Attendi il deploy di Vercel e apri:
-   https://hank-manager.vercel.app
+NOVITÀ PRINCIPALE
+Il campo tattico non si apre più dalla Home o dalla barra inferiore.
 
-CONTROLLO CAMPO TATTICO
-- Nella barra in basso premi “Tattica”.
-- In alternativa, dalla Home premi “Apri campo tattico”.
-- Devi vedere il campo verde, il selettore del modulo e la rosa/panchina.
+FLUSSO CORRETTO
+1. Apri Calendario.
+2. Apri la partita.
+3. Seleziona i convocati nel Match Center.
+4. Premi “PREPARA FORMAZIONE”.
+5. Vedrai esclusivamente i convocati.
+6. Per ciascuno scegli TITOLARE oppure RISERVA.
+7. I titolari compaiono sul campo e possono essere trascinati.
+8. Premi “SALVA NELLA PARTITA”.
 
-IMPORTANTE
-Questa versione usa lo stesso archivio locale delle precedenti, quindi i dati già salvati
-nel browser dovrebbero rimanere disponibili. È presente anche il nuovo pulsante Backup dati.
+CORREZIONI
+- eliminato il riquadro nero sul campo;
+- formazione salvata separatamente per ogni partita;
+- massimo 11 titolari;
+- riserve separate;
+- cambio modulo della singola gara;
+- ritorno diretto al Match Center.
+
+INSTALLAZIONE
+1. Estrai lo ZIP.
+2. Elimina i vecchi file dalla cartella Documenti/GitHub/-hank-manager.
+3. Copia TUTTO il contenuto estratto:
+   index.html, manifest.json, service-worker.js, cartella css, cartella js.
+4. Commit to main.
+5. Push origin.
