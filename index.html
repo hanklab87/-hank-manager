@@ -116,12 +116,21 @@ border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow
 .logo-preview{width:88px;height:88px;border-radius:22px;background:#091525;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin:0 auto 14px;color:var(--green);font-weight:900}
 .logo-preview img{width:100%;height:100%;object-fit:cover}
 .mini-danger{border:0;background:rgba(255,91,103,.14);color:var(--danger);border-radius:12px;padding:9px}
+
+.team-with-logo{display:flex;align-items:center;gap:10px}
+.team-logo-mini{width:34px;height:34px;border-radius:10px;object-fit:cover;background:#fff;border:1px solid var(--line);flex:0 0 auto}
+.team-badge-mini{width:34px;height:34px;border-radius:10px;background:rgba(84,227,141,.12);border:1px solid rgba(84,227,141,.25);display:grid;place-items:center;font-size:10px;font-weight:900;color:var(--green);flex:0 0 auto}
+.match-team-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:10px 0}
+.match-team-row .home-side{justify-content:flex-start}
+.match-team-row .away-side{justify-content:flex-end;text-align:right}
+.match-vs{font-size:11px;font-weight:900;color:var(--muted)}
+
 </style>
 </head>
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · v0.5</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -302,23 +311,64 @@ function addEvent(){
 }
 function renderEvents(){
   const team=state.profile?.team||'Maccabi Roma';
+  const teamLogo=state.branding?.logo||'';
   const arr=[...state.events].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  const logoHtml=teamLogo
+    ? `<img class="team-logo-mini" src="${teamLogo}" alt="${team}">`
+    : `<div class="team-badge-mini">${initials(team)}</div>`;
   events.innerHTML=arr.length?arr.map(e=>{
     if(e.type!=='Partita')return `<div class="match-card"><div class="match-top"><span class="comp">${e.type}</span></div><div class="teams-line">${e.type}</div><div class="match-info">📅 ${formatDate(e.date)} ${e.time||''}<br>📍 ${e.venue||'Luogo da definire'}</div></div>`;
     const comp=e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):e.competition;
-    const home=e.homeAway==='Trasferta'?e.opponent:team;
-    const away=e.homeAway==='Trasferta'?team:e.opponent;
-    return `<div class="match-card"><div class="match-top"><span class="comp">${comp}${e.round?' · '+e.round:''}</span><span class="status">${e.status||'Da giocare'}</span></div><div class="teams-line">${home} — ${away}</div><div class="match-info">📅 ${formatDate(e.date)} ${e.time||'Orario da definire'}<br>📍 ${e.venue||'Campo da definire'} · ${e.homeAway}</div></div>`;
+    const isAway=e.homeAway==='Trasferta';
+    const home=isAway?e.opponent:team;
+    const away=isAway?team:e.opponent;
+    const homeVisual=isAway
+      ? `<div class="team-badge-mini">${initials(home)}</div>`
+      : logoHtml;
+    const awayVisual=isAway
+      ? logoHtml
+      : `<div class="team-badge-mini">${initials(away)}</div>`;
+    return `<div class="match-card">
+      <div class="match-top">
+        <span class="comp">${comp}${e.round?' · '+e.round:''}</span>
+        <span class="status">${e.status||'Da giocare'}</span>
+      </div>
+      <div class="match-team-row">
+        <div class="team-with-logo home-side">${homeVisual}<strong>${home}</strong></div>
+        <div class="match-vs">VS</div>
+        <div class="team-with-logo away-side"><strong>${away}</strong>${awayVisual}</div>
+      </div>
+      <div class="match-info">📅 ${formatDate(e.date)} ${e.time||'Orario da definire'}<br>📍 ${e.venue||'Campo da definire'} · ${e.homeAway}</div>
+    </div>`;
   }).join(''):'<div class="card empty">Nessun evento inserito.</div>';
 }
 function renderNextMatch(){
-  const next=[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const today=new Date().toISOString().slice(0,10);
+  const matches=[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>a.date.localeCompare(b.date));
+  const next=matches.find(e=>e.date>=today)||matches[0];
   if(!next)return;
   const team=state.profile?.team||'Maccabi Roma';
-  const home=next.homeAway==='Trasferta'?next.opponent:team;
-  const away=next.homeAway==='Trasferta'?team:next.opponent;
+  const teamLogo=state.branding?.logo||'';
+  const isAway=next.homeAway==='Trasferta';
+  const home=isAway?next.opponent:team;
+  const away=isAway?team:next.opponent;
   const clubs=document.querySelectorAll('.hero .club');
-  if(clubs.length>=2){clubs[0].querySelector('b').textContent=home;clubs[0].querySelector('.crest').textContent=initials(home);clubs[1].querySelector('b').textContent=away;clubs[1].querySelector('.crest').textContent=initials(away)}
+  if(clubs.length>=2){
+    clubs[0].querySelector('b').textContent=home;
+    clubs[1].querySelector('b').textContent=away;
+    const homeCrest=clubs[0].querySelector('.crest');
+    const awayCrest=clubs[1].querySelector('.crest');
+    if(!isAway && teamLogo){
+      homeCrest.innerHTML=`<img src="${teamLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
+    }else{
+      homeCrest.textContent=initials(home);
+    }
+    if(isAway && teamLogo){
+      awayCrest.innerHTML=`<img src="${teamLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
+    }else{
+      awayCrest.textContent=initials(away);
+    }
+  }
   const meta=document.querySelector('.hero .meta');
   if(meta)meta.innerHTML=`<span>📅 ${formatDate(next.date)} ${next.time||''}</span><span>📍 ${next.venue}</span>`;
 }
@@ -327,6 +377,7 @@ function openBranding(){
   sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">IDENTITÀ SQUADRA</p><h2>Logo e sponsor</h2></div><button class="close" onclick="closeModal()">✕</button></div>
   <div class="logo-preview" id="logoPreview">${state.branding.logo?`<img src="${state.branding.logo}">`:'MR'}</div>
   <div class="field"><label>LOGO DELLA SOCIETÀ</label><input id="logoInput" type="file" accept="image/*" onchange="loadTeamLogo(this)"></div>
+  ${state.branding.logo?`<button class="mini-danger" style="width:100%;margin-bottom:14px" onclick="removeTeamLogo()">RIMUOVI LOGO SOCIETÀ</button>`:''}
   <div class="section-head"><div><h2>Sponsor</h2><p class="muted small">Puoi inserirne più di uno</p></div></div>
   <div class="field"><label>NOME SPONSOR</label><input id="sponsorName"></div>
   <div class="field"><label>LOGO SPONSOR</label><input id="sponsorLogo" type="file" accept="image/*"></div>
@@ -336,7 +387,15 @@ function openBranding(){
 }
 function loadTeamLogo(input){
   const file=input.files[0];if(!file)return;
-  const r=new FileReader();r.onload=()=>{state.branding.logo=r.result;save();document.getElementById('logoPreview').innerHTML=`<img src="${r.result}">`;renderBranding()};r.readAsDataURL(file);
+  const r=new FileReader();r.onload=()=>{state.branding.logo=r.result;save();document.getElementById('logoPreview').innerHTML=`<img src="${r.result}">`;renderBranding();renderEvents();renderNextMatch()};r.readAsDataURL(file);
+}
+function removeTeamLogo(){
+  state.branding.logo='';
+  save();
+  renderBranding();
+  renderEvents();
+  renderNextMatch();
+  openBranding();
 }
 function addSponsor(){
   const name=document.getElementById('sponsorName').value.trim();
