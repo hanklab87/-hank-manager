@@ -271,3 +271,41 @@ linear-gradient(rgba(255,255,255,.025),rgba(255,255,255,.025)),
 .match-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px}
 .match-flow button{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:12px;padding:9px 5px;font-size:9px;font-weight:900}
 @media(max-width:760px){.formation-layout{grid-template-columns:1fr}.clean-pitch{min-height:520px}}
+
+/* Hank Manager 3.1 Live Match */
+.live-topbar,.live-scoreboard,.live-controls,.live-team{display:flex;align-items:center}
+.live-topbar{justify-content:space-between;gap:12px;margin-bottom:14px}
+.live-scoreboard{justify-content:space-between;gap:14px;background:linear-gradient(145deg,#121923,#090d12);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:16px;position:sticky;top:8px;z-index:20;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.live-team{flex:1;flex-direction:column;gap:5px;text-align:center}
+.live-team span{font-size:11px;font-weight:900;color:var(--muted)}
+.live-team strong{font-size:42px;line-height:1}
+.live-center{display:grid;justify-items:center;gap:9px}
+.live-clock{font-size:34px;font-weight:950;letter-spacing:.04em}
+.live-controls{gap:7px;flex-wrap:wrap;justify-content:center}
+.live-layout{display:grid;grid-template-columns:minmax(360px,640px) minmax(270px,1fr);gap:18px;align-items:start}
+.live-side{display:grid;gap:14px}
+.live-pitch{min-height:620px}
+.live-player{position:absolute;transform:translate(-50%,-50%);width:82px;text-align:center;z-index:5}
+.live-player-btn{width:58px;height:58px;border-radius:50%;border:2px solid rgba(255,255,255,.95);background:linear-gradient(145deg,#eef4f8,#aab8c5);color:#102033;display:grid;place-items:center;margin:auto;font-weight:950;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.live-player-name{display:inline-block;max-width:96px;margin-top:5px;background:rgba(5,18,12,.88);color:#fff;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-event-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.live-event-btn{border:1px solid var(--line);border-radius:14px;padding:14px 8px;background:rgba(255,255,255,.04);color:var(--text);font-weight:900}
+.live-events-list{display:grid;gap:8px;max-height:330px;overflow:auto;margin-bottom:10px}
+.live-event-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:12px;padding:9px;background:rgba(255,255,255,.035)}
+.live-event-row strong{font-size:10px}
+.live-event-row small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+.full-btn{width:100%}
+.present-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.035)}
+.present-row input{width:22px;height:22px}
+.minute-editor{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-mini div{border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center;background:rgba(255,255,255,.03)}
+.stat-mini strong{display:block;font-size:16px}
+.stat-mini small{font-size:8px;color:var(--muted)}
+@media(max-width:760px){
+  .live-layout{grid-template-columns:1fr}
+  .live-scoreboard{padding:12px 8px}
+  .live-team strong{font-size:34px}
+  .live-clock{font-size:28px}
+  .live-pitch{min-height:540px}
+}

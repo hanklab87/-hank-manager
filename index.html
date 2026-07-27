@@ -15,7 +15,7 @@
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 3.0</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 3.1</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -98,7 +98,7 @@
     <div id="events" style="margin-top:18px"></div>
   </section>
 <section id="tactical" class="screen">
-<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 3.0</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
+<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 3.1</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
 <div class="formation-layout"><div>
 <div class="tactical-toolbar"><div class="field"><label>MODULO</label><select id="formationSelect" onchange="applyFormation(this.value)"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-3</option><option>4-3-1-2</option></select></div><div class="field"><label>RIEPILOGO</label><div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div></div></div>
 <div class="clean-pitch" id="cleanPitch"></div>
@@ -121,6 +121,54 @@
 
 
 
+
+
+<section id="liveMatch" class="screen">
+  <div class="live-topbar">
+    <div>
+      <p class="eyebrow">LIVE MATCH</p>
+      <h1 id="liveMatchTitle">Maccabi Roma vs Avversario</h1>
+    </div>
+    <button class="secondary compact-btn" onclick="exitLiveMatch()">← ESCI</button>
+  </div>
+
+  <div class="live-scoreboard">
+    <div class="live-team">
+      <span id="liveHomeName">Maccabi Roma</span>
+      <strong id="liveHomeScore">0</strong>
+    </div>
+    <div class="live-center">
+      <div id="liveClock" class="live-clock">00:00</div>
+      <div class="live-controls">
+        <button class="primary compact-btn" id="livePlayPause" onclick="toggleLiveTimer()">▶ PLAY</button>
+        <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MINUTO</button>
+        <button class="danger compact-btn" onclick="finishLiveMatch()">■ FINE</button>
+      </div>
+    </div>
+    <div class="live-team">
+      <span id="liveAwayName">Avversario</span>
+      <strong id="liveAwayScore">0</strong>
+    </div>
+  </div>
+
+  <div class="live-layout">
+    <div>
+      <div class="clean-pitch live-pitch" id="livePitch"></div>
+    </div>
+    <div class="live-side">
+      <div class="bench-panel">
+        <div class="section-head"><div><h2>Panchina</h2><p class="muted small">Tocca un giocatore in campo per effettuare il cambio.</p></div></div>
+        <div id="liveBench" class="reserves-list"></div>
+      </div>
+
+      <div class="bench-panel">
+        <div class="section-head"><div><h2>Eventi</h2><p class="muted small">Cronologia della partita.</p></div></div>
+        <div id="liveEvents" class="live-events-list"></div>
+        <button class="secondary full-btn" onclick="undoLastLiveEvent()">↶ ANNULLA ULTIMO EVENTO</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <div class="bottom-nav">
 <button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>

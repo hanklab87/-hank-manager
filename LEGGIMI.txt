@@ -1,11 +1,27 @@
-HANK MANAGER 3.0
+HANK MANAGER 3.1 LIVE MATCH
 
-- Barra: Home, Rosa, Calendario, Partita, Statistiche.
-- Rosa correttamente collegata.
-- Match Center con PLAY, pausa, azzeramento e Fine partita.
-- Campo tattico ricostruito con posizioni cliccabili.
-- Solo i convocati possono essere scelti.
-- I non titolari vanno automaticamente in panchina.
+NOVITÀ
+- Convocati con una sola spunta: presente / non presente.
+- Formazione con il campo già approvato.
+- Dopo il salvataggio della formazione si apre la modalità Live Match.
+- Cronometro con Play, Pausa e modifica manuale del minuto.
+- Campo live con i titolari.
+- Tocca un giocatore per registrare:
+  Gol, Assist, Ammonizione, Espulsione, Sostituzione.
+- Gol aggiorna automaticamente il punteggio.
+- Sostituzione aggiorna campo, panchina ed evento.
+- Conteggio minuti giocati.
+- Presenze da titolare e da subentrato.
+- Pulsante Annulla ultimo evento.
+- Fine partita aggiorna tutte le statistiche.
 
 INSTALLAZIONE
-Estrai lo ZIP, elimina i vecchi file nella cartella del repository, copia tutto, Commit to main e Push origin.
+1. Estrai lo ZIP.
+2. Apri la cartella del repository GitHub.
+3. Elimina i vecchi file.
+4. Copia tutto il contenuto estratto.
+5. Scrivi nel Summary:
+   Hank Manager 3.1 - Live Match
+6. Commit to main.
+7. Push origin.
+8. Attendi Vercel e aggiorna il sito con Ctrl+F5.
