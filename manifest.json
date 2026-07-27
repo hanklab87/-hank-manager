@@ -1,0 +1,11 @@
+{
+  "name": "Hank Manager",
+  "short_name": "Hank",
+  "description": "Gestionale della squadra Maccabi Roma",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07121f",
+  "theme_color": "#07121f",
+  "orientation": "portrait-primary",
+  "icons": []
+}

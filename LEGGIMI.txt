@@ -1,0 +1,26 @@
+HANK MANAGER 2.0 BETA
+
+COME INSTALLARE
+1. Estrai tutto il contenuto dello ZIP.
+2. Apri: Documenti/GitHub/-hank-manager
+3. Elimina i vecchi file presenti nella cartella.
+4. Copia nella cartella TUTTI questi elementi:
+   - index.html
+   - manifest.json
+   - service-worker.js
+   - cartella css
+   - cartella js
+5. Apri GitHub Desktop.
+6. Esegui Commit to main.
+7. Esegui Push origin.
+8. Attendi il deploy di Vercel e apri:
+   https://hank-manager.vercel.app
+
+CONTROLLO CAMPO TATTICO
+- Nella barra in basso premi “Tattica”.
+- In alternativa, dalla Home premi “Apri campo tattico”.
+- Devi vedere il campo verde, il selettore del modulo e la rosa/panchina.
+
+IMPORTANTE
+Questa versione usa lo stesso archivio locale delle precedenti, quindi i dati già salvati
+nel browser dovrebbero rimanere disponibili. È presente anche il nuovo pulsante Backup dati.

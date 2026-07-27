@@ -5,173 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06101c">
 <title>Hank Manager</title>
-<style>
-:root {
-  --bg:#06101c;
-  --bg2:#0b1727;
-  --card:#101f33;
-  --card2:#152842;
-  --line:rgba(255,255,255,.08);
-  --text:#f7f9fc;
-  --muted:#8ea2ba;
-  --green:#45e46b;
-  --green-dark:#1da347;
-  --amber:#f7c85e;
-  --danger:#ff5b67;
-  --shadow:0 20px 50px rgba(0,0,0,.28);
-}
-*{box-sizing:border-box}
-html,body{margin:0;background:#020811;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select{font:inherit}
-body{min-height:100vh}
-.app{width:min(100%,430px);min-height:100vh;margin:auto;padding:20px 16px 110px;background:
-radial-gradient(circle at 80% 0%,rgba(69,228,107,.12),transparent 30%),
-linear-gradient(180deg,#0a1727 0%,#06101c 55%,#050d18 100%)}
-
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(145deg,var(--green),#1f9b47);display:grid;place-items:center;color:#03110a;font-size:22px;font-weight:1000;box-shadow:0 10px 28px rgba(69,228,107,.24)}
-.brand-title{font-weight:900;letter-spacing:.08em;font-size:14px}
-.brand-sub{color:var(--muted);font-size:11px;margin-top:2px}
-.profile{width:43px;height:43px;border-radius:50%;background:linear-gradient(145deg,#1d3658,#10213a);border:1px solid var(--line);display:grid;place-items:center;font-weight:800}
-
-.screen{display:none}
-.screen.active{display:block}
-h1,h2,h3,p{margin:0}
-h1{font-size:31px;line-height:1.08;letter-spacing:-.03em}
-h2{font-size:21px}
-.muted{color:var(--muted)}
-.small{font-size:12px}
-
-.hero{background:
-linear-gradient(145deg,rgba(69,228,107,.18),rgba(21,40,66,.95) 48%,rgba(16,31,51,.98));
-border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.hero:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(69,228,107,.08);right:-60px;top:-60px}
-.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(69,228,107,.12);border:1px solid rgba(69,228,107,.22);color:var(--green);font-size:11px;font-weight:850;letter-spacing:.04em}
-.team-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:24px 0 18px}
-.club{text-align:center}
-.crest{width:64px;height:64px;border-radius:20px;margin:0 auto 9px;background:linear-gradient(145deg,#0a1727,#142842);border:1px solid rgba(255,255,255,.1);display:grid;place-items:center;font-size:20px;font-weight:1000;color:var(--amber)}
-.vs{font-size:17px;font-weight:900;color:var(--muted)}
-.meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px}
-
-.section-head{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 12px}
-.section-head a{color:var(--green);font-size:12px;font-weight:800;text-decoration:none}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.quick{border:1px solid var(--line);background:linear-gradient(145deg,var(--card2),var(--card));border-radius:22px;padding:17px;text-align:left;color:var(--text);min-height:116px;box-shadow:0 12px 30px rgba(0,0,0,.12)}
-.quick-icon{width:42px;height:42px;border-radius:14px;background:rgba(69,228,107,.12);display:grid;place-items:center;font-size:20px;margin-bottom:16px}
-.quick b{display:block;font-size:15px}
-.quick span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
-
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{border:1px solid var(--line);background:rgba(16,31,51,.9);border-radius:18px;padding:14px;text-align:center}
-.stat strong{display:block;font-size:23px}
-.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-
-.card{background:linear-gradient(145deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:16px}
-.search{width:100%;border:1px solid var(--line);background:#091525;color:var(--text);padding:14px 15px;border-radius:16px;margin:14px 0 12px;outline:none}
-.filters{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
-.filter{white-space:nowrap;border:1px solid var(--line);background:#0a1727;color:var(--muted);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:750}
-.filter.active{background:var(--green);color:#03110a;border-color:transparent}
-
-.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.player{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(145deg,#132741,#0d1c30);border:1px solid var(--line);border-radius:19px;padding:12px}
-.player-left{display:flex;align-items:center;gap:12px;min-width:0}
-.avatar{width:48px;height:48px;border-radius:16px;background:linear-gradient(145deg,#1d385d,#10213a);display:grid;place-items:center;font-weight:1000;color:var(--green);font-size:18px}
-.pname{font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
-.prole{font-size:11px;color:var(--muted);margin-top:3px}
-.number{min-width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.05);display:grid;place-items:center;font-weight:900}
-
-.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,430px);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px calc(14px + env(safe-area-inset-bottom));background:rgba(4,11,20,.95);backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:20}
-.bottom button{border:0;background:transparent;color:#71849b;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700}
-.bottom button.active{color:var(--green)}
-.bottom b{font-size:20px}
-
-.fab{position:fixed;right:max(18px,calc((100vw - 430px)/2 + 18px));bottom:92px;width:56px;height:56px;border-radius:19px;border:0;background:linear-gradient(145deg,var(--green),var(--green-dark));color:#041109;font-size:27px;font-weight:900;box-shadow:0 14px 34px rgba(69,228,107,.28)}
-.hidden{display:none!important}
-
-.onboard{padding-top:55px}
-.onboard-logo{width:88px;height:88px;border-radius:28px;background:linear-gradient(145deg,var(--green),#1a9141);display:grid;place-items:center;color:#03110a;font-size:42px;font-weight:1000;box-shadow:0 22px 50px rgba(69,228,107,.24);margin-bottom:28px}
-.primary{width:100%;border:0;border-radius:17px;padding:15px 18px;background:linear-gradient(145deg,var(--green),var(--green-dark));color:#03110a;font-weight:900;margin-top:12px}
-.field{margin:14px 0}
-.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
-.field input,.field select{width:100%;border:1px solid var(--line);background:#091525;color:var(--text);padding:14px;border-radius:15px;outline:none}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;padding:14px;z-index:40}
-.modal.open{display:flex}
-.sheet{width:min(100%,430px);max-height:88vh;overflow:auto;background:#0a1727;border:1px solid var(--line);border-radius:26px 26px 18px 18px;padding:18px}
-.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.close{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:#101f33;color:var(--text)}
-.empty{text-align:center;padding:30px 15px;color:var(--muted)}
-
-.brand-logo-img{width:46px;height:46px;border-radius:15px;object-fit:cover;border:1px solid var(--line)}
-.sponsor-strip{display:flex;gap:8px;overflow:auto;margin-top:14px}
-.sponsor-chip{min-width:105px;padding:8px;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid var(--line);display:flex;align-items:center;gap:7px}
-.sponsor-chip img{width:30px;height:30px;border-radius:7px;object-fit:contain;background:#fff}
-.match-card{background:linear-gradient(145deg,#132741,#0d1c30);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:10px}
-.match-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;gap:8px}
-.comp{font-size:10px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:.07em}
-.status{font-size:10px;padding:5px 8px;border-radius:999px;background:rgba(247,200,94,.12);color:var(--amber)}
-.teams-line{font-size:16px;font-weight:900}.match-info{font-size:11px;color:var(--muted);line-height:1.55;margin-top:6px}
-.logo-preview{width:88px;height:88px;border-radius:22px;background:#091525;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin:0 auto 14px;color:var(--green);font-weight:900}
-.logo-preview img{width:100%;height:100%;object-fit:cover}
-.mini-danger{border:0;background:rgba(255,91,103,.14);color:var(--danger);border-radius:12px;padding:9px}
-
-.team-with-logo{display:flex;align-items:center;gap:10px}
-.team-logo-mini{width:34px;height:34px;border-radius:10px;object-fit:cover;background:#fff;border:1px solid var(--line);flex:0 0 auto}
-.team-badge-mini{width:34px;height:34px;border-radius:10px;background:rgba(84,227,141,.12);border:1px solid rgba(84,227,141,.25);display:grid;place-items:center;font-size:10px;font-weight:900;color:var(--green);flex:0 0 auto}
-.match-team-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:10px 0}
-.match-team-row .home-side{justify-content:flex-start}
-.match-team-row .away-side{justify-content:flex-end;text-align:right}
-.match-vs{font-size:11px;font-weight:900;color:var(--muted)}
-
-
-.clickable{cursor:pointer;transition:transform .16s ease,border-color .16s ease}
-.clickable:active{transform:scale(.985)}
-.match-center-head{background:linear-gradient(145deg,#15304f,#0b1b2f);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:16px;text-align:center}
-.mc-competition{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
-.mc-score{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:14px 0}
-.mc-team{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:900}
-.mc-logo{width:54px;height:54px;border-radius:16px;object-fit:cover;background:#fff;border:1px solid var(--line)}
-.mc-badge{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:rgba(84,227,141,.12);border:1px solid rgba(84,227,141,.25);color:var(--green);font-weight:900}
-.score-box{font-size:28px;font-weight:950;white-space:nowrap}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.callups{display:grid;gap:8px;max-height:290px;overflow:auto;padding-right:3px}
-.callup-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.callup-row label{display:flex;align-items:center;gap:10px;cursor:pointer;flex:1}
-.callup-row input{width:18px;height:18px;accent-color:var(--green)}
-.number-pill{min-width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:rgba(84,227,141,.12);color:var(--green);font-size:11px;font-weight:900}
-.scorer-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:13px;padding:9px 11px;margin-top:7px}
-.secondary{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);border-radius:14px;padding:12px;font-weight:850}
-.danger-full{width:100%;border:1px solid rgba(255,91,103,.25);background:rgba(255,91,103,.10);color:var(--danger);border-radius:14px;padding:12px;font-weight:850;margin-top:10px}
-textarea{min-height:92px;resize:vertical}
-
-
-.bottom-nav{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(560px,calc(100% - 22px));background:rgba(7,18,31,.94);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:22px;padding:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;z-index:50;box-shadow:0 18px 50px rgba(0,0,0,.35)}
-.bottom-nav button{border:0;background:transparent;color:var(--muted);border-radius:15px;padding:8px 3px;font-size:10px;font-weight:850;display:grid;gap:3px;place-items:center}
-.bottom-nav button span{font-size:18px}.bottom-nav button.active{background:rgba(84,227,141,.12);color:var(--green)}
-body{padding-bottom:95px}
-.dashboard-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
-.dash-stat{background:linear-gradient(145deg,#132741,#0d1c30);border:1px solid var(--line);border-radius:18px;padding:14px}
-.dash-stat strong{display:block;font-size:24px;margin-top:5px}.dash-stat small{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
-.form-dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}
-.form-win{background:var(--green)}.form-draw{background:var(--amber)}.form-loss{background:var(--danger)}
-.timeline-event{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:9px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px}
-.event-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(84,227,141,.10);font-size:17px}
-.event-minute{font-size:11px;color:var(--muted);font-weight:900}
-.event-title{font-size:12px;font-weight:900}.event-note{font-size:10px;color:var(--muted);margin-top:2px}
-.player-stat-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:11px;margin-top:8px}
-.stat-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.stat-badge{font-size:9px;font-weight:900;border-radius:999px;padding:5px 7px;background:rgba(255,255,255,.06);color:var(--muted)}
-.availability-select{min-width:120px}
-.section-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.section-tabs button{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:999px;padding:8px 11px;font-size:10px;font-weight:850}
-.section-tabs button.active{color:var(--green);border-color:rgba(84,227,141,.35);background:rgba(84,227,141,.10)}
-
-</style>
+<link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07121f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hank Manager">
 </head>
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · v0.7</div></div></div>
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA · 2.0 BETA</div></div></div>
     <button class="profile" onclick="openBranding()">EA</button>
   </div>
 
@@ -209,15 +53,26 @@ body{padding-bottom:95px}
 
     <div id="dashboardV07"></div>
 
+<button class="secondary" onclick="show('tactical');renderTacticalBoard()" style="margin-top:10px">⚽ APRI CAMPO TATTICO</button>
+
+
     <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
     <div class="grid">
       <button class="quick" onclick="show('squad')"><div class="quick-icon">👥</div><b>Rosa</b><span>27 membri</span></button>
       <button class="quick" onclick="show('calendar')"><div class="quick-icon">📅</div><b>Calendario</b><span>Partite e allenamenti</span></button>
       <button class="quick" onclick="alert('Convocazioni in arrivo nella prossima versione')"><div class="quick-icon">✅</div><b>Convocazioni</b><span>Disponibilità e assenze</span></button>
-      <button class="quick" onclick="alert('Formazione in arrivo nella prossima versione')"><div class="quick-icon">⚽</div><b>Formazione</b><span>Modulo e titolari</span></button>
+      <button class="quick" onclick="show('tactical');renderTacticalBoard()"><div class="quick-icon">⚽</div><b>Formazione</b><span>Campo tattico e moduli</span></button>
     </div>
 
-    <div class="section-head"><div><h2>Numeri squadra</h2></div></div>
+    
+    <div class="section-head"><div><h2>Backup dati</h2><p class="muted small">Salva o ripristina la stagione prima degli aggiornamenti.</p></div></div>
+    <div class="grid">
+      <button class="quick" onclick="exportBackup()"><div class="quick-icon">⬇️</div><b>Esporta backup</b><span>Scarica tutti i dati</span></button>
+      <button class="quick" onclick="document.getElementById('backupFile').click()"><div class="quick-icon">⬆️</div><b>Importa backup</b><span>Ripristina un file</span></button>
+    </div>
+    <input id="backupFile" type="file" accept=".json,application/json" hidden onchange="importBackupFile(event)">
+
+<div class="section-head"><div><h2>Numeri squadra</h2></div></div>
     <div class="stats">
       <div class="stat"><strong>26</strong><span>Giocatori</span></div>
       <div class="stat"><strong>0</strong><span>Partite</span></div>
@@ -245,6 +100,63 @@ body{padding-bottom:95px}
     <p class="muted" style="margin-top:7px">Partite, allenamenti e riunioni</p>
     <div id="events" style="margin-top:18px"></div>
   </section>
+<section id="tactical" class="screen">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">HANK MANAGER · 2.0 BETA</p>
+      <h1>Campo tattico</h1>
+      <p class="muted">Prepara, salva e stampa le formazioni.</p>
+    </div>
+  </div>
+
+  <div class="tactical-shell" id="tacticalPrintArea">
+    <div class="tactical-toolbar">
+      <div class="field">
+        <label>MODULO</label>
+        <select id="formationSelect" onchange="applyFormation(this.value)">
+          <option>4-3-3</option>
+          <option>4-2-3-1</option>
+          <option>4-4-2</option>
+          <option>3-5-2</option>
+          <option>3-4-2-1</option>
+          <option>3-4-3</option>
+          <option>4-3-1-2</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>NOME FORMAZIONE</label>
+        <input id="lineupName" placeholder="Es. Titolari vs Lokomotiv">
+      </div>
+    </div>
+
+    <div class="pitch-wrap">
+      <div class="pitch" id="tacticalPitch">
+        <div class="halfway"></div><div class="circle"></div><div class="spot"></div>
+        <div class="box top"></div><div class="box bottom"></div>
+        <div class="six top"></div><div class="six bottom"></div>
+        <div class="arc top"></div><div class="arc bottom"></div>
+      </div>
+    </div>
+
+    <div class="lineup-actions">
+      <button class="primary" onclick="saveCurrentLineup()">SALVA FORMAZIONE</button>
+      <button class="secondary" onclick="window.print()">STAMPA / PDF</button>
+      <button class="secondary" onclick="resetFormation()">RIPRISTINA MODULO</button>
+      <button class="secondary" onclick="clearPitch()">SVUOTA CAMPO</button>
+    </div>
+
+    <div class="bench-panel">
+      <div class="section-head"><div><h2>Rosa e panchina</h2><p class="muted small">Tocca un giocatore per inserirlo o rimuoverlo dal campo.</p></div></div>
+      <div id="benchList" class="bench-list"></div>
+      <p class="tactical-mini-note">Puoi trascinare liberamente ogni giocatore sul campo. Le posizioni vengono salvate insieme alla formazione.</p>
+    </div>
+
+    <div class="saved-lineups">
+      <div class="section-head"><div><h2>Formazioni salvate</h2><p class="muted small">Richiama rapidamente una formazione precedente.</p></div></div>
+      <div id="savedLineupsList"></div>
+    </div>
+  </div>
+</section>
 </main>
 
 <nav id="nav" class="bottom hidden">
@@ -257,413 +169,16 @@ body{padding-bottom:95px}
 
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 
-<script>
-const defaultPlayers=[{"id": 1, "name": "Francesco Impellizzeri", "role": "Portiere", "number": 1, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 2, "name": "Yoseph Funaro", "role": "Portiere", "number": 2, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 3, "name": "Tommaso Maroder", "role": "Portiere", "number": 3, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 4, "name": "Morris David Bendaud", "role": "Portiere", "number": 4, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 5, "name": "Stefano Sabbatini", "role": "Portiere", "number": 5, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 6, "name": "Samuel Di Castro", "role": "Difensore", "number": 6, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 7, "name": "Marco Luziatelli", "role": "Difensore", "number": 7, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 8, "name": "Fabio Tesciuba", "role": "Difensore", "number": 8, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 9, "name": "Stefano Spagnoletto", "role": "Difensore", "number": 10, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 10, "name": "Marco Fiorentini", "role": "Terzino", "number": 12, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 11, "name": "Fabio Piperno", "role": "Terzino", "number": 13, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 12, "name": "Salvatore Sabia", "role": "Centrocampista", "number": 16, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 13, "name": "Gavriel Pavoncello", "role": "Terzino", "number": 17, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 14, "name": "Edoardo Maroder", "role": "Centrocampista", "number": 18, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 15, "name": "Alessio Gioia", "role": "Centrocampista", "number": 19, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 16, "name": "Rahmin Fellah", "role": "Centrocampista", "number": 20, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 17, "name": "Deniel Pavoncello", "role": "Centrocampista", "number": 21, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 18, "name": "Francesco Antonio Araujo", "role": "Attaccante", "number": 23, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 19, "name": "Alessandro Gazzo", "role": "Terzino", "number": 24, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 20, "name": "Massimiliano Moretti", "role": "Attaccante", "number": 25, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 21, "name": "Joshua Yosef Sasson", "role": "Attaccante", "number": 26, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 22, "name": "Gianni De Fatima Pires Araujo", "role": "Attaccante", "number": 27, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 23, "name": "Alberto Di Consiglio", "role": "Attaccante", "number": 28, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 24, "name": "Enrico Ascoli", "role": "Allenatore", "number": 31, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 25, "name": "Gianluca Gatti", "role": "Difensore", "number": 32, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 26, "name": "Marvin Miguel Pires Dos Santos", "role": "Attaccante", "number": 35, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 27, "name": "Alessandro Gabbani", "role": "Centrocampista", "number": 36, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}];
-const defaultEvents=[{"id": 1001, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "1ª giornata", "homeAway": "Trasferta", "opponent": "Pizza Eschilo", "date": "2026-09-28", "time": "", "venue": "Campo Aldobrandini (Ostia Antica)", "status": "Da giocare"}, {"id": 1002, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "2ª giornata", "homeAway": "Trasferta", "opponent": "Lokomotiv", "date": "2026-10-05", "time": "", "venue": "Campo Bettini", "status": "Da giocare"}, {"id": 1003, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "3ª giornata", "homeAway": "Casa", "opponent": "Grifone", "date": "2026-10-27", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1004, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "4ª giornata", "homeAway": "Casa", "opponent": "Atletico SM", "date": "2026-11-10", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1005, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "5ª giornata", "homeAway": "Trasferta", "opponent": "Real Baseggio", "date": "2026-11-16", "time": "", "venue": "Campo Muratori", "status": "Da giocare"}, {"id": 1006, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "6ª giornata", "homeAway": "Casa", "opponent": "Milani", "date": "2026-12-01", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1007, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "7ª giornata", "homeAway": "Trasferta", "opponent": "Montagnola", "date": "2026-12-14", "time": "", "venue": "Campo Romulea", "status": "Da giocare"}, {"id": 1008, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "8ª giornata", "homeAway": "Casa", "opponent": "Union FB", "date": "2026-12-22", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1009, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "9ª giornata", "homeAway": "Trasferta", "opponent": "CRC", "date": "2027-01-11", "time": "", "venue": "Campo San Tarcisio", "status": "Da giocare"}, {"id": 1010, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "10ª giornata", "homeAway": "Trasferta", "opponent": "Unicum", "date": "2027-01-25", "time": "", "venue": "Campo La Borghesiana", "status": "Da giocare"}, {"id": 1011, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "11ª giornata", "homeAway": "Casa", "opponent": "Borgorosso", "date": "2027-02-02", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1012, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "12ª giornata", "homeAway": "Casa", "opponent": "Pizza Eschilo", "date": "2027-02-09", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1013, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "13ª giornata", "homeAway": "Casa", "opponent": "Lokomotiv", "date": "2027-02-23", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1014, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "14ª giornata", "homeAway": "Trasferta", "opponent": "Grifone", "date": "2027-03-01", "time": "", "venue": "Campo Elis", "status": "Da giocare"}, {"id": 1015, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "15ª giornata", "homeAway": "Trasferta", "opponent": "Atletico SM", "date": "2027-03-22", "time": "", "venue": "Campo Ferrovieri", "status": "Da giocare"}, {"id": 1016, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "16ª giornata", "homeAway": "Casa", "opponent": "Real Baseggio", "date": "2027-04-06", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1017, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "17ª giornata", "homeAway": "Trasferta", "opponent": "Milani", "date": "2027-04-12", "time": "", "venue": "Campo San Tarcisio", "status": "Da giocare"}, {"id": 1018, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "18ª giornata", "homeAway": "Casa", "opponent": "Montagnola", "date": "2027-04-20", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1019, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "19ª giornata", "homeAway": "Trasferta", "opponent": "Union FB", "date": "2027-04-26", "time": "", "venue": "Campo Atletico 2000", "status": "Da giocare"}, {"id": 1020, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "20ª giornata", "homeAway": "Casa", "opponent": "CRC", "date": "2027-05-04", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1021, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "21ª giornata", "homeAway": "Casa", "opponent": "Unicum", "date": "2027-05-11", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}, {"id": 1022, "type": "Partita", "competition": "Campionato", "customCompetition": "", "round": "22ª giornata", "homeAway": "Casa", "opponent": "Borgorosso", "date": "2027-05-18", "time": "", "venue": "Campo Ostiense", "status": "Da giocare"}];
-let state=JSON.parse(localStorage.getItem('hank_v04')||'null')||{profile:null,players:defaultPlayers,events:defaultEvents,branding:{logo:'',sponsors:[]}};
-if(!state.players||state.players.length<20) state.players=defaultPlayers;
-if(!state.events||state.events.length<22) state.events=defaultEvents;
-if(!state.branding) state.branding={logo:'',sponsors:[]};
-state.events=state.events.map(e=>({...e,
-  callups:Array.isArray(e.callups)?e.callups:[],
-  scorers:Array.isArray(e.scorers)?e.scorers:[],
-  matchEvents:Array.isArray(e.matchEvents)?e.matchEvents:
-    (Array.isArray(e.scorers)?e.scorers.map(s=>({type:'Gol',playerId:s.playerId,minute:s.minute||'',note:''})):[]),
-  availability:e.availability&&typeof e.availability==='object'?e.availability:{},
-  homeScore:e.homeScore??'',
-  awayScore:e.awayScore??'',
-  notes:e.notes||''
-}));
-let currentFilter='Tutti';
+<script src="js/app.js"></script>
 
-function save(){localStorage.setItem('hank_v04',JSON.stringify(state))}
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
-  const inside=['home','squad','calendar'].includes(id);
-  topbar.classList.toggle('hidden',!inside);
-  nav.classList.toggle('hidden',!inside);
-  fab.classList.toggle('hidden',!['squad','calendar'].includes(id));
-  document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
-  if(id==='home'){nHome.classList.add('active');renderBranding();renderNextMatch();renderDashboard();}
-  if(id==='squad'){nSquad.classList.add('active');renderPlayers()}
-  if(id==='calendar'){nCalendar.classList.add('active');renderEvents()}
-  window.scrollTo(0,0);
-}
-function startApp(){
-  const n=document.getElementById('name').value.trim()||'Enrico Ascoli';
-  const t=document.getElementById('team').value.trim()||'Maccabi Roma';
-  state.profile={name:n,team:t,role:document.getElementById('role').value};
-  save();
-  hello.textContent='Ciao '+n.split(' ')[0]+' 👋';
-  show('home');
-}
-function setFilter(btn){
-  document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
-  btn.classList.add('active');currentFilter=btn.dataset.role;renderPlayers();
-}
-function renderPlayers(){
-  const q=(document.getElementById('search')?.value||'').toLowerCase();
-  const arr=state.players.filter(p=>(currentFilter==='Tutti'||p.role===currentFilter)&&p.name.toLowerCase().includes(q));
-  playerList.innerHTML=arr.map(p=>`<div class="player" onclick="openPlayer(${p.id})"><div class="player-left"><div class="avatar">${initials(p.name)}</div><div style="min-width:0"><div class="pname">${p.name}</div><div class="prole">${p.role} · Piede ${p.foot}</div></div></div><div class="number">${p.number}</div></div>`).join('')||'<div class="card empty">Nessun giocatore trovato.</div>';
-}
-function openPlayer(id){
-  const p=state.players.find(x=>x.id===id);
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">SCHEDA GIOCATORE</p><h2>${p.name}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="hero" style="margin:12px 0"><div style="display:flex;align-items:center;gap:14px"><div class="avatar" style="width:64px;height:64px;font-size:22px">${initials(p.name)}</div><div><div class="badge">#${p.number} · ${p.role}</div><p class="muted small" style="margin-top:8px">Piede preferito: ${p.foot}</p></div></div></div>
-  <div class="stats"><div class="stat"><strong>${p.apps}</strong><span>Presenze</span></div><div class="stat"><strong>${p.goals}</strong><span>Gol</span></div><div class="stat"><strong>${p.assists}</strong><span>Assist</span></div></div>`;
-  modal.classList.add('open');
-}
-function closeModal(){modal.classList.remove('open')}
-modal.addEventListener('click',e=>{if(e.target===modal)closeModal()})
-function fabAction(){if(document.getElementById('squad').classList.contains('active'))openAddPlayer();else openAddEvent()}
-function openAddPlayer(){
-  sheet.innerHTML=`<div class="sheet-head"><h2>Nuovo giocatore</h2><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="field"><label>NOME E COGNOME</label><input id="pn"></div>
-  <div class="field"><label>NUMERO</label><input id="pnum" type="number"></div>
-  <div class="field"><label>RUOLO</label><select id="prole"><option>Portiere</option><option>Difensore</option><option>Terzino</option><option>Centrocampista</option><option>Attaccante</option></select></div>
-  <button class="primary" onclick="addPlayer()">SALVA GIOCATORE</button>`;modal.classList.add('open');
-}
-function addPlayer(){
-  if(!pn.value.trim()||!pnum.value)return alert('Inserisci nome e numero');
-  state.players.push({id:Date.now(),name:pn.value.trim(),role:prole.value,number:pnum.value,foot:'Destro',apps:0,goals:0,assists:0});
-  save();closeModal();renderPlayers();
-}
-function openAddEvent(){
-  sheet.innerHTML=`<div class="sheet-head"><h2>Nuovo evento</h2><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="field"><label>TIPO EVENTO</label><select id="etype" onchange="toggleMatchFields()"><option>Partita</option><option>Allenamento</option><option>Riunione</option><option>Altro</option></select></div>
-  <div id="matchFields">
-    <div class="field"><label>COMPETIZIONE</label><select id="ecompetition" onchange="toggleCustomCompetition()"><option>Campionato</option><option>Coppa</option><option>Torneo</option><option>Amichevole</option><option>Personalizza</option></select></div>
-    <div class="field hidden" id="customCompField"><label>NOME COMPETIZIONE</label><input id="ecustomcompetition" placeholder="Es. Trofeo Cesari"></div>
-    <div class="field"><label>GIORNATA / FASE</label><input id="eround" placeholder="Es. 1ª giornata, Semifinale"></div>
-    <div class="field"><label>CASA O TRASFERTA</label><select id="ehomeaway"><option>Casa</option><option>Trasferta</option><option>Campo neutro</option></select></div>
-    <div class="field"><label>AVVERSARIO</label><input id="eopponent"></div>
-  </div>
-  <div class="field"><label>DATA</label><input id="edate" type="date"></div>
-  <div class="field"><label>ORA</label><input id="etime" type="time"></div>
-  <div class="field"><label>CAMPO / LUOGO</label><input id="evenue"></div>
-  <button class="primary" onclick="addEvent()">SALVA EVENTO</button>`;
-  modal.classList.add('open');
-}
-function toggleMatchFields(){document.getElementById('matchFields').classList.toggle('hidden',document.getElementById('etype').value!=='Partita')}
-function toggleCustomCompetition(){document.getElementById('customCompField').classList.toggle('hidden',document.getElementById('ecompetition').value!=='Personalizza')}
-function addEvent(){
-  const type=document.getElementById('etype').value;
-  const date=document.getElementById('edate').value;
-  if(!date)return alert('Inserisci la data');
-  const isMatch=type==='Partita';
-  const opponent=isMatch?document.getElementById('eopponent').value.trim():'';
-  if(isMatch&&!opponent)return alert('Inserisci l’avversario');
-  state.events.push({id:Date.now(),type,
-    competition:isMatch?document.getElementById('ecompetition').value:'',
-    customCompetition:isMatch?document.getElementById('ecustomcompetition').value.trim():'',
-    round:isMatch?document.getElementById('eround').value.trim():'',
-    homeAway:isMatch?document.getElementById('ehomeaway').value:'',
-    opponent,date,time:document.getElementById('etime').value,
-    venue:document.getElementById('evenue').value.trim(),status:isMatch?'Da giocare':'',
-    callups:[],scorers:[],matchEvents:[],availability:{},homeScore:'',awayScore:'',notes:''});
-  save();closeModal();renderEvents();renderNextMatch();
-}
-function renderEvents(){
-  const team=state.profile?.team||'Maccabi Roma';
-  const teamLogo=state.branding?.logo||'';
-  const arr=[...state.events].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-  const logoHtml=teamLogo
-    ? `<img class="team-logo-mini" src="${teamLogo}" alt="${team}">`
-    : `<div class="team-badge-mini">${initials(team)}</div>`;
-  events.innerHTML=arr.length?arr.map(e=>{
-    if(e.type!=='Partita')return `<div class="match-card clickable" onclick="openEventCenter(${e.id})"><div class="match-top"><span class="comp">${e.type}</span></div><div class="teams-line">${e.type}</div><div class="match-info">📅 ${formatDate(e.date)} ${e.time||''}<br>📍 ${e.venue||'Luogo da definire'}</div></div>`;
-    const comp=e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):e.competition;
-    const isAway=e.homeAway==='Trasferta';
-    const home=isAway?e.opponent:team;
-    const away=isAway?team:e.opponent;
-    const homeVisual=isAway
-      ? `<div class="team-badge-mini">${initials(home)}</div>`
-      : logoHtml;
-    const awayVisual=isAway
-      ? logoHtml
-      : `<div class="team-badge-mini">${initials(away)}</div>`;
-    return `<div class="match-card clickable" onclick="openMatchCenter(${e.id})">
-      <div class="match-top">
-        <span class="comp">${comp}${e.round?' · '+e.round:''}</span>
-        <span class="status">${matchOutcomeLabel(e,team)}</span>
-      </div>
-      <div class="match-team-row">
-        <div class="team-with-logo home-side">${homeVisual}<strong>${home}</strong></div>
-        <div class="match-vs">${e.homeScore!==""&&e.awayScore!==""?`${e.homeScore} - ${e.awayScore}`:"VS"}</div>
-        <div class="team-with-logo away-side"><strong>${away}</strong>${awayVisual}</div>
-      </div>
-      <div class="match-info">📅 ${formatDate(e.date)} ${e.time||'Orario da definire'}<br>📍 ${e.venue||'Campo da definire'} · ${e.homeAway}</div>
-    </div>`;
-  }).join(''):'<div class="card empty">Nessun evento inserito.</div>';
-}
-function renderNextMatch(){
-  const today=new Date().toISOString().slice(0,10);
-  const matches=[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>a.date.localeCompare(b.date));
-  const next=matches.find(e=>e.date>=today)||matches[0];
-  if(!next)return;
-  const team=state.profile?.team||'Maccabi Roma';
-  const teamLogo=state.branding?.logo||'';
-  const isAway=next.homeAway==='Trasferta';
-  const home=isAway?next.opponent:team;
-  const away=isAway?team:next.opponent;
-  const clubs=document.querySelectorAll('.hero .club');
-  if(clubs.length>=2){
-    clubs[0].querySelector('b').textContent=home;
-    clubs[1].querySelector('b').textContent=away;
-    const homeCrest=clubs[0].querySelector('.crest');
-    const awayCrest=clubs[1].querySelector('.crest');
-    if(!isAway && teamLogo){
-      homeCrest.innerHTML=`<img src="${teamLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
-    }else{
-      homeCrest.textContent=initials(home);
-    }
-    if(isAway && teamLogo){
-      awayCrest.innerHTML=`<img src="${teamLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
-    }else{
-      awayCrest.textContent=initials(away);
-    }
-  }
-  const meta=document.querySelector('.hero .meta');
-  if(meta)meta.innerHTML=`<span>📅 ${formatDate(next.date)} ${next.time||''}</span><span>📍 ${next.venue}</span>`;
-}
 
-function openEventCenter(id){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">${e.type.toUpperCase()}</p><h2>${e.type}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="field"><label>DATA</label><input id="mcDate" type="date" value="${e.date||''}"></div>
-  <div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div>
-  <div class="field"><label>LUOGO</label><input id="mcVenue" value="${escapeHtml(e.venue||'')}"></div>
-  <div class="field"><label>NOTE</label><textarea id="mcNotes">${escapeHtml(e.notes||'')}</textarea></div>
-  <button class="primary" onclick="saveSimpleEvent(${id})">SALVA MODIFICHE</button>`;
-  modal.classList.add('open');
-}
-function saveSimpleEvent(id){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
-  e.date=document.getElementById('mcDate').value;
-  e.time=document.getElementById('mcTime').value;
-  e.venue=document.getElementById('mcVenue').value.trim();
-  e.notes=document.getElementById('mcNotes').value.trim();
-  save();closeModal();renderEvents();renderNextMatch();
-}
-function openMatchCenter(id){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
-  const team=state.profile?.team||'Maccabi Roma';
-  const isAway=e.homeAway==='Trasferta';
-  const home=isAway?e.opponent:team;
-  const away=isAway?team:e.opponent;
-  const teamLogo=state.branding?.logo||'';
-  const homeVisual=!isAway&&teamLogo?`<img class="mc-logo" src="${teamLogo}">`:`<div class="mc-badge">${initials(home)}</div>`;
-  const awayVisual=isAway&&teamLogo?`<img class="mc-logo" src="${teamLogo}">`:`<div class="mc-badge">${initials(away)}</div>`;
-  const selected=new Set(e.callups||[]);
-  const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
-  const playerOptions=players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('');
-  const timeline=[...(e.matchEvents||[])].sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999)).map((ev,i)=>{
-    const p=state.players.find(x=>String(x.id)===String(ev.playerId));
-    return `<div class="timeline-event">
-      <div class="event-icon">${eventIcon(ev.type)}</div>
-      <div><div class="event-title">${escapeHtml(ev.type)} · ${p?escapeHtml(p.name):escapeHtml(ev.playerName||'Avversario')}</div><div class="event-note">${escapeHtml(ev.note||'')}</div></div>
-      <div><div class="event-minute">${ev.minute?escapeHtml(ev.minute)+"'":''}</div><button class="mini-danger" onclick="removeMatchEvent(${id},${i})">✕</button></div>
-    </div>`;
-  }).join('');
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">MATCH CENTER · v0.7</p><h2>${escapeHtml(e.round||'Partita')}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="match-center-head">
-    <div class="mc-competition">${escapeHtml(e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):(e.competition||'Partita'))}</div>
-    <div class="mc-score">
-      <div class="mc-team">${homeVisual}<span>${escapeHtml(home)}</span></div>
-      <div class="score-box">${e.homeScore!==''?e.homeScore:'-'} : ${e.awayScore!==''?e.awayScore:'-'}</div>
-      <div class="mc-team">${awayVisual}<span>${escapeHtml(away)}</span></div>
-    </div>
-    <div class="muted small">${formatDate(e.date)} ${e.time||'· Orario da definire'}<br>${escapeHtml(e.venue||'Campo da definire')}</div>
-  </div>
 
-  <div class="section-head"><div><h2>Dati partita</h2></div></div>
-  <div class="field"><label>STATO</label><select id="mcStatus">
-    ${['Da giocare','In corso','Terminata','Rinviata'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}
-  </select></div>
-  <div class="form-grid">
-    <div class="field"><label>DATA</label><input id="mcDate" type="date" value="${e.date||''}"></div>
-    <div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div>
-  </div>
-  <div class="field"><label>CAMPO</label><input id="mcVenue" value="${escapeHtml(e.venue||'')}"></div>
-  <div class="form-grid">
-    <div class="field"><label>GOL CASA</label><input id="mcHomeScore" type="number" min="0" value="${e.homeScore}"></div>
-    <div class="field"><label>GOL TRASFERTA</label><input id="mcAwayScore" type="number" min="0" value="${e.awayScore}"></div>
-  </div>
-
-  <div class="section-head"><div><h2>Disponibilità e convocazioni</h2><p class="muted small">${selected.size} convocati</p></div></div>
-  <div class="callups">${players.map(p=>{
-    const av=(e.availability||{})[p.id]||'Disponibile';
-    return `<div class="callup-row"><label><input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}><span class="number-pill">${p.number}</span><span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${p.role}</span></span></label>
-      <select class="availability-select" data-player="${p.id}">
-      ${['Disponibile','Assente','Infortunato','Squalificato','In ritardo','Da confermare'].map(x=>`<option ${av===x?'selected':''}>${x}</option>`).join('')}
-      </select></div>`;
-  }).join('')}</div>
-
-  <div class="section-head" style="margin-top:18px"><div><h2>Eventi partita</h2><p class="muted small">Gol, assist, cartellini e autogol</p></div></div>
-  <div class="field"><label>TIPO EVENTO</label><select id="matchEventType" onchange="toggleEventPlayerMode()">
-    <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
-  </select></div>
-  <div class="form-grid">
-    <div class="field"><label>GIOCATORE</label><select id="matchEventPlayer">${playerOptions}</select></div>
-    <div class="field"><label>MINUTO</label><input id="matchEventMinute" placeholder="Es. 23"></div>
-  </div>
-  <div class="field"><label>NOTA FACOLTATIVA</label><input id="matchEventNote" placeholder="Es. secondo giallo, assist di tacco..."></div>
-  <button class="secondary" onclick="addMatchEvent(${id})">＋ AGGIUNGI EVENTO</button>
-  <div id="matchTimeline">${timeline||'<p class="muted small" style="margin-top:10px">Nessun evento inserito.</p>'}</div>
-
-  <div class="field" style="margin-top:18px"><label>NOTE DEL MISTER</label><textarea id="mcNotes" placeholder="Indicazioni, analisi e commenti...">${escapeHtml(e.notes||'')}</textarea></div>
-  <button class="primary" onclick="saveMatchCenter(${id})">SALVA SCHEDA PARTITA</button>
-  <button class="danger-full" onclick="deleteEvent(${id})">ELIMINA PARTITA</button>`;
-  modal.classList.add('open');
-}
-function collectMatchForm(e){
-  e.status=document.getElementById('mcStatus').value;
-  e.date=document.getElementById('mcDate').value;
-  e.time=document.getElementById('mcTime').value;
-  e.venue=document.getElementById('mcVenue').value.trim();
-  e.homeScore=document.getElementById('mcHomeScore').value;
-  e.awayScore=document.getElementById('mcAwayScore').value;
-  e.notes=document.getElementById('mcNotes').value.trim();
-  e.callups=[...document.querySelectorAll('.callupCheck:checked')].map(x=>Number(x.value));
-  e.availability={};
-  document.querySelectorAll('.availability-select').forEach(x=>e.availability[x.dataset.player]=x.value);
-}
-function saveMatchCenter(id){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
-  collectMatchForm(e);
-  save();closeModal();renderEvents();renderNextMatch();renderDashboard();
-}
-function addMatchEvent(id){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
-  collectMatchForm(e);
-  const type=document.getElementById('matchEventType').value;
-  const playerId=Number(document.getElementById('matchEventPlayer').value);
-  const minute=document.getElementById('matchEventMinute').value.trim();
-  const note=document.getElementById('matchEventNote').value.trim();
-  e.matchEvents=e.matchEvents||[];
-  e.matchEvents.push({type,playerId,minute,note});
-  save();openMatchCenter(id);
-}
-function removeMatchEvent(id,index){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
-  e.matchEvents.splice(index,1);save();openMatchCenter(id);
-}
-function eventIcon(type){
-  return ({'Gol':'⚽','Assist':'🎯','Ammonizione':'🟨','Espulsione':'🟥','Autogol':'🔁','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•';
-}
-function matchOutcomeLabel(e,team){
-  if(e.status!=='Terminata'||e.homeScore===''||e.awayScore==='')return e.status||'Da giocare';
-  const isAway=e.homeAway==='Trasferta';
-  const gf=Number(isAway?e.awayScore:e.homeScore),ga=Number(isAway?e.homeScore:e.awayScore);
-  return gf>ga?'Vittoria':gf<ga?'Sconfitta':'Pareggio';
-}
-function deleteEvent(id){
-  if(!confirm('Vuoi eliminare definitivamente questa partita?'))return;
-  state.events=state.events.filter(e=>e.id!==id);
-  save();closeModal();renderEvents();renderNextMatch();
-}
-function escapeHtml(value){
-  return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-function openBranding(){
-  const sponsors=state.branding.sponsors||[];
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">IDENTITÀ SQUADRA</p><h2>Logo e sponsor</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="logo-preview" id="logoPreview">${state.branding.logo?`<img src="${state.branding.logo}">`:'MR'}</div>
-  <div class="field"><label>LOGO DELLA SOCIETÀ</label><input id="logoInput" type="file" accept="image/*" onchange="loadTeamLogo(this)"></div>
-  ${state.branding.logo?`<button class="mini-danger" style="width:100%;margin-bottom:14px" onclick="removeTeamLogo()">RIMUOVI LOGO SOCIETÀ</button>`:''}
-  <div class="section-head"><div><h2>Sponsor</h2><p class="muted small">Puoi inserirne più di uno</p></div></div>
-  <div class="field"><label>NOME SPONSOR</label><input id="sponsorName"></div>
-  <div class="field"><label>LOGO SPONSOR</label><input id="sponsorLogo" type="file" accept="image/*"></div>
-  <button class="primary" onclick="addSponsor()">AGGIUNGI SPONSOR</button>
-  <div class="list">${sponsors.map((s,i)=>`<div class="player"><div class="player-left">${s.logo?`<img src="${s.logo}" style="width:42px;height:42px;object-fit:contain;background:white;border-radius:10px">`:''}<div><div class="pname">${s.name}</div><div class="prole">Sponsor</div></div></div><button class="mini-danger" onclick="removeSponsor(${i})">Elimina</button></div>`).join('')}</div>`;
-  modal.classList.add('open');
-}
-function loadTeamLogo(input){
-  const file=input.files[0];if(!file)return;
-  const r=new FileReader();r.onload=()=>{state.branding.logo=r.result;save();document.getElementById('logoPreview').innerHTML=`<img src="${r.result}">`;renderBranding();renderEvents();renderNextMatch()};r.readAsDataURL(file);
-}
-function removeTeamLogo(){
-  state.branding.logo='';
-  save();
-  renderBranding();
-  renderEvents();
-  renderNextMatch();
-  openBranding();
-}
-function addSponsor(){
-  const name=document.getElementById('sponsorName').value.trim();
-  const file=document.getElementById('sponsorLogo').files[0];
-  if(!name)return alert('Inserisci il nome dello sponsor');
-  if(!file){state.branding.sponsors.push({name,logo:''});save();openBranding();renderBranding();return}
-  const r=new FileReader();r.onload=()=>{state.branding.sponsors.push({name,logo:r.result});save();openBranding();renderBranding()};r.readAsDataURL(file);
-}
-function removeSponsor(i){state.branding.sponsors.splice(i,1);save();openBranding();renderBranding()}
-function renderBranding(){
-  const team=state.profile?.team||'Maccabi Roma';
-  document.getElementById('homeTeamName').textContent=team;
-  if(state.branding.logo)document.getElementById('homeCrest').innerHTML=`<img src="${state.branding.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
-  else document.getElementById('homeCrest').textContent=initials(team);
-  document.getElementById('homeSponsors').innerHTML=(state.branding.sponsors||[]).map(s=>`<div class="sponsor-chip">${s.logo?`<img src="${s.logo}">`:''}<span class="small">${s.name}</span></div>`).join('');
-}
-
-function seasonStats(){
-  const played=state.events.filter(e=>e.type==='Partita'&&e.status==='Terminata'&&e.homeScore!==''&&e.awayScore!=='');
-  let wins=0,draws=0,losses=0,gf=0,ga=0;
-  played.forEach(e=>{
-    const isAway=e.homeAway==='Trasferta';
-    const f=Number(isAway?e.awayScore:e.homeScore),a=Number(isAway?e.homeScore:e.awayScore);
-    gf+=f;ga+=a;if(f>a)wins++;else if(f<a)losses++;else draws++;
-  });
-  return {played:played.length,wins,draws,losses,gf,ga};
-}
-function playerStats(){
-  const map={};
-  state.players.forEach(p=>map[p.id]={player:p,goals:0,assists:0,yellow:0,red:0,ownGoals:0,apps:0});
-  state.events.filter(e=>e.type==='Partita').forEach(e=>{
-    (e.callups||[]).forEach(id=>{if(map[id])map[id].apps++});
-    (e.matchEvents||[]).forEach(ev=>{
-      const s=map[ev.playerId];if(!s)return;
-      if(ev.type==='Gol'||ev.type==='Rigore segnato')s.goals++;
-      if(ev.type==='Assist')s.assists++;
-      if(ev.type==='Ammonizione')s.yellow++;
-      if(ev.type==='Espulsione')s.red++;
-      if(ev.type==='Autogol')s.ownGoals++;
-    });
-  });
-  return Object.values(map);
-}
-function renderDashboard(){
-  const s=seasonStats();
-  const top=playerStats().sort((a,b)=>b.goals-a.goals||b.assists-a.assists).slice(0,5);
-  const host=document.getElementById('dashboardV07');if(!host)return;
-  host.innerHTML=`<div class="dashboard-grid">
-    <div class="dash-stat"><small>Partite</small><strong>${s.played}</strong></div>
-    <div class="dash-stat"><small>Vittorie</small><strong>${s.wins}</strong></div>
-    <div class="dash-stat"><small>Gol fatti</small><strong>${s.gf}</strong></div>
-    <div class="dash-stat"><small>Gol subiti</small><strong>${s.ga}</strong></div>
-  </div>
-  <div class="section-head" style="margin-top:20px"><div><h2>Classifica marcatori</h2><p class="muted small">Aggiornata dagli eventi partita</p></div></div>
-  <div>${top.map((x,i)=>`<div class="player-stat-card"><div class="player-left"><span class="number-pill">${i+1}</span><div><div class="pname">${escapeHtml(x.player.name)}</div><div class="prole">${escapeHtml(x.player.role)}</div></div></div><div class="stat-badges"><span class="stat-badge">⚽ ${x.goals}</span><span class="stat-badge">🎯 ${x.assists}</span><span class="stat-badge">🟨 ${x.yellow}</span><span class="stat-badge">🟥 ${x.red}</span></div></div>`).join('')||'<div class="card empty">Nessuna statistica disponibile.</div>'}</div>`;
-}
-function openNextMatch(){
-  const today=new Date().toISOString().slice(0,10);
-  const next=[...state.events].filter(e=>e.type==='Partita'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date))[0]
-    ||[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>b.date.localeCompare(a.date))[0];
-  if(next)openMatchCenter(next.id);else alert('Nessuna partita disponibile');
-}
-function showStats(){
-  show('home');setTimeout(()=>{document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'})},50);
-}
-function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
-function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
-if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home');renderBranding();renderNextMatch();renderDashboard()}
-</script>
 
 <div class="bottom-nav">
   <button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
   <button onclick="show('calendar')"><span>▣</span>Calendario</button>
   <button onclick="show('roster')"><span>♙</span>Rosa</button>
-  <button onclick="openNextMatch()"><span>⚽</span>Partita</button>
+  <button onclick="show('tactical');renderTacticalBoard()"><span>⚽</span>Tattica</button>
   <button onclick="showStats()"><span>▥</span>Statistiche</button>
 </div>
 
