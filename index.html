@@ -3,129 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07111f">
+<meta name="theme-color" content="#06101c">
 <title>Hank Manager</title>
 <style>
-:root{--bg:#07111f;--panel:#0d1c31;--panel2:#12243e;--line:#243955;--text:#f7f9fc;--muted:#92a3b9;--green:#47d25b;--green2:#2bad45;--gold:#d9b54d;--red:#ef4444}
-*{box-sizing:border-box}body{margin:0;background:#050b14;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select,textarea{font:inherit}.app{width:min(100%,430px);min-height:100vh;margin:auto;padding:22px 16px 108px;background:linear-gradient(180deg,#0a1728,#07111f)}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.06em;margin-bottom:24px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,var(--green),#147d35);color:#06111d;display:grid;place-items:center;font-weight:900}
-.screen{display:none}.screen.active{display:block}.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px}
-h1,h2,h3,p{margin:0}h1{font-size:28px}.muted{color:var(--muted)}.small{font-size:12px}
-.primary,.secondary,.danger{width:100%;border-radius:16px;padding:14px 16px;font-weight:800}.primary{border:0;background:linear-gradient(180deg,var(--green),var(--green2));color:#06111d}.secondary{border:1px solid var(--line);background:#0a1728;color:var(--text)}.danger{border:0;background:var(--red);color:#fff}
-.form{margin:18px 0}.field{margin-bottom:14px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:#081525;color:var(--text);padding:13px}.field textarea{min-height:85px}
-.progress{height:8px;border-radius:999px;background:#081525;border:1px solid var(--line);overflow:hidden;margin:12px 0 22px}.progress span{display:block;height:100%;background:var(--green)}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hero{text-align:center;padding:28px 18px}.teammark{width:88px;height:88px;border-radius:24px;background:#08111f;border:1px solid #29415f;color:var(--gold);display:grid;place-items:center;margin:0 auto 15px;font-size:30px;font-weight:900}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.quick{min-height:92px;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--text);font-weight:750;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.quick span{font-size:25px}
-.match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:12px;margin:18px 0}.crest{width:58px;height:58px;border-radius:17px;background:#08111f;border:1px solid #29415f;color:var(--gold);display:grid;place-items:center;margin:0 auto 7px;font-weight:900}.vs{color:var(--muted);font-weight:800;font-size:20px}
-.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,430px);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(5,13,24,.97);border-top:1px solid var(--line);padding:10px 8px calc(14px + env(safe-area-inset-bottom))}
-.bottom button{border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px}.bottom button.active{color:var(--green)}.bottom b{font-size:19px}
-.list{display:flex;flex-direction:column;gap:10px}.item{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);background:#0a1728;border-radius:16px;padding:13px}.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#173150;font-weight:800;margin-right:10px}.left{display:flex;align-items:center;min-width:0}.hide{display:none}.pill{font-size:11px;border-radius:999px;padding:5px 9px;background:rgba(71,210,91,.12);border:1px solid rgba(71,210,91,.35);color:var(--green);font-weight:800}.section{display:flex;justify-content:space-between;align-items:center;margin:22px 0 10px}.icon{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:#0a1728;color:var(--text)}
-.event-date{min-width:54px;text-align:center;border-right:1px solid var(--line);padding-right:12px;margin-right:12px}.event-date b{font-size:22px;display:block}.event-date span{font-size:11px;color:var(--muted)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:flex-end;justify-content:center;padding:16px;z-index:30}.modal.open{display:flex}.sheet{width:min(100%,430px);background:#0a1728;border:1px solid var(--line);border-radius:24px 24px 18px 18px;padding:18px;max-height:90vh;overflow:auto}
+:root {
+  --bg:#06101c;
+  --bg2:#0b1727;
+  --card:#101f33;
+  --card2:#152842;
+  --line:rgba(255,255,255,.08);
+  --text:#f7f9fc;
+  --muted:#8ea2ba;
+  --green:#45e46b;
+  --green-dark:#1da347;
+  --amber:#f7c85e;
+  --danger:#ff5b67;
+  --shadow:0 20px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#020811;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+body{min-height:100vh}
+.app{width:min(100%,430px);min-height:100vh;margin:auto;padding:20px 16px 110px;background:
+radial-gradient(circle at 80% 0%,rgba(69,228,107,.12),transparent 30%),
+linear-gradient(180deg,#0a1727 0%,#06101c 55%,#050d18 100%)}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(145deg,var(--green),#1f9b47);display:grid;place-items:center;color:#03110a;font-size:22px;font-weight:1000;box-shadow:0 10px 28px rgba(69,228,107,.24)}
+.brand-title{font-weight:900;letter-spacing:.08em;font-size:14px}
+.brand-sub{color:var(--muted);font-size:11px;margin-top:2px}
+.profile{width:43px;height:43px;border-radius:50%;background:linear-gradient(145deg,#1d3658,#10213a);border:1px solid var(--line);display:grid;place-items:center;font-weight:800}
+
+.screen{display:none}
+.screen.active{display:block}
+h1,h2,h3,p{margin:0}
+h1{font-size:31px;line-height:1.08;letter-spacing:-.03em}
+h2{font-size:21px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+
+.hero{background:
+linear-gradient(145deg,rgba(69,228,107,.18),rgba(21,40,66,.95) 48%,rgba(16,31,51,.98));
+border:1px solid rgba(69,228,107,.18);border-radius:28px;padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(69,228,107,.08);right:-60px;top:-60px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(69,228,107,.12);border:1px solid rgba(69,228,107,.22);color:var(--green);font-size:11px;font-weight:850;letter-spacing:.04em}
+.team-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:24px 0 18px}
+.club{text-align:center}
+.crest{width:64px;height:64px;border-radius:20px;margin:0 auto 9px;background:linear-gradient(145deg,#0a1727,#142842);border:1px solid rgba(255,255,255,.1);display:grid;place-items:center;font-size:20px;font-weight:1000;color:var(--amber)}
+.vs{font-size:17px;font-weight:900;color:var(--muted)}
+.meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 12px}
+.section-head a{color:var(--green);font-size:12px;font-weight:800;text-decoration:none}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick{border:1px solid var(--line);background:linear-gradient(145deg,var(--card2),var(--card));border-radius:22px;padding:17px;text-align:left;color:var(--text);min-height:116px;box-shadow:0 12px 30px rgba(0,0,0,.12)}
+.quick-icon{width:42px;height:42px;border-radius:14px;background:rgba(69,228,107,.12);display:grid;place-items:center;font-size:20px;margin-bottom:16px}
+.quick b{display:block;font-size:15px}
+.quick span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{border:1px solid var(--line);background:rgba(16,31,51,.9);border-radius:18px;padding:14px;text-align:center}
+.stat strong{display:block;font-size:23px}
+.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+.card{background:linear-gradient(145deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:16px}
+.search{width:100%;border:1px solid var(--line);background:#091525;color:var(--text);padding:14px 15px;border-radius:16px;margin:14px 0 12px;outline:none}
+.filters{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
+.filter{white-space:nowrap;border:1px solid var(--line);background:#0a1727;color:var(--muted);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:750}
+.filter.active{background:var(--green);color:#03110a;border-color:transparent}
+
+.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.player{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(145deg,#132741,#0d1c30);border:1px solid var(--line);border-radius:19px;padding:12px}
+.player-left{display:flex;align-items:center;gap:12px;min-width:0}
+.avatar{width:48px;height:48px;border-radius:16px;background:linear-gradient(145deg,#1d385d,#10213a);display:grid;place-items:center;font-weight:1000;color:var(--green);font-size:18px}
+.pname{font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.prole{font-size:11px;color:var(--muted);margin-top:3px}
+.number{min-width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.05);display:grid;place-items:center;font-weight:900}
+
+.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,430px);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px calc(14px + env(safe-area-inset-bottom));background:rgba(4,11,20,.95);backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:20}
+.bottom button{border:0;background:transparent;color:#71849b;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700}
+.bottom button.active{color:var(--green)}
+.bottom b{font-size:20px}
+
+.fab{position:fixed;right:max(18px,calc((100vw - 430px)/2 + 18px));bottom:92px;width:56px;height:56px;border-radius:19px;border:0;background:linear-gradient(145deg,var(--green),var(--green-dark));color:#041109;font-size:27px;font-weight:900;box-shadow:0 14px 34px rgba(69,228,107,.28)}
+.hidden{display:none!important}
+
+.onboard{padding-top:55px}
+.onboard-logo{width:88px;height:88px;border-radius:28px;background:linear-gradient(145deg,var(--green),#1a9141);display:grid;place-items:center;color:#03110a;font-size:42px;font-weight:1000;box-shadow:0 22px 50px rgba(69,228,107,.24);margin-bottom:28px}
+.primary{width:100%;border:0;border-radius:17px;padding:15px 18px;background:linear-gradient(145deg,var(--green),var(--green-dark));color:#03110a;font-weight:900;margin-top:12px}
+.field{margin:14px 0}
+.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
+.field input,.field select{width:100%;border:1px solid var(--line);background:#091525;color:var(--text);padding:14px;border-radius:15px;outline:none}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;padding:14px;z-index:40}
+.modal.open{display:flex}
+.sheet{width:min(100%,430px);max-height:88vh;overflow:auto;background:#0a1727;border:1px solid var(--line);border-radius:26px 26px 18px 18px;padding:18px}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.close{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:#101f33;color:var(--text)}
+.empty{text-align:center;padding:30px 15px;color:var(--muted)}
 </style>
 </head>
 <body>
 <main class="app">
-<div class="brand"><div class="logo">H</div><div>HANK MANAGER <span class="small muted">v0.2.1</span></div></div>
-
-<section id="welcome" class="screen active">
-  <div class="card hero"><div class="teammark">HM</div><h1>La tua squadra.<br>Una stagione intera.</h1><p class="muted" style="margin-top:10px">Crea il profilo della squadra e inizia a gestirla.</p></div>
-  <button class="primary" onclick="show('account')">INIZIA</button>
-</section>
-
-<section id="account" class="screen">
-  <div class="small muted">PASSO 1 DI 3</div><div class="progress"><span style="width:33%"></span></div>
-  <h1>Crea il profilo</h1>
-  <div class="form">
-    <div class="field"><label>Nome e cognome</label><input id="name" placeholder="Es. Enrico Ascoli"></div>
-    <div class="field"><label>Email</label><input id="email" type="email" placeholder="nome@email.it"></div>
-    <div class="field"><label>Ruolo</label><select id="role"><option>Allenatore</option><option>Dirigente</option><option>Vice allenatore</option></select></div>
+  <div id="topbar" class="topbar hidden">
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title">HANK MANAGER</div><div class="brand-sub">MACCABI ROMA</div></div></div>
+    <div class="profile">EA</div>
   </div>
-  <button class="primary" onclick="nextAccount()">CONTINUA</button>
-</section>
 
-<section id="team" class="screen">
-  <div class="small muted">PASSO 2 DI 3</div><div class="progress"><span style="width:66%"></span></div>
-  <h1>Crea la squadra</h1>
-  <div class="form">
-    <div class="field"><label>Nome squadra</label><input id="teamName" placeholder="Es. Maccabi Roma"></div>
-    <div class="field"><label>Sigla</label><input id="shortName" maxlength="3" placeholder="MR"></div>
-    <div class="field"><label>Stagione</label><input id="season" value="2026/27"></div>
-    <div class="field"><label>Campionato</label><input id="competition" placeholder="Es. Serie A d'Elite"></div>
-  </div>
-  <div class="actions"><button class="secondary" onclick="show('account')">INDIETRO</button><button class="primary" onclick="nextTeam()">CONTINUA</button></div>
-</section>
+  <section id="welcome" class="screen active onboard">
+    <div class="onboard-logo">H</div>
+    <span class="badge">⚽ TEAM MANAGEMENT</span>
+    <h1 style="margin-top:18px">Tutta la tua squadra.<br>In un’unica app.</h1>
+    <p class="muted" style="margin-top:14px;line-height:1.55">Rosa, calendario, convocazioni, formazione e statistiche. Tutto semplice, veloce e sempre con te.</p>
+    <button class="primary" onclick="show('setup')">INIZIA ORA</button>
+  </section>
 
-<section id="settings" class="screen">
-  <div class="small muted">PASSO 3 DI 3</div><div class="progress"><span style="width:100%"></span></div>
-  <h1>Imposta la stagione</h1>
-  <div class="form">
-    <div class="field"><label>Campo di casa</label><input id="field" placeholder="Es. Palasportivo Ostiense"></div>
-    <div class="field"><label>Giocatori in campo</label><select id="players"><option>11</option><option>8</option><option>7</option><option>5</option></select></div>
-    <div class="field"><label>Durata della partita</label><select id="duration"><option>90 minuti</option><option>80 minuti</option><option>70 minuti</option><option>60 minuti</option></select></div>
-  </div>
-  <div class="actions"><button class="secondary" onclick="show('team')">INDIETRO</button><button class="primary" onclick="createTeam()">CREA SQUADRA</button></div>
-</section>
+  <section id="setup" class="screen">
+    <span class="badge">CONFIGURAZIONE RAPIDA</span>
+    <h1 style="margin-top:16px">Crea il tuo profilo</h1>
+    <p class="muted" style="margin-top:8px">Bastano pochi secondi.</p>
+    <div class="field"><label>NOME</label><input id="name" value="Enrico Ascoli"></div>
+    <div class="field"><label>SQUADRA</label><input id="team" value="Maccabi Roma"></div>
+    <div class="field"><label>RUOLO</label><select id="role"><option>Allenatore</option><option>Dirigente</option></select></div>
+    <button class="primary" onclick="startApp()">ENTRA NELLA SQUADRA</button>
+  </section>
 
-<section id="home" class="screen">
-  <h1 id="hello">Ciao 👋</h1><p class="muted">Bentornato Mister</p>
-  <div class="card" style="margin-top:18px" id="nextMatchCard"></div>
-  <div class="grid">
-    <button class="quick" onclick="show('squad')"><span>👥</span>Rosa</button>
-    <button class="quick" onclick="show('calendar')"><span>📅</span>Calendario</button>
-    <button class="quick" onclick="alert('Statistiche in arrivo')"><span>📊</span>Statistiche</button>
-    <button class="quick" onclick="alert('Media Center in arrivo')"><span>🎨</span>Media Center</button>
-  </div>
-</section>
+  <section id="home" class="screen">
+    <p class="muted small">DOMENICA, STAGIONE 2026/27</p>
+    <h1 id="hello" style="margin:6px 0 18px">Ciao Enrico 👋</h1>
 
-<section id="squad" class="screen">
-  <div class="section"><div><h1>Rosa</h1><p class="muted">I giocatori della tua squadra</p></div><button class="icon" onclick="openPlayer()">＋</button></div>
-  <div id="playerList" class="list"></div>
-</section>
+    <div class="hero">
+      <span class="badge">PROSSIMA PARTITA</span>
+      <div class="team-row">
+        <div class="club"><div class="crest">MR</div><b>Maccabi Roma</b></div>
+        <div class="vs">VS</div>
+        <div class="club"><div class="crest">?</div><b>Da definire</b></div>
+      </div>
+      <div class="meta"><span>📅 Nessuna data</span><span>📍 Campo da definire</span></div>
+    </div>
 
-<section id="calendar" class="screen">
-  <div class="section"><div><h1>Calendario</h1><p class="muted">Partite e allenamenti</p></div><button class="icon" onclick="openEvent()">＋</button></div>
-  <div id="eventList" class="list"></div>
-</section>
+    <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
+    <div class="grid">
+      <button class="quick" onclick="show('squad')"><div class="quick-icon">👥</div><b>Rosa</b><span>27 membri</span></button>
+      <button class="quick" onclick="show('calendar')"><div class="quick-icon">📅</div><b>Calendario</b><span>Partite e allenamenti</span></button>
+      <button class="quick" onclick="alert('Convocazioni in arrivo nella prossima versione')"><div class="quick-icon">✅</div><b>Convocazioni</b><span>Disponibilità e assenze</span></button>
+      <button class="quick" onclick="alert('Formazione in arrivo nella prossima versione')"><div class="quick-icon">⚽</div><b>Formazione</b><span>Modulo e titolari</span></button>
+    </div>
+
+    <div class="section-head"><div><h2>Numeri squadra</h2></div></div>
+    <div class="stats">
+      <div class="stat"><strong>26</strong><span>Giocatori</span></div>
+      <div class="stat"><strong>0</strong><span>Partite</span></div>
+      <div class="stat"><strong>0</strong><span>Gol</span></div>
+    </div>
+  </section>
+
+  <section id="squad" class="screen">
+    <h1>La tua rosa</h1>
+    <p class="muted" style="margin-top:7px">27 membri nella squadra</p>
+    <input id="search" class="search" placeholder="Cerca un giocatore..." oninput="renderPlayers()">
+    <div class="filters" id="filters">
+      <button class="filter active" data-role="Tutti" onclick="setFilter(this)">Tutti</button>
+      <button class="filter" data-role="Portiere" onclick="setFilter(this)">Portieri</button>
+      <button class="filter" data-role="Difensore" onclick="setFilter(this)">Difensori</button>
+      <button class="filter" data-role="Terzino" onclick="setFilter(this)">Terzini</button>
+      <button class="filter" data-role="Centrocampista" onclick="setFilter(this)">Centrocampisti</button>
+      <button class="filter" data-role="Attaccante" onclick="setFilter(this)">Attaccanti</button>
+    </div>
+    <div id="playerList" class="list"></div>
+  </section>
+
+  <section id="calendar" class="screen">
+    <h1>Calendario</h1>
+    <p class="muted" style="margin-top:7px">Partite, allenamenti e riunioni</p>
+    <div id="events" class="card empty" style="margin-top:18px">Nessun evento inserito.<br>Premi il pulsante + per cominciare.</div>
+  </section>
 </main>
 
-<nav id="nav" class="bottom hide">
-  <button onclick="show('home')" id="navHome"><b>⌂</b>Home</button>
-  <button onclick="show('squad')" id="navSquad"><b>👥</b>Rosa</button>
-  <button onclick="show('calendar')" id="navCalendar"><b>📅</b>Calendario</button>
-  <button onclick="resetApp()"><b>⚙️</b>Reset</button>
+<nav id="nav" class="bottom hidden">
+  <button id="nHome" onclick="show('home')"><b>⌂</b>Home</button>
+  <button id="nSquad" onclick="show('squad')"><b>👥</b>Rosa</button>
+  <button id="nCalendar" onclick="show('calendar')"><b>📅</b>Calendario</button>
+  <button onclick="alert('Statistiche in arrivo')"><b>📊</b>Statistiche</button>
 </nav>
+<button id="fab" class="fab hidden" onclick="fabAction()">＋</button>
 
-<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 
 <script>
-const screens=[...document.querySelectorAll('.screen')];
-let data=JSON.parse(localStorage.getItem('hankData')||'null')||{players:[],events:[]};
-data.players=data.players||[];data.events=data.events||[];
+const defaultPlayers=[{"id": 1, "name": "Francesco Impellizzeri", "role": "Portiere", "number": 1, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 2, "name": "Yoseph Funaro", "role": "Portiere", "number": 2, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 3, "name": "Tommaso Maroder", "role": "Portiere", "number": 3, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 4, "name": "Morris David Bendaud", "role": "Portiere", "number": 4, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 5, "name": "Stefano Sabbatini", "role": "Portiere", "number": 5, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 6, "name": "Samuel Di Castro", "role": "Difensore", "number": 6, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 7, "name": "Marco Luziatelli", "role": "Difensore", "number": 7, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 8, "name": "Fabio Tesciuba", "role": "Difensore", "number": 8, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 9, "name": "Stefano Spagnoletto", "role": "Difensore", "number": 10, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 10, "name": "Marco Fiorentini", "role": "Terzino", "number": 12, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 11, "name": "Fabio Piperno", "role": "Terzino", "number": 13, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 12, "name": "Salvatore Sabia", "role": "Centrocampista", "number": 16, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 13, "name": "Gavriel Pavoncello", "role": "Terzino", "number": 17, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 14, "name": "Edoardo Maroder", "role": "Centrocampista", "number": 18, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 15, "name": "Alessio Gioia", "role": "Centrocampista", "number": 19, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 16, "name": "Rahmin Fellah", "role": "Centrocampista", "number": 20, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 17, "name": "Deniel Pavoncello", "role": "Centrocampista", "number": 21, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 18, "name": "Francesco Antonio Araujo", "role": "Attaccante", "number": 23, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 19, "name": "Alessandro Gazzo", "role": "Terzino", "number": 24, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 20, "name": "Massimiliano Moretti", "role": "Attaccante", "number": 25, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 21, "name": "Joshua Yosef Sasson", "role": "Attaccante", "number": 26, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 22, "name": "Gianni De Fatima Pires Araujo", "role": "Attaccante", "number": 27, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 23, "name": "Alberto Di Consiglio", "role": "Attaccante", "number": 28, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 24, "name": "Enrico Ascoli", "role": "Allenatore", "number": 31, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 25, "name": "Gianluca Gatti", "role": "Difensore", "number": 32, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 26, "name": "Marvin Miguel Pires Dos Santos", "role": "Attaccante", "number": 35, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}, {"id": 27, "name": "Alessandro Gabbani", "role": "Centrocampista", "number": 36, "foot": "Destro", "apps": 0, "goals": 0, "assists": 0}];
+let state=JSON.parse(localStorage.getItem('hank_v03')||'null')||{profile:null,players:defaultPlayers,events:[]};
+if(!state.players||state.players.length<20) state.players=defaultPlayers;
+let currentFilter='Tutti';
 
-function save(){localStorage.setItem('hankData',JSON.stringify(data))}
-function show(id){screens.forEach(x=>x.classList.toggle('active',x.id===id));const inApp=['home','squad','calendar'].includes(id);nav.classList.toggle('hide',!inApp);document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));if(id==='home'){navHome.classList.add('active');renderHome()}if(id==='squad'){navSquad.classList.add('active');renderPlayers()}if(id==='calendar'){navCalendar.classList.add('active');renderEvents()}window.scrollTo(0,0)}
-function nextAccount(){if(!document.getElementById('name').value.trim()||!document.getElementById('email').value.trim())return alert('Inserisci nome ed email.');show('team')}
-function nextTeam(){if(!document.getElementById('teamName').value.trim()||!document.getElementById('shortName').value.trim())return alert('Inserisci nome squadra e sigla.');show('settings')}
-function createTeam(){if(!document.getElementById('field').value.trim())return alert('Inserisci il campo di casa.');data={...data,name:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),role:document.getElementById('role').value,teamName:document.getElementById('teamName').value.trim(),shortName:document.getElementById('shortName').value.trim().toUpperCase(),season:document.getElementById('season').value.trim(),competition:document.getElementById('competition').value.trim(),field:document.getElementById('field').value.trim(),playersOnField:document.getElementById('players').value,duration:document.getElementById('duration').value};save();show('home')}
-function renderHome(){hello.textContent='Ciao '+(data.name?data.name.split(' ')[0]:'Mister')+' 👋';const future=[...data.events].filter(e=>e.type==='Partita').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));const e=future[0];nextMatchCard.innerHTML=e?`<div class="small muted">PROSSIMA PARTITA</div><div class="match"><div><div class="crest">${data.shortName||'HM'}</div><h3>${(data.teamName||'LA TUA SQUADRA').toUpperCase()}</h3></div><div class="vs">VS</div><div><div class="crest">${initials(e.opponent)}</div><h3>${e.opponent.toUpperCase()}</h3></div></div><p class="small muted" style="text-align:center">${formatDate(e.date)} · ${e.time} · ${e.venue}</p>`:`<div class="hero"><h2>Nessuna partita</h2><p class="muted" style="margin:8px 0 14px">Inserisci la prima gara dal calendario.</p><button class="primary" onclick="openEvent()">CREA LA PRIMA PARTITA</button></div>`}
-function openModal(html){sheet.innerHTML=html;modal.classList.add('open')}
+function save(){localStorage.setItem('hank_v03',JSON.stringify(state))}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  const inside=['home','squad','calendar'].includes(id);
+  topbar.classList.toggle('hidden',!inside);
+  nav.classList.toggle('hidden',!inside);
+  fab.classList.toggle('hidden',!['squad','calendar'].includes(id));
+  document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
+  if(id==='home')nHome.classList.add('active');
+  if(id==='squad'){nSquad.classList.add('active');renderPlayers()}
+  if(id==='calendar'){nCalendar.classList.add('active');renderEvents()}
+  window.scrollTo(0,0);
+}
+function startApp(){
+  const n=document.getElementById('name').value.trim()||'Enrico Ascoli';
+  const t=document.getElementById('team').value.trim()||'Maccabi Roma';
+  state.profile={name:n,team:t,role:document.getElementById('role').value};
+  save();
+  hello.textContent='Ciao '+n.split(' ')[0]+' 👋';
+  show('home');
+}
+function setFilter(btn){
+  document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');currentFilter=btn.dataset.role;renderPlayers();
+}
+function renderPlayers(){
+  const q=(document.getElementById('search')?.value||'').toLowerCase();
+  const arr=state.players.filter(p=>(currentFilter==='Tutti'||p.role===currentFilter)&&p.name.toLowerCase().includes(q));
+  playerList.innerHTML=arr.map(p=>`<div class="player" onclick="openPlayer(${p.id})"><div class="player-left"><div class="avatar">${initials(p.name)}</div><div style="min-width:0"><div class="pname">${p.name}</div><div class="prole">${p.role} · Piede ${p.foot}</div></div></div><div class="number">${p.number}</div></div>`).join('')||'<div class="card empty">Nessun giocatore trovato.</div>';
+}
+function openPlayer(id){
+  const p=state.players.find(x=>x.id===id);
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">SCHEDA GIOCATORE</p><h2>${p.name}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  <div class="hero" style="margin:12px 0"><div style="display:flex;align-items:center;gap:14px"><div class="avatar" style="width:64px;height:64px;font-size:22px">${initials(p.name)}</div><div><div class="badge">#${p.number} · ${p.role}</div><p class="muted small" style="margin-top:8px">Piede preferito: ${p.foot}</p></div></div></div>
+  <div class="stats"><div class="stat"><strong>${p.apps}</strong><span>Presenze</span></div><div class="stat"><strong>${p.goals}</strong><span>Gol</span></div><div class="stat"><strong>${p.assists}</strong><span>Assist</span></div></div>`;
+  modal.classList.add('open');
+}
 function closeModal(){modal.classList.remove('open')}
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal()})
-function openPlayer(){openModal(`<div class="section"><h2>Nuovo giocatore</h2><button class="icon" onclick="closeModal()">✕</button></div><div class="field"><label>Nome e cognome</label><input id="pName"></div><div class="field"><label>Numero</label><input id="pNumber" type="number"></div><div class="field"><label>Ruolo</label><select id="pRole"><option>Portiere</option><option>Difensore</option><option>Terzino</option><option>Centrocampista</option><option>Attaccante</option></select></div><div class="field"><label>Piede preferito</label><select id="pFoot"><option>Destro</option><option>Sinistro</option><option>Ambidestro</option></select></div><button class="primary" onclick="addPlayer()">SALVA GIOCATORE</button>`)}
-function addPlayer(){if(!pName.value.trim()||!pNumber.value.trim())return alert('Inserisci nome e numero.');data.players.push({id:Date.now(),name:pName.value.trim(),number:pNumber.value.trim(),role:pRole.value,foot:pFoot.value});save();closeModal();renderPlayers()}
-function renderPlayers(){playerList.innerHTML=data.players.length?data.players.map(p=>`<div class="item"><div class="left"><div class="avatar">${p.number}</div><div><b>${p.name}</b><div class="small muted">${p.role} · ${p.foot}</div></div></div><button class="icon" onclick="deletePlayer(${p.id})">🗑</button></div>`).join(''):`<div class="card hero"><h2>Nessun giocatore</h2><p class="muted" style="margin-top:8px">Premi ＋ per inserire il primo giocatore.</p></div>`}
-function deletePlayer(id){if(confirm('Eliminare questo giocatore?')){data.players=data.players.filter(p=>p.id!==id);save();renderPlayers()}}
-function openEvent(){openModal(`<div class="section"><h2>Nuovo evento</h2><button class="icon" onclick="closeModal()">✕</button></div><div class="field"><label>Tipo</label><select id="eType" onchange="toggleOpponent()"><option>Partita</option><option>Allenamento</option><option>Riunione</option></select></div><div class="field" id="oppField"><label>Avversario</label><input id="eOpponent"></div><div class="field"><label>Data</label><input id="eDate" type="date"></div><div class="field"><label>Ora</label><input id="eTime" type="time" value="21:00"></div><div class="field"><label>Luogo</label><input id="eVenue" value="${data.field||''}"></div><div class="field"><label>Note</label><textarea id="eNotes"></textarea></div><button class="primary" onclick="addEvent()">SALVA EVENTO</button>`)}
-function toggleOpponent(){oppField.style.display=eType.value==='Partita'?'block':'none'}
-function addEvent(){if(!eDate.value||!eTime.value)return alert('Inserisci data e ora.');if(eType.value==='Partita'&&!eOpponent.value.trim())return alert('Inserisci l’avversario.');data.events.push({id:Date.now(),type:eType.value,opponent:eType.value==='Partita'?eOpponent.value.trim():'',date:eDate.value,time:eTime.value,venue:eVenue.value.trim(),notes:eNotes.value.trim()});save();closeModal();renderEvents();renderHome()}
-function renderEvents(){const list=[...data.events].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));eventList.innerHTML=list.length?list.map(e=>{const d=new Date(e.date+'T12:00:00');return `<div class="item"><div class="left"><div class="event-date"><b>${d.getDate()}</b><span>${d.toLocaleDateString('it-IT',{month:'short'}).toUpperCase()}</span></div><div><b>${e.type==='Partita'?(data.teamName||'Squadra')+' - '+e.opponent:e.type}</b><div class="small muted">${e.time} · ${e.venue||'Luogo da definire'}</div></div></div><button class="icon" onclick="deleteEvent(${e.id})">🗑</button></div>`}).join(''):`<div class="card hero"><h2>Nessun evento</h2><p class="muted" style="margin-top:8px">Premi ＋ per inserire una partita o un allenamento.</p></div>`}
-function deleteEvent(id){if(confirm('Eliminare questo evento?')){data.events=data.events.filter(e=>e.id!==id);save();renderEvents();renderHome()}}
-function initials(s){return s.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
-function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})}
-function resetApp(){if(confirm('Vuoi cancellare tutti i dati e ricominciare?')){localStorage.removeItem('hankData');location.reload()}}
-if(data.teamName)show('home')
+function fabAction(){if(document.getElementById('squad').classList.contains('active'))openAddPlayer();else openAddEvent()}
+function openAddPlayer(){
+  sheet.innerHTML=`<div class="sheet-head"><h2>Nuovo giocatore</h2><button class="close" onclick="closeModal()">✕</button></div>
+  <div class="field"><label>NOME E COGNOME</label><input id="pn"></div>
+  <div class="field"><label>NUMERO</label><input id="pnum" type="number"></div>
+  <div class="field"><label>RUOLO</label><select id="prole"><option>Portiere</option><option>Difensore</option><option>Terzino</option><option>Centrocampista</option><option>Attaccante</option></select></div>
+  <button class="primary" onclick="addPlayer()">SALVA GIOCATORE</button>`;modal.classList.add('open');
+}
+function addPlayer(){
+  if(!pn.value.trim()||!pnum.value)return alert('Inserisci nome e numero');
+  state.players.push({id:Date.now(),name:pn.value.trim(),role:prole.value,number:pnum.value,foot:'Destro',apps:0,goals:0,assists:0});
+  save();closeModal();renderPlayers();
+}
+function openAddEvent(){
+  sheet.innerHTML=`<div class="sheet-head"><h2>Nuovo evento</h2><button class="close" onclick="closeModal()">✕</button></div>
+  <div class="field"><label>TIPO</label><select id="etype"><option>Partita</option><option>Allenamento</option><option>Riunione</option></select></div>
+  <div class="field"><label>TITOLO / AVVERSARIO</label><input id="etitle"></div>
+  <div class="field"><label>DATA</label><input id="edate" type="date"></div>
+  <div class="field"><label>ORA</label><input id="etime" type="time"></div>
+  <button class="primary" onclick="addEvent()">SALVA EVENTO</button>`;modal.classList.add('open');
+}
+function addEvent(){
+  if(!etitle.value.trim()||!edate.value)return alert('Inserisci titolo e data');
+  state.events.push({id:Date.now(),type:etype.value,title:etitle.value.trim(),date:edate.value,time:etime.value});
+  save();closeModal();renderEvents();
+}
+function renderEvents(){
+  events.innerHTML=state.events.length?state.events.sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<div class="player" style="margin-bottom:10px"><div><div class="pname">${e.title}</div><div class="prole">${e.type} · ${new Date(e.date+'T12:00:00').toLocaleDateString('it-IT')} ${e.time||''}</div></div><div class="badge">${e.type}</div></div>`).join(''):'Nessun evento inserito.<br>Premi il pulsante + per cominciare.';
+}
+function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home')}
 </script>
 </body>
 </html>
