@@ -1,24 +1,23 @@
-HANK MANAGER v4.2 STABILE
+HANK MANAGER v4.3 – MATCH SUMMARY & STATISTICS
 
-CORREZIONI INCLUSE
-- Pulsante visibile “+ GIOCATORE” nella Rosa.
-- Creazione, modifica ed eliminazione dei giocatori.
-- Foto del giocatore.
-- Data di nascita.
-- Certificato medico e scadenza.
-- Pulsante visibile “+ EVENTO” nel Calendario.
-- Creazione ed eliminazione di partite, allenamenti e altri eventi.
-- Finestre centrate sopra la barra inferiore.
-- Sfondo bloccato durante l’apertura delle finestre.
-- Convocati semplificati: solo spunta presente/non presente.
-- Colori calendario:
-  verde vittoria, rosso sconfitta, giallo pareggio, blu da giocare.
+NOVITÀ
+- Scheda partita a pagina intera, sopra tutta l'app.
+- Logo della società presente nella scheda partita.
+- Riepilogo permanente delle partite terminate.
+- Convocati, giocatori utilizzati, gol, assist, ammonizioni ed espulsioni.
+- Cronologia completa degli eventi e delle sostituzioni.
+- Minuti giocati per ogni partecipante.
+- Voti da 0 a 10 con mezzi punti.
+- Media voto stagionale.
+- Statistiche ricostruite:
+  Presenze, Minuti, Marcatori, Assist, Ammonizioni, Espulsioni,
+  Autogol, Media voto e Portieri.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
-2. Elimina i vecchi file nella cartella del repository.
-3. Copia tutto il contenuto estratto.
-4. Summary: Fix roster calendar and callups v4.2
-5. Commit to main.
-6. Push origin.
-7. Attendi Vercel e premi Ctrl+F5.
+2. Sostituisci tutti i file nel repository.
+3. Summary:
+   Add match summaries ratings and player statistics v4.3
+4. Commit to main.
+5. Push origin.
+6. Attendi Vercel e premi Ctrl+F5.

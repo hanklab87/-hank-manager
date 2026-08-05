@@ -36,6 +36,14 @@ state.events=state.events.map(e=>({
   }
 }));
 let currentTacticalEventId=null;
+
+state.events=state.events.map(e=>({
+  ...e,
+  ratings:e.ratings&&typeof e.ratings==='object'?e.ratings:{},
+  statsFinalized:Boolean(e.statsFinalized),
+  statsApplied:Boolean(e.statsApplied)
+}));
+
 state.events=state.events.map(e=>({...e,timer:e.timer&&typeof e.timer==='object'?e.timer:{running:false,startedAt:null,elapsedSeconds:0,finished:false}}));
 let matchTimerInterval=null;
 
@@ -171,7 +179,7 @@ function openPlayer(id){
   modal.classList.add('open');document.body.style.overflow='hidden';
 }
 function closeModal(){
-  modal.classList.remove('open');
+  modal.classList.remove('open','match-modal');
   document.body.style.overflow='';
 }
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
@@ -367,80 +375,71 @@ function saveSimpleEvent(id){
 }
 function openMatchCenter(id){
   const e=state.events.find(x=>x.id===id);if(!e)return;
-  const team=state.profile?.team||'Maccabi Roma';
+  const team=state.profile?.team||state.society?.name||'Maccabi Roma';
   const isAway=e.homeAway==='Trasferta';
   const home=isAway?e.opponent:team;
   const away=isAway?team:e.opponent;
-  const teamLogo=state.branding?.logo||'';
-  const homeVisual=!isAway&&teamLogo?`<img class="mc-logo" src="${teamLogo}">`:`<div class="mc-badge">${initials(home)}</div>`;
-  const awayVisual=isAway&&teamLogo?`<img class="mc-logo" src="${teamLogo}">`:`<div class="mc-badge">${initials(away)}</div>`;
   const selected=new Set(e.callups||[]);
   const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
   const playerOptions=players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('');
   const timeline=[...(e.matchEvents||[])].sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999)).map((ev,i)=>{
     const p=state.players.find(x=>String(x.id)===String(ev.playerId));
-    return `<div class="timeline-event">
-      <div class="event-icon">${eventIcon(ev.type)}</div>
-      <div><div class="event-title">${escapeHtml(ev.type)} · ${p?escapeHtml(p.name):escapeHtml(ev.playerName||'Avversario')}</div><div class="event-note">${escapeHtml(ev.note||'')}</div></div>
-      <div><div class="event-minute">${ev.minute?escapeHtml(ev.minute)+"'":''}</div><button class="mini-danger" onclick="removeMatchEvent(${id},${i})">✕</button></div>
-    </div>`;
+    return `<div class="timeline-event"><div class="event-icon">${eventIcon(ev.type)}</div><div><div class="event-title">${escapeHtml(ev.type)} · ${p?escapeHtml(p.name):'Giocatore'}</div><div class="event-note">${escapeHtml(ev.note||'')}</div></div><div><div class="event-minute">${ev.minute?escapeHtml(ev.minute)+"'":''}</div><button class="mini-danger" onclick="removeMatchEvent(${id},${i})">✕</button></div></div>`;
   }).join('');
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">MATCH CENTER · v0.8</p><h2>${escapeHtml(e.round||'Partita')}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="match-center-head">
-    <div class="mc-competition">${escapeHtml(e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):(e.competition||'Partita'))}</div>
-    <div class="mc-score">
-      <div class="mc-team">${homeVisual}<span>${escapeHtml(home)}</span></div>
-      <div class="score-box">${e.homeScore!==''?e.homeScore:'-'} : ${e.awayScore!==''?e.awayScore:'-'}</div>
-      <div class="mc-team">${awayVisual}<span>${escapeHtml(away)}</span></div>
+  const finished=e.status==='Terminata';
+  sheet.innerHTML=`<div class="match-page-sticky">
+      <div><p class="muted small">${escapeHtml(e.competition||'PARTITA')}</p><h2>${escapeHtml(e.round||'Scheda partita')}</h2></div>
+      <button class="close" onclick="closeModal()">✕</button>
     </div>
-    <div class="muted small">${formatDate(e.date)} ${e.time||'· Orario da definire'}<br>${escapeHtml(e.venue||'Campo da definire')}</div>
-  </div>
+    <div class="match-page-shell">
+      <div class="match-summary-hero">
+        <div class="match-teams-row">
+          <div class="match-team-side">${!isAway?clubLogoHtml(team):`<div class="match-logo-round">${initials(home)}</div>`}<strong>${escapeHtml(home)}</strong></div>
+          <div class="match-score-big">${e.homeScore!==''?e.homeScore:0} - ${e.awayScore!==''?e.awayScore:0}</div>
+          <div class="match-team-side">${isAway?clubLogoHtml(team):`<div class="match-logo-round">${initials(away)}</div>`}<strong>${escapeHtml(away)}</strong></div>
+        </div>
+        <div class="match-meta-strip"><span>${formatDate(e.date)}</span><span>${e.time||'Ora da definire'}</span><span>${escapeHtml(e.venue||'Campo da definire')}</span></div>
+      </div>
 
-  <div id="liveMatchBox">${renderLiveMatchBox(e)}</div>
-  <div class="match-flow"><button>Convocati</button><button onclick="openMatchTactical(${id})">Formazione</button><button onclick="document.getElementById('matchEventType')?.scrollIntoView({behavior:'smooth'})">Eventi</button><button onclick="document.getElementById('mcHomeScore')?.scrollIntoView({behavior:'smooth'})">Risultato</button><button onclick="finishMatch(${id})">Fine</button></div>
-  <div class="section-head"><div><h2>Dati partita</h2></div></div>
-  <div class="field"><label>STATO</label><select id="mcStatus">
-    ${['Da giocare','In corso','Terminata','Rinviata'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}
-  </select></div>
-  <div class="form-grid">
-    <div class="field"><label>DATA</label><input id="mcDate" type="date" value="${e.date||''}"></div>
-    <div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div>
-  </div>
-  <div class="field"><label>CAMPO</label><input id="mcVenue" value="${escapeHtml(e.venue||'')}"></div>
-  <div class="form-grid">
-    <div class="field"><label>GOL CASA</label><input id="mcHomeScore" type="number" min="0" value="${e.homeScore}"></div>
-    <div class="field"><label>GOL TRASFERTA</label><input id="mcAwayScore" type="number" min="0" value="${e.awayScore}"></div>
-  </div>
+      ${finished?buildMatchSummaryHtml(e):`
+      <div class="match-section-card">
+        <h3>Convocati presenti</h3>
+        <div class="callups">${players.map(p=>`<div class="callup-row-simple"><label><input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}><span class="number-pill">${p.number}</span><span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${escapeHtml(p.role)}</span></span></label></div>`).join('')}</div>
+        <button class="primary" onclick="saveMatchCenter(${id})">SALVA CONVOCATI E DATI</button>
+      </div>
 
-  <div class="section-head"><div><h2>Convocati presenti</h2><p class="muted small">${selected.size} selezionati</p></div></div>
-  <div class="callups">${players.map(p=>`
-    <div class="callup-row-simple">
-      <label>
-        <input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}>
-        <span class="number-pill">${p.number}</span>
-        <span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${escapeHtml(p.role)}</span></span>
-      </label>
-    </div>`).join('')}</div>
+      <div class="match-section-card">
+        <h3>Preparazione partita</h3>
+        <button class="primary" onclick="openMatchTactical(${id})">⚽ PREPARA FORMAZIONE</button>
+        <button class="secondary" style="margin-top:8px" onclick="startLiveMatch(${id})">▶ LIVE MATCH</button>
+      </div>
 
-  <button class="primary" style="margin-top:14px" onclick="openMatchTactical(${id})">⚽ PREPARA FORMAZIONE</button>
-  <p class="muted small" style="margin-top:7px">Prima salva i convocati: nel campo tattico compariranno soltanto loro.</p>
+      <div class="match-section-card">
+        <h3>Dati partita</h3>
+        <div class="field"><label>STATO</label><select id="mcStatus">${['Da giocare','In corso','Terminata','Rinviata'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}</select></div>
+        <div class="form-grid"><div class="field"><label>DATA</label><input id="mcDate" type="date" value="${e.date||''}"></div><div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div></div>
+        <div class="field"><label>CAMPO</label><input id="mcVenue" value="${escapeHtml(e.venue||'')}"></div>
+        <div class="form-grid"><div class="field"><label>GOL CASA</label><input id="mcHomeScore" type="number" min="0" value="${e.homeScore}"></div><div class="field"><label>GOL TRASFERTA</label><input id="mcAwayScore" type="number" min="0" value="${e.awayScore}"></div></div>
+      </div>
 
-  <div class="section-head" style="margin-top:18px"><div><h2>Eventi partita</h2><p class="muted small">Gol, assist, cartellini e autogol</p></div></div>
-  <div class="field"><label>TIPO EVENTO</label><select id="matchEventType" onchange="toggleEventPlayerMode()">
-    <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
-  </select></div>
-  <div class="form-grid">
-    <div class="field"><label>GIOCATORE</label><select id="matchEventPlayer">${playerOptions}</select></div>
-    <div class="field"><label>MINUTO</label><input id="matchEventMinute" placeholder="Es. 23"></div>
-  </div>
-  <div class="field"><label>NOTA FACOLTATIVA</label><input id="matchEventNote" placeholder="Es. secondo giallo, assist di tacco..."></div>
-  <button class="secondary" onclick="addMatchEvent(${id})">＋ AGGIUNGI EVENTO</button>
-  <div id="matchTimeline">${timeline||'<p class="muted small" style="margin-top:10px">Nessun evento inserito.</p>'}</div>
+      <div class="match-section-card">
+        <h3>Inserimento manuale eventi</h3>
+        <div class="field"><label>TIPO EVENTO</label><select id="matchEventType"><option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option></select></div>
+        <div class="form-grid"><div class="field"><label>GIOCATORE</label><select id="matchEventPlayer">${playerOptions}</select></div><div class="field"><label>MINUTO</label><input id="matchEventMinute" placeholder="Es. 23"></div></div>
+        <div class="field"><label>NOTA</label><input id="matchEventNote" value=""></div>
+        <button class="secondary" onclick="addMatchEvent(${id})">＋ AGGIUNGI EVENTO</button>
+        <div>${timeline||'<p class="muted small" style="margin-top:10px">Nessun evento inserito.</p>'}</div>
+      </div>
 
-  <div class="field" style="margin-top:18px"><label>NOTE DEL MISTER</label><textarea id="mcNotes" placeholder="Indicazioni, analisi e commenti...">${escapeHtml(e.notes||'')}</textarea></div>
-  <button class="primary" onclick="saveMatchCenter(${id})">SALVA SCHEDA PARTITA</button>
-  <button class="danger-full" onclick="deleteEvent(${id})">ELIMINA PARTITA</button>`;
-  modal.classList.add('open');
+      <div class="match-section-card">
+        <h3>Note del mister</h3>
+        <textarea id="mcNotes">${escapeHtml(e.notes||'')}</textarea>
+        <button class="primary" onclick="saveMatchCenter(${id})">SALVA SCHEDA PARTITA</button>
+        <button class="danger-full" onclick="deleteEvent(${id})">ELIMINA PARTITA</button>
+      </div>`}
+    </div>`;
+  modal.classList.add('open','match-modal');
+  document.body.style.overflow='hidden';
 }
 function collectMatchForm(e){
   e.status=document.getElementById('mcStatus').value;
@@ -576,8 +575,7 @@ function openNextMatch(){
     ||[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>b.date.localeCompare(a.date))[0];
   if(next)openMatchCenter(next.id);else alert('Nessuna partita disponibile');
 }
-function showStats(){
-  show('home');setTimeout(()=>{document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'})},50);
+function showStats(){show('home');setTimeout(()=>{renderStatisticsV43('appearances');document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'})},50)})},50);
 }
 
 
@@ -889,6 +887,168 @@ function openCurrentMatchManualStats(){
   <p class="muted">Questa sezione permetterà di inserire risultato, marcatori, assist, ammonizioni, espulsioni e sostituzioni anche senza utilizzare il Live Match.</p>
   <button class="primary full-btn" onclick="closeModal()">OK</button>`;
   modal.classList.add('open')
+}
+
+
+function getClubLogo(){
+  return state.branding?.logo||state.society?.logo||'';
+}
+function clubLogoHtml(teamName){
+  const logo=getClubLogo();
+  if(logo)return `<div class="match-logo-round"><img src="${logo}" alt="Logo ${escapeHtml(teamName)}"></div>`;
+  return `<div class="match-logo-round">${initials(teamName)}</div>`;
+}
+function getMatchParticipants(e){
+  const ids=new Set();
+  (e.lineup?.starters||[]).forEach(id=>ids.add(Number(id)));
+  Object.keys(e.live?.playerMinutes||{}).forEach(id=>ids.add(Number(id)));
+  (e.matchEvents||[]).forEach(ev=>{if(ev.playerId)ids.add(Number(ev.playerId));if(ev.inId)ids.add(Number(ev.inId));if(ev.outId)ids.add(Number(ev.outId))});
+  (e.live?.events||[]).forEach(ev=>{if(ev.playerId)ids.add(Number(ev.playerId));if(ev.inId)ids.add(Number(ev.inId));if(ev.outId)ids.add(Number(ev.outId))});
+  return [...ids].filter(Boolean);
+}
+function allMatchEvents(e){
+  const source=(e.live?.events?.length?e.live.events:e.matchEvents)||[];
+  return source.map(ev=>({
+    type:ev.type||'',
+    playerId:ev.playerId,
+    minute:ev.minute??'',
+    note:ev.note||'',
+    detail:ev.detail||'',
+    label:ev.label||'',
+    inId:ev.inId,
+    outId:ev.outId
+  }));
+}
+function eventLabelV43(ev){
+  const labels={
+    goal:'Gol',Gol:'Gol',assist:'Assist',Assist:'Assist',
+    yellow:'Ammonizione',Ammonizione:'Ammonizione',
+    red:'Espulsione',Espulsione:'Espulsione',
+    ownGoal:'Autogol',Autogol:'Autogol',
+    sub:'Sostituzione',Sostituzione:'Sostituzione',
+    'Rigore segnato':'Rigore segnato','Rigore sbagliato':'Rigore sbagliato','Rigore parato':'Rigore parato'
+  };
+  return labels[ev.type]||ev.label||ev.type||'Evento';
+}
+function eventIconV43(type){
+  return ({goal:'⚽',Gol:'⚽',assist:'🎯',Assist:'🎯',yellow:'🟨',Ammonizione:'🟨',red:'🟥',Espulsione:'🟥',ownGoal:'🔁',Autogol:'🔁',sub:'🔄',Sostituzione:'🔄','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•'
+}
+function playerNameById(id){
+  return state.players.find(p=>String(p.id)===String(id))?.name||'Giocatore';
+}
+function playerMinutesForMatch(e,id){
+  const m=e.live?.playerMinutes?.[id]||e.live?.playerMinutes?.[String(id)];
+  return Number(m?.minutes||0);
+}
+function buildMatchSummaryHtml(e){
+  const events=allMatchEvents(e);
+  const participants=getMatchParticipants(e);
+  const goals=events.filter(ev=>['goal','Gol','Rigore segnato'].includes(ev.type));
+  const assists=events.filter(ev=>['assist','Assist'].includes(ev.type));
+  const yellows=events.filter(ev=>['yellow','Ammonizione'].includes(ev.type));
+  const reds=events.filter(ev=>['red','Espulsione'].includes(ev.type));
+  const subs=events.filter(ev=>['sub','Sostituzione'].includes(ev.type));
+  const eventRows=events.map(ev=>{
+    let detail=ev.detail||playerNameById(ev.playerId);
+    if(['sub','Sostituzione'].includes(ev.type))detail=ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`;
+    return `<div class="summary-event">
+      <div class="summary-event-icon">${eventIconV43(ev.type)}</div>
+      <div><strong>${escapeHtml(eventLabelV43(ev))}</strong><small>${escapeHtml(detail)}${ev.note?` · ${escapeHtml(ev.note)}`:''}</small></div>
+      <time>${ev.minute!==''?escapeHtml(ev.minute)+"'":''}</time>
+    </div>`;
+  }).join('');
+  const ratingRows=participants.map(id=>{
+    const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
+    const vote=e.ratings?.[id]??e.ratings?.[String(id)]??'';
+    return `<div class="rating-row">
+      <div><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${playerMinutesForMatch(e,id)} minuti</small></div>
+      <input class="match-rating-input" data-player="${id}" type="number" min="0" max="10" step="0.5" value="${vote}" placeholder="Voto">
+    </div>`;
+  }).join('');
+  return `
+    <div class="match-section-card">
+      <h3>Riepilogo partita</h3>
+      <div class="summary-counts">
+        <div class="summary-count"><strong>${(e.callups||[]).length}</strong><small>Convocati</small></div>
+        <div class="summary-count"><strong>${participants.length}</strong><small>Giocatori utilizzati</small></div>
+        <div class="summary-count"><strong>${goals.length}</strong><small>Gol registrati</small></div>
+        <div class="summary-count"><strong>${assists.length}</strong><small>Assist</small></div>
+        <div class="summary-count"><strong>${yellows.length}</strong><small>Ammonizioni</small></div>
+        <div class="summary-count"><strong>${reds.length}</strong><small>Espulsioni</small></div>
+      </div>
+    </div>
+    <div class="match-section-card">
+      <h3>Eventi</h3>
+      <div class="summary-list">${eventRows||'<p class="muted small">Nessun evento registrato.</p>'}</div>
+    </div>
+    <div class="match-section-card">
+      <h3>Voti giocatori</h3>
+      <div class="rating-list">${ratingRows||'<p class="muted small">Nessun giocatore utilizzato.</p>'}</div>
+      <button class="primary" style="margin-top:12px" onclick="saveMatchRatings(${e.id})">SALVA VOTI</button>
+    </div>`;
+}
+function saveMatchRatings(id){
+  const e=state.events.find(x=>String(x.id)===String(id));if(!e)return;
+  e.ratings=e.ratings||{};
+  document.querySelectorAll('.match-rating-input').forEach(input=>{
+    const v=input.value.trim();
+    if(v==='')delete e.ratings[input.dataset.player];
+    else e.ratings[input.dataset.player]=Math.max(0,Math.min(10,Number(v)));
+  });
+  save();alert('Voti salvati.');
+}
+function ratingAverageForPlayer(playerId){
+  const votes=state.events
+    .filter(e=>e.status==='Terminata'&&e.ratings&&(e.ratings[playerId]!==undefined||e.ratings[String(playerId)]!==undefined))
+    .map(e=>Number(e.ratings[playerId]??e.ratings[String(playerId)]))
+    .filter(Number.isFinite);
+  return votes.length?votes.reduce((a,b)=>a+b,0)/votes.length:0;
+}
+
+
+let currentStatsTabV43='appearances';
+function aggregatedPlayerStatsV43(){
+  const map={};
+  state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
+    player:p,appearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
+    goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id)
+  });
+  state.events.filter(e=>e.status==='Terminata').forEach(e=>{
+    const participants=getMatchParticipants(e);
+    participants.forEach(id=>{if(map[id]){map[id].appearances++;map[id].minutes+=playerMinutesForMatch(e,id)}});
+    allMatchEvents(e).forEach(ev=>{
+      const s=map[Number(ev.playerId)];if(!s)return;
+      if(['goal','Gol','Rigore segnato'].includes(ev.type))s.goals++;
+      if(['assist','Assist'].includes(ev.type))s.assists++;
+      if(['yellow','Ammonizione'].includes(ev.type))s.yellow++;
+      if(['red','Espulsione'].includes(ev.type))s.red++;
+      if(['ownGoal','Autogol'].includes(ev.type))s.ownGoals++;
+      if(ev.type==='Rigore parato')s.penaltiesSaved++;
+    });
+    const conceded=Number((e.homeAway==='Trasferta'?e.homeScore:e.awayScore)||0);
+    const keepers=participants.filter(id=>(map[id]?.player.role||'').toLowerCase().includes('port'));
+    if(keepers.length===1)map[keepers[0]].goalsConceded+=conceded;
+  });
+  return Object.values(map);
+}
+function renderStatisticsV43(tab=currentStatsTabV43){
+  currentStatsTabV43=tab;
+  const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
+  if(!host)return;
+  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',goalkeepers:'Portieri'};
+  const data=aggregatedPlayerStatsV43();
+  let rows=data;
+  if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
+  else rows=[...data].sort((a,b)=>(b[tab]||0)-(a[tab]||0));
+  host.innerHTML=`<div class="section-head"><div><h2>Statistiche giocatori</h2><p class="muted small">Calcolate dalle partite terminate</p></div></div>
+    <div class="stats-tabs-v43">${Object.entries(labels).map(([k,v])=>`<button class="${tab===k?'active':''}" onclick="renderStatisticsV43('${k}')">${v}</button>`).join('')}</div>
+    <div class="stats-ranking">${rows.map((x,i)=>{
+      let value=x[tab]||0,detail=x.player.role;
+      if(tab==='rating')value=x.rating?x.rating.toFixed(2):'—';
+      if(tab==='minutes')value=`${x.minutes}'`;
+      if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati`}
+      return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${x.player.number} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
+    }).join('')||'<div class="card empty">Nessun dato disponibile.</div>'}</div>`;
 }
 
 function exportBackup(){
