@@ -12,8 +12,7 @@ state.events=state.events.map(e=>({...e,
   availability:e.availability&&typeof e.availability==='object'?e.availability:{},
   homeScore:e.homeScore??'',
   awayScore:e.awayScore??'',
-  notes:e.notes||'',
-  matchMinutes:Number(e.matchMinutes||90)
+  notes:e.notes||''
 }));
 
 state.tactical=state.tactical&&typeof state.tactical==='object'?state.tactical:{
@@ -53,19 +52,7 @@ state.events=state.events.map(e=>({
     events:[],
     onField:{},
     bench:[],
-    playerMinutes:{},
-    phase:'not_started',
-    period:0
-  }
-}));
-
-state.events=state.events.map(e=>({
-  ...e,
-  matchMinutes:Number(e.matchMinutes||90),
-  live:{
-    ...(e.live||{}),
-    phase:e.live?.phase||(e.live?.finished?'finished':e.live?.elapsedSeconds>=(Number(e.matchMinutes||90)*30)?'second_half':'not_started'),
-    period:Number(e.live?.period||0)
+    playerMinutes:{}
   }
 }));
 
@@ -139,29 +126,123 @@ function setFilter(btn){
 }
 function renderPlayers(){
   const q=(document.getElementById('search')?.value||'').toLowerCase();
-  const arr=state.players.filter(p=>(currentFilter==='Tutti'||p.role===currentFilter)&&p.name.toLowerCase().includes(q));
-  playerList.innerHTML=arr.map(p=>`<div class="player" onclick="openPlayer(${p.id})"><div class="player-left"><div class="avatar">${initials(p.name)}</div><div style="min-width:0"><div class="pname">${p.name}</div><div class="prole">${p.role} · Piede ${p.foot}</div></div></div><div class="number">${p.number}</div></div>`).join('')||'<div class="card empty">Nessun giocatore trovato.</div>';
+  const arr=state.players.filter(p=>(currentFilter==='Tutti'||p.role===currentFilter)&&(p.name||'').toLowerCase().includes(q));
+  const count=document.getElementById('rosterCount');
+  if(count)count.textContent=state.players.length;
+  playerList.innerHTML=arr.map(p=>`<div class="player" onclick="openPlayer(${p.id})">
+    <div class="player-left">
+      <div class="avatar">${p.photo?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}</div>
+      <div style="min-width:0">
+        <div class="pname">${escapeHtml(p.name)}</div>
+        <div class="prole">${escapeHtml(p.role)}</div>
+      </div>
+    </div>
+    <div class="number">${p.number}</div>
+  </div>`).join('')||'<div class="card empty">Nessun giocatore trovato.</div>';
 }
 function openPlayer(id){
-  const p=state.players.find(x=>x.id===id);
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">SCHEDA GIOCATORE</p><h2>${p.name}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="hero" style="margin:12px 0"><div style="display:flex;align-items:center;gap:14px"><div class="avatar" style="width:64px;height:64px;font-size:22px">${initials(p.name)}</div><div><div class="badge">#${p.number} · ${p.role}</div><p class="muted small" style="margin-top:8px">Piede preferito: ${p.foot}</p></div></div></div>
-  <div class="stats"><div class="stat"><strong>${p.apps}</strong><span>Presenze</span></div><div class="stat"><strong>${p.goals}</strong><span>Gol</span></div><div class="stat"><strong>${p.assists}</strong><span>Assist</span></div></div>`;
-  modal.classList.add('open');
+  const p=state.players.find(x=>String(x.id)===String(id));if(!p)return;
+  const birth=p.birthDate?formatDate(p.birthDate):'Non inserita';
+  const med=p.medicalExpiry?formatDate(p.medicalExpiry):'Non inserita';
+  sheet.innerHTML=`<div class="sheet-head">
+    <div><p class="muted small">SCHEDA GIOCATORE</p><h2>${escapeHtml(p.name)}</h2></div>
+    <button class="close" onclick="closeModal()">✕</button>
+  </div>
+  <div class="hero" style="margin:12px 0">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="avatar" style="width:72px;height:72px;font-size:22px">${p.photo?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}</div>
+      <div><div class="badge">#${p.number} · ${escapeHtml(p.role)}</div></div>
+    </div>
+  </div>
+  <div class="info-list-modern">
+    <div class="info-row-modern"><span>Data di nascita</span><strong>${birth}</strong></div>
+    <div class="info-row-modern"><span>Certificato medico</span><strong>${p.medicalCertificate?'Presente':'Non inserito'}</strong></div>
+    <div class="info-row-modern"><span>Scadenza certificato</span><strong>${med}</strong></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><strong>${p.apps||p.stats?.appearances||0}</strong><span>Presenze</span></div>
+    <div class="stat"><strong>${p.goals||p.stats?.goals||0}</strong><span>Gol</span></div>
+    <div class="stat"><strong>${p.assists||p.stats?.assists||0}</strong><span>Assist</span></div>
+  </div>
+  <div class="player-delete-row">
+    <button class="secondary" onclick="openEditPlayer(${p.id})">MODIFICA</button>
+    <button class="danger-full" style="margin:0" onclick="deletePlayer(${p.id})">ELIMINA</button>
+  </div>`;
+  modal.classList.add('open');document.body.style.overflow='hidden';
 }
-function closeModal(){modal.classList.remove('open')}
-modal.addEventListener('click',e=>{if(e.target===modal)closeModal()})
-function fabAction(){if(document.getElementById('squad').classList.contains('active'))openAddPlayer();else openAddEvent()}
+function closeModal(){
+  modal.classList.remove('open');
+  document.body.style.overflow='';
+}
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+function fabAction(){
+  if(document.getElementById('squad')?.classList.contains('active'))openAddPlayer();
+  else if(document.getElementById('calendar')?.classList.contains('active'))openAddEvent();
+}
+function playerForm(title,p={}){
+  return `<div class="sheet-head"><h2>${title}</h2><button class="close" onclick="closeModal()">✕</button></div>
+  <div class="field"><label>FOTO</label><input id="pphoto" type="file" accept="image/*"></div>
+  <div class="field"><label>NOME E COGNOME</label><input id="pn" value="${escapeHtml(p.name||'')}"></div>
+  <div class="field"><label>NUMERO</label><input id="pnum" type="number" value="${p.number??''}"></div>
+  <div class="field"><label>RUOLO</label><select id="prole">
+    ${['Portiere','Difensore','Terzino','Centrocampista','Attaccante','Allenatore'].map(r=>`<option ${p.role===r?'selected':''}>${r}</option>`).join('')}
+  </select></div>
+  <div class="field"><label>DATA DI NASCITA</label><input id="pbirth" type="date" value="${p.birthDate||''}"></div>
+  <div class="field"><label>CERTIFICATO MEDICO</label><input id="pmedical" value="${escapeHtml(p.medicalCertificate||'')}" placeholder="Es. agonistico"></div>
+  <div class="field"><label>SCADENZA CERTIFICATO</label><input id="pmedicalexpiry" type="date" value="${p.medicalExpiry||''}"></div>`;
+}
 function openAddPlayer(){
-  sheet.innerHTML=`<div class="sheet-head"><h2>Nuovo giocatore</h2><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="field"><label>NOME E COGNOME</label><input id="pn"></div>
-  <div class="field"><label>NUMERO</label><input id="pnum" type="number"></div>
-  <div class="field"><label>RUOLO</label><select id="prole"><option>Portiere</option><option>Difensore</option><option>Terzino</option><option>Centrocampista</option><option>Attaccante</option></select></div>
-  <button class="primary" onclick="addPlayer()">SALVA GIOCATORE</button>`;modal.classList.add('open');
+  sheet.innerHTML=playerForm('Nuovo giocatore')+`<button class="primary" onclick="addPlayer()">SALVA GIOCATORE</button>`;
+  modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function openEditPlayer(id){
+  const p=state.players.find(x=>String(x.id)===String(id));if(!p)return;
+  sheet.innerHTML=playerForm('Modifica giocatore',p)+`<button class="primary" onclick="saveEditedPlayer(${p.id})">SALVA MODIFICHE</button>`;
+  modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function readPlayerForm(existing={}){
+  return {
+    ...existing,
+    name:document.getElementById('pn').value.trim(),
+    number:Number(document.getElementById('pnum').value),
+    role:document.getElementById('prole').value,
+    birthDate:document.getElementById('pbirth').value,
+    medicalCertificate:document.getElementById('pmedical').value.trim(),
+    medicalExpiry:document.getElementById('pmedicalexpiry').value
+  };
 }
 function addPlayer(){
-  if(!pn.value.trim()||!pnum.value)return alert('Inserisci nome e numero');
-  state.players.push({id:Date.now(),name:pn.value.trim(),role:prole.value,number:pnum.value,foot:'Destro',apps:0,goals:0,assists:0});
+  const name=document.getElementById('pn').value.trim();
+  const number=document.getElementById('pnum').value;
+  if(!name||number==='')return alert('Inserisci nome e numero');
+  const player=readPlayerForm({id:Date.now(),apps:0,goals:0,assists:0,photo:''});
+  const file=document.getElementById('pphoto').files[0];
+  if(file){
+    const r=new FileReader();
+    r.onload=()=>{player.photo=r.result;state.players.push(player);save();closeModal();renderPlayers()};
+    r.readAsDataURL(file);
+  }else{
+    state.players.push(player);save();closeModal();renderPlayers();
+  }
+}
+function saveEditedPlayer(id){
+  const i=state.players.findIndex(x=>String(x.id)===String(id));if(i<0)return;
+  const updated=readPlayerForm(state.players[i]);
+  if(!updated.name||!updated.number)return alert('Inserisci nome e numero');
+  const file=document.getElementById('pphoto').files[0];
+  const finish=()=>{state.players[i]=updated;save();closeModal();renderPlayers()};
+  if(file){
+    const r=new FileReader();r.onload=()=>{updated.photo=r.result;finish()};r.readAsDataURL(file);
+  }else finish();
+}
+function deletePlayer(id){
+  const p=state.players.find(x=>String(x.id)===String(id));if(!p)return;
+  if(!confirm(`Eliminare definitivamente ${p.name}?`))return;
+  state.players=state.players.filter(x=>String(x.id)!==String(id));
+  state.events.forEach(e=>{
+    e.callups=(e.callups||[]).filter(x=>String(x)!==String(id));
+    e.matchEvents=(e.matchEvents||[]).filter(x=>String(x.playerId)!==String(id));
+  });
   save();closeModal();renderPlayers();
 }
 function openAddEvent(){
@@ -173,13 +254,12 @@ function openAddEvent(){
     <div class="field"><label>GIORNATA / FASE</label><input id="eround" placeholder="Es. 1ª giornata, Semifinale"></div>
     <div class="field"><label>CASA O TRASFERTA</label><select id="ehomeaway"><option>Casa</option><option>Trasferta</option><option>Campo neutro</option></select></div>
     <div class="field"><label>AVVERSARIO</label><input id="eopponent"></div>
-    <div class="field"><label>DURATA PARTITA</label><select id="ematchminutes"><option value="40">2 × 20 minuti</option><option value="50">2 × 25 minuti</option><option value="60">2 × 30 minuti</option><option value="70">2 × 35 minuti</option><option value="80">2 × 40 minuti</option><option value="90" selected>2 × 45 minuti</option></select></div>
   </div>
   <div class="field"><label>DATA</label><input id="edate" type="date"></div>
   <div class="field"><label>ORA</label><input id="etime" type="time"></div>
   <div class="field"><label>CAMPO / LUOGO</label><input id="evenue"></div>
   <button class="primary" onclick="addEvent()">SALVA EVENTO</button>`;
-  modal.classList.add('open');
+  modal.classList.add('open');document.body.style.overflow='hidden';
 }
 function toggleMatchFields(){document.getElementById('matchFields').classList.toggle('hidden',document.getElementById('etype').value!=='Partita')}
 function toggleCustomCompetition(){document.getElementById('customCompField').classList.toggle('hidden',document.getElementById('ecompetition').value!=='Personalizza')}
@@ -197,8 +277,7 @@ function addEvent(){
     homeAway:isMatch?document.getElementById('ehomeaway').value:'',
     opponent,date,time:document.getElementById('etime').value,
     venue:document.getElementById('evenue').value.trim(),status:isMatch?'Da giocare':'',
-    callups:[],scorers:[],matchEvents:[],availability:{},homeScore:'',awayScore:'',notes:'',
-    matchMinutes:isMatch?Number(document.getElementById('ematchminutes').value||90):0});
+    callups:[],scorers:[],matchEvents:[],availability:{},homeScore:'',awayScore:'',notes:'',lineup:{formation:'4-3-3',starters:[],reserves:[],positions:{},slotAssignments:{}}});
   save();closeModal();renderEvents();renderNextMatch();
 }
 function renderEvents(){
@@ -220,7 +299,9 @@ function renderEvents(){
     const awayVisual=isAway
       ? logoHtml
       : `<div class="team-badge-mini">${initials(away)}</div>`;
-    return `<div class="match-card clickable" onclick="openMatchDetails(${e.id})">
+    const outcome=matchOutcomeLabel(e,team);
+    const outcomeClass=outcome==='Vittoria'?'result-win':outcome==='Sconfitta'?'result-loss':outcome==='Pareggio'?'result-draw':'result-pending';
+    return `<div class="match-card clickable ${outcomeClass}" onclick="openMatchDetails(${e.id})">
       <div class="match-top">
         <span class="comp">${comp}${e.round?' · '+e.round:''}</span>
         <span class="status">${matchOutcomeLabel(e,team)}</span>
@@ -272,7 +353,8 @@ function openEventCenter(id){
   <div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div>
   <div class="field"><label>LUOGO</label><input id="mcVenue" value="${escapeHtml(e.venue||'')}"></div>
   <div class="field"><label>NOTE</label><textarea id="mcNotes">${escapeHtml(e.notes||'')}</textarea></div>
-  <button class="primary" onclick="saveSimpleEvent(${id})">SALVA MODIFICHE</button>`;
+  <button class="primary" onclick="saveSimpleEvent(${id})">SALVA MODIFICHE</button>
+  <button class="danger-full" onclick="deleteEvent(${id})">ELIMINA EVENTO</button>`;
   modal.classList.add('open');
 }
 function saveSimpleEvent(id){
@@ -320,7 +402,6 @@ function openMatchCenter(id){
   <div class="field"><label>STATO</label><select id="mcStatus">
     ${['Da giocare','In corso','Terminata','Rinviata'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}
   </select></div>
-  <div class="field"><label>DURATA PARTITA</label><select id="mcMatchMinutes">${[40,50,60,70,80,90].map(x=>`<option value="${x}" ${Number(e.matchMinutes||90)===x?'selected':''}>2 × ${x/2} minuti</option>`).join('')}</select></div>
   <div class="form-grid">
     <div class="field"><label>DATA</label><input id="mcDate" type="date" value="${e.date||''}"></div>
     <div class="field"><label>ORA</label><input id="mcTime" type="time" value="${e.time||''}"></div>
@@ -331,14 +412,15 @@ function openMatchCenter(id){
     <div class="field"><label>GOL TRASFERTA</label><input id="mcAwayScore" type="number" min="0" value="${e.awayScore}"></div>
   </div>
 
-  <div class="section-head"><div><h2>Disponibilità e convocazioni</h2><p class="muted small">${selected.size} convocati</p></div></div>
-  <div class="callups">${players.map(p=>{
-    const av=(e.availability||{})[p.id]||'Disponibile';
-    return `<div class="callup-row"><label><input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}><span class="number-pill">${p.number}</span><span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${p.role}</span></span></label>
-      <select class="availability-select" data-player="${p.id}">
-      ${['Disponibile','Assente','Infortunato','Squalificato','In ritardo','Da confermare'].map(x=>`<option ${av===x?'selected':''}>${x}</option>`).join('')}
-      </select></div>`;
-  }).join('')}</div>
+  <div class="section-head"><div><h2>Convocati presenti</h2><p class="muted small">${selected.size} selezionati</p></div></div>
+  <div class="callups">${players.map(p=>`
+    <div class="callup-row-simple">
+      <label>
+        <input class="callupCheck" type="checkbox" value="${p.id}" ${selected.has(p.id)||selected.has(String(p.id))?'checked':''}>
+        <span class="number-pill">${p.number}</span>
+        <span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${escapeHtml(p.role)}</span></span>
+      </label>
+    </div>`).join('')}</div>
 
   <button class="primary" style="margin-top:14px" onclick="openMatchTactical(${id})">⚽ PREPARA FORMAZIONE</button>
   <p class="muted small" style="margin-top:7px">Prima salva i convocati: nel campo tattico compariranno soltanto loro.</p>
@@ -362,7 +444,6 @@ function openMatchCenter(id){
 }
 function collectMatchForm(e){
   e.status=document.getElementById('mcStatus').value;
-  e.matchMinutes=Number(document.getElementById('mcMatchMinutes')?.value||e.matchMinutes||90);
   e.date=document.getElementById('mcDate').value;
   e.time=document.getElementById('mcTime').value;
   e.venue=document.getElementById('mcVenue').value.trim();
@@ -371,7 +452,6 @@ function collectMatchForm(e){
   e.notes=document.getElementById('mcNotes').value.trim();
   e.callups=[...document.querySelectorAll('.callupCheck:checked')].map(x=>Number(x.value));
   e.availability={};
-  document.querySelectorAll('.availability-select').forEach(x=>e.availability[x.dataset.player]=x.value);
 }
 function saveMatchCenter(id){
   const e=state.events.find(x=>x.id===id);if(!e)return;
@@ -564,8 +644,6 @@ function startLiveMatch(id){
   e.live.onField={...(e.lineup.slotAssignments||{})};
   e.live.bench=[...(e.lineup.reserves||[])];
   e.live.playerMinutes=e.live.playerMinutes&&typeof e.live.playerMinutes==='object'?e.live.playerMinutes:{};
-  e.live.phase=e.live.phase||'not_started';
-  e.live.period=Number(e.live.period||0);
   Object.values(e.live.onField).forEach(pid=>{
     if(!e.live.playerMinutes[pid])e.live.playerMinutes[pid]={startedAt:Math.floor(getLiveElapsed(e)/60),endedAt:null,minutes:0,starter:true};
   });
@@ -579,33 +657,16 @@ function getLiveElapsed(e){
   if(l.running&&l.startedAt)s+=Math.floor((Date.now()-Number(l.startedAt))/1000);
   return Math.max(0,s)
 }
-function getLivePhaseLabel(e){
-  const phase=e.live?.phase||'not_started';
-  return {not_started:'PRONTA PER INIZIARE',first_half:e.live?.running?'1° TEMPO IN CORSO':'1° TEMPO IN PAUSA',halftime:'INTERVALLO',second_half:e.live?.running?'2° TEMPO IN CORSO':'2° TEMPO IN PAUSA',finished:'PARTITA TERMINATA'}[phase]||'LIVE MATCH';
-}
 function renderLiveMatch(){
   const e=getLiveEvent();if(!e)return;
   const l=e.live;
-  const half=Number(e.matchMinutes||90)/2;
   document.getElementById('liveMatchTitle').textContent=`${state.profile?.team||'Maccabi Roma'} vs ${e.opponent}`;
   document.getElementById('liveHomeName').textContent=state.profile?.team||'Maccabi Roma';
   document.getElementById('liveAwayName').textContent=e.opponent;
   document.getElementById('liveHomeScore').textContent=l.homeScore||0;
   document.getElementById('liveAwayScore').textContent=l.awayScore||0;
   document.getElementById('liveClock').textContent=formatClock(getLiveElapsed(e));
-  const phaseLabel=document.getElementById('livePhaseLabel');if(phaseLabel)phaseLabel.textContent=getLivePhaseLabel(e);
-  const durationLabel=document.getElementById('liveDurationLabel');if(durationLabel)durationLabel.textContent=`2 × ${half} minuti · Totale ${e.matchMinutes||90}'`;
-  const play=document.getElementById('livePlayPause');
-  if(play){
-    if(l.running)play.textContent='⏸ PAUSA';
-    else if(l.phase==='halftime')play.textContent='▶ INIZIA 2° TEMPO';
-    else if(l.phase==='second_half')play.textContent='▶ RIPRENDI 2° TEMPO';
-    else if(l.phase==='first_half')play.textContent='▶ RIPRENDI 1° TEMPO';
-    else play.textContent='▶ INIZIA PARTITA';
-    play.disabled=l.phase==='finished';
-  }
-  const halfBtn=document.getElementById('liveHalfTime');
-  if(halfBtn)halfBtn.classList.toggle('hidden',!['first_half'].includes(l.phase));
+  document.getElementById('livePlayPause').textContent=l.running?'⏸ PAUSA':'▶ PLAY';
   renderLivePitch();renderLiveBench();renderLiveEvents();
   if(l.running)startLiveClock();
 }
@@ -632,38 +693,13 @@ function renderLiveEvents(){
 function toggleLiveTimer(){
   const e=getLiveEvent();if(!e)return;
   const l=e.live;
-  if(l.phase==='finished')return;
-  if(l.running){
-    l.elapsedSeconds=getLiveElapsed(e);l.running=false;l.startedAt=null;
-  }else{
-    if(l.phase==='not_started'){l.phase='first_half';l.period=1;}
-    else if(l.phase==='halftime'){
-      l.elapsedSeconds=Math.max(Number(l.elapsedSeconds||0),Number(e.matchMinutes||90)*30);
-      l.phase='second_half';l.period=2;
-    }
-    l.running=true;l.startedAt=Date.now();e.status='In corso';
-  }
-  save();renderLiveMatch();
-}
-function endFirstHalf(){
-  const e=getLiveEvent();if(!e)return;
-  const l=e.live;
-  if(l.phase!=='first_half')return;
-  if(!confirm('Confermi la fine del primo tempo?'))return;
-  l.elapsedSeconds=Number(e.matchMinutes||90)*30;
-  l.running=false;l.startedAt=null;l.phase='halftime';l.period=1;
-  l.events.push({id:Date.now(),type:'period',minute:Number(e.matchMinutes||90)/2,label:'⏸ Fine primo tempo',detail:'Intervallo'});
-  save();clearInterval(liveTimerInterval);renderLiveMatch();
+  if(l.running){l.elapsedSeconds=getLiveElapsed(e);l.running=false;l.startedAt=null}
+  else{l.running=true;l.startedAt=Date.now();e.status='In corso'}
+  save();renderLiveMatch()
 }
 function startLiveClock(){
   clearInterval(liveTimerInterval);
-  liveTimerInterval=setInterval(()=>{
-    const e=getLiveEvent(),el=document.getElementById('liveClock');
-    if(!e||!el){clearInterval(liveTimerInterval);return}
-    const elapsed=getLiveElapsed(e);el.textContent=formatClock(elapsed);
-    const phaseLabel=document.getElementById('livePhaseLabel');if(phaseLabel)phaseLabel.textContent=getLivePhaseLabel(e);
-    if(!e.live.running)clearInterval(liveTimerInterval);
-  },1000)
+  liveTimerInterval=setInterval(()=>{const e=getLiveEvent(),el=document.getElementById('liveClock');if(!e||!el){clearInterval(liveTimerInterval);return}el.textContent=formatClock(getLiveElapsed(e));if(!e.live.running)clearInterval(liveTimerInterval)},1000)
 }
 function editLiveMinute(){
   const e=getLiveEvent();if(!e)return;
@@ -738,7 +774,7 @@ function finishLiveMatch(){
     if(m.starter)p.stats.starts=Number(p.stats.starts||0)+1;
     else p.stats.subAppearances=Number(p.stats.subAppearances||0)+1;
   });
-  e.homeScore=e.live.homeScore;e.awayScore=e.live.awayScore;e.status='Terminata';e.live.active=false;e.live.finished=true;e.live.phase='finished';e.live.period=2;
+  e.homeScore=e.live.homeScore;e.awayScore=e.live.awayScore;e.status='Terminata';e.live.active=false;e.live.finished=true;
   save();clearInterval(liveTimerInterval);alert('Partita terminata e statistiche aggiornate.');show('calendar');renderEvents();renderDashboard()
 }
 function undoLastLiveEvent(){

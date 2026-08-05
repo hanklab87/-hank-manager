@@ -78,8 +78,13 @@
   </section>
 
   <section id="squad" class="screen">
-    <h1>La tua rosa</h1>
-    <p class="muted" style="margin-top:7px">27 membri nella squadra</p>
+    <div class="page-title-actions">
+      <div>
+        <h1>La tua rosa</h1>
+        <p class="muted" style="margin-top:7px"><span id="rosterCount">0</span> membri nella squadra</p>
+      </div>
+      <button class="page-add-button" onclick="openAddPlayer()">＋ GIOCATORE</button>
+    </div>
     <input id="search" class="search" placeholder="Cerca un giocatore..." oninput="renderPlayers()">
     <div class="filters" id="filters">
       <button class="filter active" data-role="Tutti" onclick="setFilter(this)">Tutti</button>
@@ -93,12 +98,17 @@
   </section>
 
   <section id="calendar" class="screen">
-    <h1>Calendario</h1>
-    <p class="muted" style="margin-top:7px">Partite, allenamenti e riunioni</p>
+    <div class="page-title-actions">
+      <div>
+        <h1>Calendario</h1>
+        <p class="muted" style="margin-top:7px">Partite, allenamenti e riunioni</p>
+      </div>
+      <button class="page-add-button" onclick="openAddEvent()">＋ EVENTO</button>
+    </div>
     <div id="events" style="margin-top:18px"></div>
   </section>
 <section id="tactical" class="screen">
-<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.0</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
+<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.2 STABILE</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
 <div class="formation-layout"><div>
 <div class="tactical-toolbar"><div class="field"><label>MODULO</label><select id="formationSelect" onchange="applyFormation(this.value)"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-3</option><option>4-3-1-2</option></select></div><div class="field"><label>RIEPILOGO</label><div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div></div></div>
 <div class="clean-pitch" id="cleanPitch"></div>
@@ -233,14 +243,11 @@
       <strong id="liveHomeScore">0</strong>
     </div>
     <div class="live-center">
-      <div id="livePhaseLabel" class="live-phase-label">PRONTA PER INIZIARE</div>
       <div id="liveClock" class="live-clock">00:00</div>
-      <div id="liveDurationLabel" class="live-duration-label">2 × 45 minuti · Totale 90'</div>
       <div class="live-controls">
-        <button class="primary compact-btn" id="livePlayPause" onclick="toggleLiveTimer()">▶ INIZIA PARTITA</button>
-        <button class="secondary compact-btn hidden" id="liveHalfTime" onclick="endFirstHalf()">⏸ FINE 1° TEMPO</button>
+        <button class="primary compact-btn" id="livePlayPause" onclick="toggleLiveTimer()">▶ PLAY</button>
         <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MINUTO</button>
-        <button class="danger compact-btn" onclick="finishLiveMatch()">■ FINE PARTITA</button>
+        <button class="danger compact-btn" onclick="finishLiveMatch()">■ FINE</button>
       </div>
     </div>
     <div class="live-team">

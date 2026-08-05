@@ -1,26 +1,24 @@
-HANK MANAGER 4.0 – MODERN FOUNDATION
+HANK MANAGER v4.2 STABILE
 
-QUESTA È LA PRIMA RELEASE DEL NUOVO DESIGN.
-
-INCLUDE:
-- Nuova identità visiva scura e moderna.
-- Logo provvisorio HM integrato nell'interfaccia.
-- Nuova sezione Società.
-- Dati generali, contatti, staff, codici fiscali e note del club.
-- Preparazione delle nuove schede giocatore con:
-  nome, cognome, data di nascita, codice fiscale, telefono, email,
-  certificato medico, scadenza, documento, piede preferito e note.
-- Nuova Scheda Partita.
-- Nella Scheda Partita: Convocati, Formazione, Live Match, Statistiche manuali.
-- Live Match bloccato finché convocati e formazione non sono pronti.
-- Nuovo stile card, pulsanti, colori e navigazione.
+CORREZIONI INCLUSE
+- Pulsante visibile “+ GIOCATORE” nella Rosa.
+- Creazione, modifica ed eliminazione dei giocatori.
+- Foto del giocatore.
+- Data di nascita.
+- Certificato medico e scadenza.
+- Pulsante visibile “+ EVENTO” nel Calendario.
+- Creazione ed eliminazione di partite, allenamenti e altri eventi.
+- Finestre centrate sopra la barra inferiore.
+- Sfondo bloccato durante l’apertura delle finestre.
+- Convocati semplificati: solo spunta presente/non presente.
+- Colori calendario:
+  verde vittoria, rosso sconfitta, giallo pareggio, blu da giocare.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
-2. Copia tutto nella cartella del repository sostituendo i file precedenti.
-3. Summary:
-   Hank Manager 4.0 - Modern Foundation
-4. Commit to main.
-5. Push origin.
-6. Attendi Vercel.
-7. Aggiorna con Ctrl+F5.
+2. Elimina i vecchi file nella cartella del repository.
+3. Copia tutto il contenuto estratto.
+4. Summary: Fix roster calendar and callups v4.2
+5. Commit to main.
+6. Push origin.
+7. Attendi Vercel e premi Ctrl+F5.
