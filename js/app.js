@@ -578,7 +578,7 @@ function openNextMatch(){
 function showStats(){
   show('home');
   setTimeout(()=>{
-    renderStatisticsV43('appearances');
+    renderTeamStatisticsV434();
     document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'});
   },50);
 }
@@ -722,7 +722,7 @@ function openLivePlayerMenu(playerId,slotIndex){
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'assist')">🎯 Assist</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'yellow')">🟨 Ammonizione</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'red')">🟥 Espulsione</button>
-    ${(p.role||'').toLowerCase().includes('port')?`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'conceded')">🥅 Gol subito</button>`:''}
+    ${(p.role||'').toLowerCase().includes('port')?`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'conceded')">🥅 Gol subito</button>`:`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'ownGoal')">🔁 Autogol</button>`}
     <button class="live-event-btn" onclick="openSubstitutionPicker(${playerId},${slotIndex})">🔄 Sostituzione</button>
     <button class="live-event-btn" onclick="closeModal()">✕ Annulla</button>
   </div>`;
@@ -731,7 +731,7 @@ function openLivePlayerMenu(playerId,slotIndex){
 function addLivePlayerEvent(playerId,type){
   const e=getLiveEvent(),p=state.players.find(x=>String(x.id)===String(playerId));if(!e||!p)return;
   const minute=Math.floor(getLiveElapsed(e)/60);
-  const map={goal:['Gol','⚽'],assist:['Assist','🎯'],yellow:['Ammonizione','🟨'],red:['Espulsione','🟥'],conceded:['Gol subito','🥅']};
+  const map={goal:['Gol','⚽'],assist:['Assist','🎯'],yellow:['Ammonizione','🟨'],red:['Espulsione','🟥'],conceded:['Gol subito','🥅'],ownGoal:['Autogol','🔁']};
   const [label,icon]=map[type];
   const ev={id:Date.now(),type,playerId,minute,label:`${icon} ${label}`,detail:p.name};
   e.live.events.push(ev);
@@ -743,7 +743,7 @@ function addLivePlayerEvent(playerId,type){
       e.live.homeScore=Number(e.live.homeScore||0)+1;e.homeScore=e.live.homeScore;
     }
   }
-  if(type==='conceded'){
+  if(type==='conceded'||type==='ownGoal'){
     if(teamAway){
       e.live.homeScore=Number(e.live.homeScore||0)+1;e.homeScore=e.live.homeScore;
     }else{
@@ -751,7 +751,7 @@ function addLivePlayerEvent(playerId,type){
     }
   }
   p.stats=p.stats||{};
-  const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards'}[type];
+  const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards',ownGoal:'ownGoals'}[type];
   if(key)p.stats[key]=Number(p.stats[key]||0)+1;
   save();closeModal();renderLiveMatch()
 }
@@ -805,12 +805,12 @@ function undoLastLiveEvent(){
     if(teamAway){e.live.awayScore=Math.max(0,Number(e.live.awayScore||0)-1);e.awayScore=e.live.awayScore}
     else{e.live.homeScore=Math.max(0,Number(e.live.homeScore||0)-1);e.homeScore=e.live.homeScore}
   }
-  if(ev.type==='conceded'){
+  if(ev.type==='conceded'||ev.type==='ownGoal'){
     if(teamAway){e.live.homeScore=Math.max(0,Number(e.live.homeScore||0)-1);e.homeScore=e.live.homeScore}
     else{e.live.awayScore=Math.max(0,Number(e.live.awayScore||0)-1);e.awayScore=e.live.awayScore}
   }
-  if(['goal','assist','yellow','red'].includes(ev.type)){
-    const p=state.players.find(x=>String(x.id)===String(ev.playerId));if(p){p.stats=p.stats||{};const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards'}[ev.type];p.stats[key]=Math.max(0,Number(p.stats[key]||0)-1)}
+  if(['goal','assist','yellow','red','ownGoal'].includes(ev.type)){
+    const p=state.players.find(x=>String(x.id)===String(ev.playerId));if(p){p.stats=p.stats||{};const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards',ownGoal:'ownGoals'}[ev.type];p.stats[key]=Math.max(0,Number(p.stats[key]||0)-1)}
   }
   if(ev.type==='sub'){
     e.live.onField[ev.slotIndex]=ev.outId;
@@ -829,7 +829,10 @@ function renderSociety(){
   const el=id=>document.getElementById(id);
   if(el('societyTeamName'))el('societyTeamName').textContent=team;
   if(el('societyFounded'))el('societyFounded').textContent=s.founded?`Fondata nel ${s.founded}`:'Società sportiva dilettantistica';
-  if(el('clubLogoPreview'))el('clubLogoPreview').textContent=(team.match(/\b\w/g)||['H','M']).slice(0,2).join('').toUpperCase();
+  if(el('clubLogoPreview')){
+    const logo=getClubLogo();
+    el('clubLogoPreview').innerHTML=logo?`<img src="${logo}" alt="Logo ${escapeHtml(team)}" style="width:100%;height:100%;object-fit:contain">`:(team.match(/\b\w/g)||['H','M']).slice(0,2).join('').toUpperCase();
+  }
   const general=[
     ['Ragione sociale',s.legalName],['Categoria',s.category],['Girone',s.group],
     ['Campo di casa',s.homeGround],['Indirizzo',s.address],['Colori sociali',s.colors],
@@ -848,6 +851,7 @@ function openSocietyEditor(){
   const s=state.society||{};
   sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">DATI CLUB</p><h2>Modifica società</h2></div><button class="close" onclick="closeModal()">✕</button></div>
   <div class="form-grid">
+    <label class="field full"><span>Logo società</span><input id="soc_logo" type="file" accept="image/*"></label>
     ${societyField('Nome squadra','name',s.name)}
     ${societyField('Ragione sociale','legalName',s.legalName)}
     ${societyField('Anno di fondazione','founded',s.founded)}
@@ -875,7 +879,18 @@ function saveSociety(){
   keys.forEach(k=>state.society[k]=(document.getElementById('soc_'+k)?.value||'').trim());
   state.society.notes=(document.getElementById('soc_notes')?.value||'').trim();
   state.profile=state.profile||{};state.profile.team=state.society.name||state.profile.team;
-  save();closeModal();renderSociety();renderDashboard()
+  const logoFile=document.getElementById('soc_logo')?.files?.[0];
+  const finish=()=>{save();closeModal();renderSociety();renderDashboard()};
+  if(logoFile){
+    const reader=new FileReader();
+    reader.onload=()=>{
+      state.branding=state.branding||{};
+      state.branding.logo=reader.result;
+      state.society.logo=reader.result;
+      finish();
+    };
+    reader.readAsDataURL(logoFile);
+  }else finish();
 }
 
 
@@ -1292,6 +1307,10 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
   else rows=[...data].sort((a,b)=>(b[tab]||0)-(a[tab]||0));
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche giocatori</h2><p class="muted small">Calcolate dalle partite terminate</p></div></div>
+    <div class="stats-tabs-v43">
+      <button onclick="renderTeamStatisticsV434()">Squadra</button>
+      <button class="active">Giocatori</button>
+    </div>
     <div class="stats-tabs-v43">${Object.entries(labels).map(([k,v])=>`<button class="${tab===k?'active':''}" onclick="renderStatisticsV43('${k}')">${v}</button>`).join('')}</div>
     <div class="stats-ranking">${rows.map((x,i)=>{
       let value=x[tab]||0,detail=x.player.role;
@@ -1300,6 +1319,68 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati`}
       return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${x.player.number} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
     }).join('')||'<div class="card empty">Nessun dato disponibile.</div>'}</div>`;
+}
+
+
+function teamStatisticsV434(){
+  const team=state.profile?.team||state.society?.name||'Maccabi Roma';
+  const finished=state.events.filter(e=>e.status==='Terminata');
+  const result={
+    played:finished.length,wins:0,draws:0,losses:0,goalsFor:0,goalsAgainst:0,
+    scored:[0,0,0,0],conceded:[0,0,0,0]
+  };
+  const segmentIndex=minute=>{
+    const m=Math.max(0,Number(minute)||0);
+    if(m<=20)return 0;
+    if(m<=40)return 1;
+    if(m<=60)return 2;
+    return 3;
+  };
+  finished.forEach(e=>{
+    const away=e.homeAway==='Trasferta';
+    const gf=Number(away?e.awayScore:e.homeScore)||0;
+    const ga=Number(away?e.homeScore:e.awayScore)||0;
+    result.goalsFor+=gf;result.goalsAgainst+=ga;
+    if(gf>ga)result.wins++;
+    else if(gf<ga)result.losses++;
+    else result.draws++;
+    allMatchEvents(e).forEach(ev=>{
+      const type=String(ev.type||'').toLowerCase();
+      const idx=segmentIndex(ev.minute);
+      if(type==='goal'||type==='gol'||type==='rigore segnato')result.scored[idx]++;
+      if(type==='conceded'||type==='owngoal'||type==='autogol')result.conceded[idx]++;
+    });
+  });
+  return result;
+}
+function renderTeamStatisticsV434(){
+  const s=teamStatisticsV434();
+  const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
+  if(!host)return;
+  const labels=['0–20','21–40','41–60','61–80+'];
+  host.innerHTML=`<div class="section-head"><div><h2>Statistiche squadra</h2><p class="muted small">Riepilogo delle partite terminate</p></div></div>
+    <div class="summary-counts">
+      <div class="summary-count"><strong>${s.played}</strong><small>Partite</small></div>
+      <div class="summary-count"><strong>${s.wins}</strong><small>Vittorie</small></div>
+      <div class="summary-count"><strong>${s.draws}</strong><small>Pareggi</small></div>
+      <div class="summary-count"><strong>${s.losses}</strong><small>Sconfitte</small></div>
+      <div class="summary-count"><strong>${s.goalsFor}</strong><small>Gol fatti</small></div>
+      <div class="summary-count"><strong>${s.goalsAgainst}</strong><small>Gol subiti</small></div>
+    </div>
+    <div class="match-section-card">
+      <h3>Gol per momento della partita</h3>
+      <div class="stats-ranking">${labels.map((label,i)=>`<div class="stats-row">
+        <div class="stats-rank">${i+1}</div>
+        <div><strong>${label} minuti</strong><small>Segmento di gara</small></div>
+        <div class="stats-value">${s.scored[i]} GF · ${s.conceded[i]} GS</div>
+      </div>`).join('')}</div>
+    </div>
+    <div class="match-section-card">
+      <div class="stats-tabs-v43">
+        <button class="active" onclick="renderTeamStatisticsV434()">Squadra</button>
+        <button onclick="renderStatisticsV43('appearances')">Giocatori</button>
+      </div>
+    </div>`;
 }
 
 function exportBackup(){

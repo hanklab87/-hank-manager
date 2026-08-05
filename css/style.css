@@ -738,3 +738,46 @@ body.detail-open #liveMatch{
   border-color:rgba(255,91,103,.42)!important;
   background:rgba(255,91,103,.10)!important;
 }
+
+/* Hank Manager v4.3.4 */
+.bottom-nav{grid-template-columns:repeat(5,1fr)!important}
+
+body.detail-open{overflow:hidden!important}
+body.detail-open #matchDetails,
+body.detail-open #tactical,
+body.detail-open #liveMatch{
+  position:fixed!important;
+  inset:0!important;
+  z-index:900!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:100%!important;
+  height:100%!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  margin:0!important;
+  padding:0!important;
+  background:linear-gradient(180deg,#07111b,#050a10)!important;
+}
+body.detail-open #matchDetails .match-details-top,
+body.detail-open #tactical .page-head,
+body.detail-open #liveMatch .live-topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  padding:14px 16px;
+  margin:0!important;
+  background:rgba(5,10,16,.96);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+body.detail-open #matchDetails .match-hero-modern{
+  margin:14px 16px 0!important;
+}
+body.detail-open #matchDetails .match-quick-summary,
+body.detail-open #matchDetails .match-tabs,
+body.detail-open #matchDetails .match-tab-content{
+  margin-left:16px!important;
+  margin-right:16px!important;
+}
+body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}

@@ -1,23 +1,24 @@
-HANK MANAGER v4.3.3 – LIVE & VOTI
+HANK MANAGER v4.3.4 – TEAM STATS
 
-CORREZIONI
-- La scheda partita si apre dall'inizio della pagina.
-- Eliminato lo spazio/barra nera sopra la scheda.
-- Scheda partita, Formazione e Live Match occupano tutto lo schermo.
-- Selettore del modulo direttamente nella tab Formazione.
-- Il modulo può essere cambiato senza perdere i titolari assegnati.
-- Cliccando sul portiere nel Live Match compare “Gol subito”.
-- “Gol subito” aggiorna automaticamente il risultato dell'avversario.
-- Il tabellone Live rispetta casa e trasferta.
-- Aggiunta la sezione Voti nella tab Statistiche.
-- Voti da 0 a 10, con incrementi di 0,5.
-- I voti sono disponibili soltanto per i giocatori realmente utilizzati.
+NOVITÀ
+- Eliminato il tasto Partita dalla barra inferiore.
+- Scheda partita aperta come vera pagina a schermo intero.
+- Eliminata la barra/spazio nero prima della scheda.
+- Aggiunto Autogol nel Live Match per i giocatori di movimento.
+- Autogol aggiorna automaticamente il risultato avversario.
+- Logo reale nella sezione Società.
+- Possibilità di caricare il logo direttamente da Società.
+- Nuova sezione Statistiche squadra:
+  Partite, vittorie, pareggi, sconfitte, gol fatti, gol subiti.
+- Analisi gol fatti e subiti nei segmenti:
+  0–20, 21–40, 41–60, 61–80+.
+- Statistiche divise tra Squadra e Giocatori.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
 2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Fix match opening goalkeeper conceded goals and ratings v4.3.3
+   Add team stats own goals and fix match page v4.3.4
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.
