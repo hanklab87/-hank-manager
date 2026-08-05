@@ -575,7 +575,12 @@ function openNextMatch(){
     ||[...state.events].filter(e=>e.type==='Partita').sort((a,b)=>b.date.localeCompare(a.date))[0];
   if(next)openMatchCenter(next.id);else alert('Nessuna partita disponibile');
 }
-function showStats(){show('home');setTimeout(()=>{renderStatisticsV43('appearances');document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'})},50)})},50);
+function showStats(){
+  show('home');
+  setTimeout(()=>{
+    renderStatisticsV43('appearances');
+    document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'});
+  },50);
 }
 
 

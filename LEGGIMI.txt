@@ -1,23 +1,17 @@
-HANK MANAGER v4.3 – MATCH SUMMARY & STATISTICS
+HANK MANAGER v4.3.1 FIX
 
-NOVITÀ
-- Scheda partita a pagina intera, sopra tutta l'app.
-- Logo della società presente nella scheda partita.
-- Riepilogo permanente delle partite terminate.
-- Convocati, giocatori utilizzati, gol, assist, ammonizioni ed espulsioni.
-- Cronologia completa degli eventi e delle sostituzioni.
-- Minuti giocati per ogni partecipante.
-- Voti da 0 a 10 con mezzi punti.
-- Media voto stagionale.
-- Statistiche ricostruite:
-  Presenze, Minuti, Marcatori, Assist, Ammonizioni, Espulsioni,
-  Autogol, Media voto e Portieri.
+CORREZIONE URGENTE
+- Risolto l'errore JavaScript che bloccava completamente l'app.
+- Ripristinati i pulsanti Inizia ora e la navigazione inferiore.
+- Mantenute tutte le novità della v4.3.
+- Aggiornata la cache PWA per mostrare subito la versione corretta.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
-2. Sostituisci tutti i file nel repository.
+2. Sostituisci tutti i file del repository.
 3. Summary:
-   Add match summaries ratings and player statistics v4.3
+   Fix app startup JavaScript error v4.3.1
 4. Commit to main.
 5. Push origin.
-6. Attendi Vercel e premi Ctrl+F5.
+6. Attendi Vercel.
+7. Apri il sito con Ctrl+F5 oppure in navigazione in incognito.
