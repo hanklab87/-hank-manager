@@ -702,3 +702,39 @@ body.detail-open .fab{display:none!important}
   .match-tabs button{font-size:9px;padding:9px 3px}
   .match-manual-grid{grid-template-columns:1fr}
 }
+
+/* Hank Manager v4.3.3 */
+body.detail-open{background:#050a10}
+body.detail-open .app{
+  width:100%!important;
+  max-width:none!important;
+  min-height:100vh!important;
+  margin:0!important;
+  padding:0!important;
+  background:linear-gradient(180deg,#07111b,#050a10)!important;
+}
+body.detail-open #topbar,
+body.detail-open #nav,
+body.detail-open .bottom-nav{display:none!important}
+body.detail-open .match-details-screen,
+body.detail-open #tactical,
+body.detail-open #liveMatch{
+  padding-top:max(12px,env(safe-area-inset-top))!important;
+}
+.formation-selector-inline{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  align-items:end;
+  margin-bottom:12px;
+}
+.formation-selector-inline .field{margin:0}
+.rating-panel-v433{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.goal-conceded-btn{
+  border-color:rgba(255,91,103,.42)!important;
+  background:rgba(255,91,103,.10)!important;
+}

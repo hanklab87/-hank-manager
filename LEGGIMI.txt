@@ -1,23 +1,23 @@
-HANK MANAGER v4.3.2 – MATCH PAGE
+HANK MANAGER v4.3.3 – LIVE & VOTI
 
 CORREZIONI
-- Eliminato il grande pulsante + doppione in Rosa e Calendario.
-- Scheda partita trasformata in una vera pagina.
-- La barra inferiore scompare quando apri partita, formazione o Live Match.
-- Logo della società mostrato nella scheda partita.
-- Riepilogo visibile subito sotto risultato:
-  marcatori, assist, ammonizioni, espulsioni e sostituzioni.
-- Tab Convocati: mostra e modifica i presenti.
-- Tab Formazione: mostra il campo e le sostituzioni effettuate.
-- Tab Live Match: apre la gestione live.
-- Tab Statistiche: inserimento e correzione manuale degli eventi.
-- Rimosso il vecchio riepilogo “15 convocati / 11 su 11 / Live pronta”.
+- La scheda partita si apre dall'inizio della pagina.
+- Eliminato lo spazio/barra nera sopra la scheda.
+- Scheda partita, Formazione e Live Match occupano tutto lo schermo.
+- Selettore del modulo direttamente nella tab Formazione.
+- Il modulo può essere cambiato senza perdere i titolari assegnati.
+- Cliccando sul portiere nel Live Match compare “Gol subito”.
+- “Gol subito” aggiorna automaticamente il risultato dell'avversario.
+- Il tabellone Live rispetta casa e trasferta.
+- Aggiunta la sezione Voti nella tab Statistiche.
+- Voti da 0 a 10, con incrementi di 0,5.
+- I voti sono disponibili soltanto per i giocatori realmente utilizzati.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
 2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Improve match page tabs logo and summary v4.3.2
+   Fix match opening goalkeeper conceded goals and ratings v4.3.3
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.

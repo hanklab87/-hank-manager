@@ -473,7 +473,7 @@ function removeMatchEvent(id,index){
   e.matchEvents.splice(index,1);save();openMatchCenter(id);
 }
 function eventIcon(type){
-  return ({'Gol':'⚽','Assist':'🎯','Ammonizione':'🟨','Espulsione':'🟥','Autogol':'🔁','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•';
+  return ({'Gol':'⚽','Assist':'🎯','Ammonizione':'🟨','Espulsione':'🟥','Autogol':'🔁','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤',conceded:'🥅'})[type]||'•';
 }
 function matchOutcomeLabel(e,team){
   if(e.status!=='Terminata'||e.homeScore===''||e.awayScore==='')return e.status||'Da giocare';
@@ -663,9 +663,11 @@ function getLiveElapsed(e){
 function renderLiveMatch(){
   const e=getLiveEvent();if(!e)return;
   const l=e.live;
-  document.getElementById('liveMatchTitle').textContent=`${state.profile?.team||'Maccabi Roma'} vs ${e.opponent}`;
-  document.getElementById('liveHomeName').textContent=state.profile?.team||'Maccabi Roma';
-  document.getElementById('liveAwayName').textContent=e.opponent;
+  const team=state.profile?.team||state.society?.name||'Maccabi Roma';
+  const teamAway=e.homeAway==='Trasferta';
+  document.getElementById('liveMatchTitle').textContent=teamAway?`${e.opponent} vs ${team}`:`${team} vs ${e.opponent}`;
+  document.getElementById('liveHomeName').textContent=teamAway?e.opponent:team;
+  document.getElementById('liveAwayName').textContent=teamAway?team:e.opponent;
   document.getElementById('liveHomeScore').textContent=l.homeScore||0;
   document.getElementById('liveAwayScore').textContent=l.awayScore||0;
   document.getElementById('liveClock').textContent=formatClock(getLiveElapsed(e));
@@ -720,6 +722,7 @@ function openLivePlayerMenu(playerId,slotIndex){
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'assist')">🎯 Assist</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'yellow')">🟨 Ammonizione</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'red')">🟥 Espulsione</button>
+    ${(p.role||'').toLowerCase().includes('port')?`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'conceded')">🥅 Gol subito</button>`:''}
     <button class="live-event-btn" onclick="openSubstitutionPicker(${playerId},${slotIndex})">🔄 Sostituzione</button>
     <button class="live-event-btn" onclick="closeModal()">✕ Annulla</button>
   </div>`;
@@ -728,14 +731,28 @@ function openLivePlayerMenu(playerId,slotIndex){
 function addLivePlayerEvent(playerId,type){
   const e=getLiveEvent(),p=state.players.find(x=>String(x.id)===String(playerId));if(!e||!p)return;
   const minute=Math.floor(getLiveElapsed(e)/60);
-  const map={goal:['Gol','⚽'],assist:['Assist','🎯'],yellow:['Ammonizione','🟨'],red:['Espulsione','🟥']};
+  const map={goal:['Gol','⚽'],assist:['Assist','🎯'],yellow:['Ammonizione','🟨'],red:['Espulsione','🟥'],conceded:['Gol subito','🥅']};
   const [label,icon]=map[type];
   const ev={id:Date.now(),type,playerId,minute,label:`${icon} ${label}`,detail:p.name};
   e.live.events.push(ev);
-  if(type==='goal'){e.live.homeScore=Number(e.live.homeScore||0)+1;e.homeScore=e.live.homeScore}
+  const teamAway=e.homeAway==='Trasferta';
+  if(type==='goal'){
+    if(teamAway){
+      e.live.awayScore=Number(e.live.awayScore||0)+1;e.awayScore=e.live.awayScore;
+    }else{
+      e.live.homeScore=Number(e.live.homeScore||0)+1;e.homeScore=e.live.homeScore;
+    }
+  }
+  if(type==='conceded'){
+    if(teamAway){
+      e.live.homeScore=Number(e.live.homeScore||0)+1;e.homeScore=e.live.homeScore;
+    }else{
+      e.live.awayScore=Number(e.live.awayScore||0)+1;e.awayScore=e.live.awayScore;
+    }
+  }
   p.stats=p.stats||{};
   const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards'}[type];
-  p.stats[key]=Number(p.stats[key]||0)+1;
+  if(key)p.stats[key]=Number(p.stats[key]||0)+1;
   save();closeModal();renderLiveMatch()
 }
 function openSubstitutionPicker(outPlayerId,slotIndex){
@@ -783,7 +800,15 @@ function finishLiveMatch(){
 function undoLastLiveEvent(){
   const e=getLiveEvent();if(!e||!(e.live.events||[]).length)return;
   const ev=e.live.events.pop();
-  if(ev.type==='goal'){e.live.homeScore=Math.max(0,Number(e.live.homeScore||0)-1);e.homeScore=e.live.homeScore}
+  const teamAway=e.homeAway==='Trasferta';
+  if(ev.type==='goal'){
+    if(teamAway){e.live.awayScore=Math.max(0,Number(e.live.awayScore||0)-1);e.awayScore=e.live.awayScore}
+    else{e.live.homeScore=Math.max(0,Number(e.live.homeScore||0)-1);e.homeScore=e.live.homeScore}
+  }
+  if(ev.type==='conceded'){
+    if(teamAway){e.live.homeScore=Math.max(0,Number(e.live.homeScore||0)-1);e.homeScore=e.live.homeScore}
+    else{e.live.awayScore=Math.max(0,Number(e.live.awayScore||0)-1);e.awayScore=e.live.awayScore}
+  }
   if(['goal','assist','yellow','red'].includes(ev.type)){
     const p=state.players.find(x=>String(x.id)===String(ev.playerId));if(p){p.stats=p.stats||{};const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards'}[ev.type];p.stats[key]=Math.max(0,Number(p.stats[key]||0)-1)}
   }
@@ -863,6 +888,11 @@ function openMatchDetails(id){
   const e=state.events.find(x=>String(x.id)===String(id));if(!e)return;
   show('matchDetails');
   renderMatchDetails();
+  requestAnimationFrame(()=>{
+    window.scrollTo({top:0,left:0,behavior:'instant'});
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+  });
 }
 function getCurrentMatchDetails(){
   return state.events.find(x=>String(x.id)===String(currentMatchDetailsId));
@@ -975,16 +1005,31 @@ function renderLineupTabV432(e,host){
     </div>`;
   }).join('');
   const subs=lineupSubstitutionsV432(e);
-  host.innerHTML=`<div class="section-head"><div><h2>Formazione</h2><p class="muted small">Modulo ${escapeHtml(e.lineup?.formation||'4-3-3')}</p></div></div>
+  host.innerHTML=`<div class="section-head"><div><h2>Formazione</h2><p class="muted small">Titolari e sostituzioni della partita.</p></div></div>
+  <div class="formation-selector-inline">
+    <div class="field"><label>MODULO</label><select onchange="changeFormationFromMatchV433(this.value)">
+      ${Object.keys(FORMATION_PRESETS).map(name=>`<option ${name===(e.lineup?.formation||'4-3-3')?'selected':''}>${name}</option>`).join('')}
+    </select></div>
+    <button class="secondary" onclick="openCurrentMatchLineup()">MODIFICA TITOLARI</button>
+  </div>
   <div class="lineup-preview-wrap">
     <div class="lineup-mini-pitch">${playersHtml}</div>
     <div>
       <h3 style="margin:0 0 10px">Sostituzioni</h3>
       <div class="substitution-list">${subs.map(ev=>`<div class="substitution-row"><strong>${escapeHtml(ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`)}</strong><small>${ev.minute!==''?ev.minute+"'":''}</small></div>`).join('')||'<p class="muted small">Nessuna sostituzione registrata.</p>'}</div>
-      <button class="primary" style="margin-top:12px" onclick="openCurrentMatchLineup()">MODIFICA FORMAZIONE</button>
+
     </div>
   </div>`;
 }
+
+function changeFormationFromMatchV433(name){
+  const e=getCurrentMatchDetails();if(!e)return;
+  ensureEventLineup(e);
+  e.lineup.formation=name;
+  save();
+  renderMatchTab('lineup');
+}
+
 function renderLiveTabV432(e,host){
   const callups=(e.callups||[]).length;
   const starters=(e.lineup?.starters||[]).length;
@@ -1022,8 +1067,39 @@ function renderManualStatsTabV432(e,host){
       <div class="field"><label>CAMPO</label><input id="detailsVenue" value="${escapeHtml(e.venue||'')}"></div>
     </div>
     <button class="primary" onclick="saveManualMatchDataV432()">SALVA DATI PARTITA</button>
+  </div>
+  <div class="rating-panel-v433">
+    <div class="section-head"><div><h2>Voti giocatori</h2><p class="muted small">Solo titolari e giocatori entrati in campo.</p></div></div>
+    ${renderRatingsPanelV433(e)}
   </div>`;
 }
+
+function renderRatingsPanelV433(e){
+  const participants=getMatchParticipants(e);
+  if(!participants.length)return '<p class="muted small">Non risultano ancora giocatori utilizzati.</p>';
+  return `<div class="rating-list">${participants.map(id=>{
+    const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
+    const vote=e.ratings?.[id]??e.ratings?.[String(id)]??'';
+    return `<div class="rating-row">
+      <div><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${playerMinutesForMatch(e,id)} minuti giocati</small></div>
+      <input class="details-rating-input" data-player="${id}" type="number" min="0" max="10" step="0.5" value="${vote}" placeholder="Voto">
+    </div>`;
+  }).join('')}</div>
+  <button class="primary" onclick="saveDetailsRatingsV433()">SALVA VOTI</button>`;
+}
+function saveDetailsRatingsV433(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  e.ratings=e.ratings||{};
+  document.querySelectorAll('.details-rating-input').forEach(input=>{
+    const value=input.value.trim();
+    if(value==='')delete e.ratings[input.dataset.player];
+    else e.ratings[input.dataset.player]=Math.max(0,Math.min(10,Number(value)));
+  });
+  save();
+  alert('Voti salvati.');
+  renderMatchTab('manual');
+}
+
 function addManualEventV432(){
   const e=getCurrentMatchDetails();if(!e)return;
   e.matchEvents=e.matchEvents||[];
@@ -1100,7 +1176,8 @@ function eventLabelV43(ev){
     red:'Espulsione',Espulsione:'Espulsione',
     ownGoal:'Autogol',Autogol:'Autogol',
     sub:'Sostituzione',Sostituzione:'Sostituzione',
-    'Rigore segnato':'Rigore segnato','Rigore sbagliato':'Rigore sbagliato','Rigore parato':'Rigore parato'
+    'Rigore segnato':'Rigore segnato','Rigore sbagliato':'Rigore sbagliato','Rigore parato':'Rigore parato',
+    conceded:'Gol subito'
   };
   return labels[ev.type]||ev.label||ev.type||'Evento';
 }
