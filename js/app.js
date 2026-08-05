@@ -112,7 +112,7 @@ function show(id){
   const inside=['home','squad','calendar','tactical'].includes(id);
   topbar.classList.toggle('hidden',!inside);
   nav.classList.toggle('hidden',!inside);
-  fab.classList.toggle('hidden',!['squad','calendar'].includes(id));
+  document.body.classList.toggle('detail-open',['matchDetails','tactical','liveMatch'].includes(id));
   document.querySelectorAll('.bottom button,.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(id==='home'){nHome?.classList.add('active');renderBranding();renderNextMatch();renderDashboard();}
   if(id==='tactical'){renderTacticalBoard();}
@@ -605,7 +605,7 @@ e.lineup.starters=Object.values(e.lineup.slotAssignments).filter(Boolean);
 e.lineup.reserves=(e.callups||[]).filter(id=>!e.lineup.starters.some(s=>String(s)===String(id)));
 }
 function openMatchTactical(id){const e=state.events.find(x=>x.id===id);if(!e)return;collectMatchForm(e);if(!(e.callups||[]).length){alert('Prima seleziona almeno un convocato.');return}currentTacticalEventId=id;ensureEventLineup(e);save();closeModal();show('tactical');renderTacticalBoard()}
-function backToMatchCenter(){const id=currentTacticalEventId;show('calendar');if(id)openMatchCenter(id)}
+function backToMatchCenter(){const id=currentTacticalEventId;if(id){currentMatchDetailsId=id;show('matchDetails');renderMatchDetails()}else show('calendar')}
 function renderTacticalBoard(){
 const pitch=document.getElementById('cleanPitch');if(!pitch)return;const e=getTacticalEvent();if(!e){pitch.innerHTML='<div class="empty-tactical">Apri una partita dal calendario.</div>';return}
 ensureEventLineup(e);document.getElementById('formationSelect').value=e.lineup.formation;document.getElementById('tacticalMatchTitle').textContent=`${state.profile?.team||'Maccabi Roma'} · ${e.opponent}`;document.getElementById('tacticalMatchSubtitle').textContent=`${e.round||''} · ${formatDate(e.date)} ${e.time||''}`;document.getElementById('lineupCounter').textContent=`${e.lineup.starters.length} titolari · ${e.lineup.reserves.length} riserve`;
@@ -653,7 +653,7 @@ function startLiveMatch(id){
   save();currentLiveEventId=id;closeModal();show('liveMatch');renderLiveMatch();
 }
 function openLiveMatch(id){currentLiveEventId=id;show('liveMatch');renderLiveMatch()}
-function exitLiveMatch(){clearInterval(liveTimerInterval);show('calendar');renderEvents()}
+function exitLiveMatch(){clearInterval(liveTimerInterval);const id=currentLiveEventId;if(id){currentMatchDetailsId=id;show('matchDetails');renderMatchDetails()}else{show('calendar');renderEvents()}}
 function getLiveEvent(){return state.events.find(e=>String(e.id)===String(currentLiveEventId))}
 function getLiveElapsed(e){
   const l=e.live||{};let s=Number(l.elapsedSeconds||0);
@@ -854,46 +854,215 @@ function saveSociety(){
 }
 
 
+
+let currentMatchTab='callups';
+
 function openMatchDetails(id){
   currentMatchDetailsId=id;
+  currentMatchTab='callups';
   const e=state.events.find(x=>String(x.id)===String(id));if(!e)return;
-  show('matchDetails');renderMatchDetails();
+  show('matchDetails');
+  renderMatchDetails();
 }
-function getCurrentMatchDetails(){return state.events.find(x=>String(x.id)===String(currentMatchDetailsId))}
+function getCurrentMatchDetails(){
+  return state.events.find(x=>String(x.id)===String(currentMatchDetailsId));
+}
+function setMatchLogoV432(elementId,isClub,name){
+  const el=document.getElementById(elementId);if(!el)return;
+  const logo=isClub?getClubLogo():'';
+  el.innerHTML=logo?`<img src="${logo}" alt="Logo ${escapeHtml(name)}" style="width:100%;height:100%;object-fit:contain">`:initials(name);
+}
 function renderMatchDetails(){
   const e=getCurrentMatchDetails();if(!e)return;
   ensureEventLineup(e);
   const team=state.society?.name||state.profile?.team||'Maccabi Roma';
+  const away=e.homeAway==='Trasferta';
+  const homeName=away?e.opponent:team;
+  const awayName=away?team:e.opponent;
   const txt=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
   txt('matchCompetition',e.competition||e.type||'Campionato');
   txt('matchCompetitionLabel',(e.competition||e.type||'Campionato').toUpperCase());
-  txt('matchHomeTeam',team);txt('matchAwayTeam',e.opponent||'Avversario');
+  txt('matchHomeTeam',homeName);
+  txt('matchAwayTeam',awayName);
   txt('matchMainScore',`${Number(e.homeScore||0)} - ${Number(e.awayScore||0)}`);
-  txt('matchDate',e.date||'Data non inserita');txt('matchTime',e.time||'Orario non inserito');txt('matchVenue',e.venue||e.field||'Campo non inserito');
-  const callups=(e.callups||[]).length,starters=(e.lineup?.starters||[]).length;
-  const ready=starters===11;
-  const host=document.getElementById('matchPreparationSummary');
-  if(host)host.innerHTML=`
-    <div class="preparation-item"><strong>${callups}</strong><small>Convocati</small></div>
-    <div class="preparation-item"><strong>${starters}/11</strong><small>Titolari scelti</small></div>
-    <div class="preparation-item"><strong>${ready?'Pronta':'Da completare'}</strong><small>Live Match</small></div>`;
+  txt('matchDate',e.date?formatDate(e.date):'Data non inserita');
+  txt('matchTime',e.time||'Orario non inserito');
+  txt('matchVenue',e.venue||e.field||'Campo non inserito');
+  setMatchLogoV432('matchHomeLogo',!away,homeName);
+  setMatchLogoV432('matchAwayLogo',away,awayName);
+  renderDirectMatchSummaryV432(e);
+  renderMatchTab(currentMatchTab);
 }
-function openCurrentMatchCallups(){const e=getCurrentMatchDetails();if(e)openMatchCenter(e.id,'callups')}
-function openCurrentMatchLineup(){const e=getCurrentMatchDetails();if(e)openMatchCenter(e.id,'lineup')}
+function categorizedMatchEventsV432(e){
+  const groups={goals:[],assists:[],yellow:[],red:[],subs:[]};
+  allMatchEvents(e).forEach(ev=>{
+    const type=String(ev.type||'').toLowerCase();
+    const minute=ev.minute!==''&&ev.minute!==undefined?`${ev.minute}'`:'';
+    if(type==='goal'||type==='gol'||type==='rigore segnato'){
+      groups.goals.push({name:playerNameById(ev.playerId),minute});
+    }else if(type==='assist'){
+      groups.assists.push({name:playerNameById(ev.playerId),minute});
+    }else if(type==='yellow'||type==='ammonizione'){
+      groups.yellow.push({name:playerNameById(ev.playerId),minute});
+    }else if(type==='red'||type==='espulsione'){
+      groups.red.push({name:playerNameById(ev.playerId),minute});
+    }else if(type==='sub'||type==='sostituzione'){
+      groups.subs.push({
+        name:ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`,
+        minute
+      });
+    }
+  });
+  return groups;
+}
+function directGroupV432(icon,title,items){
+  const rows=items.length
+    ?items.map(x=>`<div class="direct-summary-item"><span>${escapeHtml(x.name)}</span><span>${escapeHtml(x.minute)}</span></div>`).join('')
+    :'<div class="direct-summary-item"><span class="muted">Nessun evento</span><span></span></div>';
+  return `<div class="direct-summary-group"><div class="direct-summary-icon">${icon}</div><div><h3>${title}</h3>${rows}</div></div>`;
+}
+function renderDirectMatchSummaryV432(e){
+  const host=document.getElementById('matchDirectSummary');if(!host)return;
+  const g=categorizedMatchEventsV432(e);
+  host.innerHTML=`<div class="direct-summary-grid">
+    ${directGroupV432('⚽','Marcatori',g.goals)}
+    ${directGroupV432('🎯','Assist',g.assists)}
+    ${directGroupV432('🟨','Ammonizioni',g.yellow)}
+    ${directGroupV432('🟥','Espulsioni',g.red)}
+    ${directGroupV432('🔄','Sostituzioni',g.subs)}
+  </div>`;
+}
+function renderMatchTab(tab){
+  currentMatchTab=tab;
+  ['callups','lineup','live','manual'].forEach(name=>{
+    document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1))?.classList.toggle('active',name===tab);
+  });
+  const e=getCurrentMatchDetails(),host=document.getElementById('matchTabContent');if(!e||!host)return;
+  if(tab==='callups')renderCallupsTabV432(e,host);
+  if(tab==='lineup')renderLineupTabV432(e,host);
+  if(tab==='live')renderLiveTabV432(e,host);
+  if(tab==='manual')renderManualStatsTabV432(e,host);
+}
+function renderCallupsTabV432(e,host){
+  const selected=new Set((e.callups||[]).map(String));
+  const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
+  host.innerHTML=`<div class="section-head"><div><h2>Convocati</h2><p class="muted small">Spunta soltanto i giocatori presenti.</p></div></div>
+  <div>${players.map(p=>`<div class="callup-row-simple"><label>
+    <input class="detailsCallupCheck" type="checkbox" value="${p.id}" ${selected.has(String(p.id))?'checked':''}>
+    <span class="number-pill">${p.number}</span>
+    <span><strong>${escapeHtml(p.name)}</strong><br><span class="muted small">${escapeHtml(p.role)}</span></span>
+  </label></div>`).join('')}</div>
+  <button class="primary" onclick="saveDetailsCallupsV432()">SALVA CONVOCATI</button>`;
+}
+function saveDetailsCallupsV432(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  e.callups=[...document.querySelectorAll('.detailsCallupCheck:checked')].map(x=>Number(x.value));
+  save();renderMatchDetails();alert('Convocati salvati.');
+}
+function lineupSubstitutionsV432(e){
+  return allMatchEvents(e).filter(ev=>['sub','sostituzione'].includes(String(ev.type||'').toLowerCase()));
+}
+function renderLineupTabV432(e,host){
+  ensureEventLineup(e);
+  const assignments=e.lineup?.slotAssignments||{};
+  const preset=FORMATION_PRESETS[e.lineup?.formation||'4-3-3']||FORMATION_PRESETS['4-3-3'];
+  const playersHtml=preset.map((s,i)=>{
+    const id=assignments[i];
+    const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
+    return `<div class="lineup-preview-player" style="left:${s[0]}%;top:${s[1]}%">
+      <div class="lineup-preview-number">${p.number}</div>
+      <span class="lineup-preview-name">${escapeHtml(p.name.split(' ').slice(-1)[0])}</span>
+    </div>`;
+  }).join('');
+  const subs=lineupSubstitutionsV432(e);
+  host.innerHTML=`<div class="section-head"><div><h2>Formazione</h2><p class="muted small">Modulo ${escapeHtml(e.lineup?.formation||'4-3-3')}</p></div></div>
+  <div class="lineup-preview-wrap">
+    <div class="lineup-mini-pitch">${playersHtml}</div>
+    <div>
+      <h3 style="margin:0 0 10px">Sostituzioni</h3>
+      <div class="substitution-list">${subs.map(ev=>`<div class="substitution-row"><strong>${escapeHtml(ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`)}</strong><small>${ev.minute!==''?ev.minute+"'":''}</small></div>`).join('')||'<p class="muted small">Nessuna sostituzione registrata.</p>'}</div>
+      <button class="primary" style="margin-top:12px" onclick="openCurrentMatchLineup()">MODIFICA FORMAZIONE</button>
+    </div>
+  </div>`;
+}
+function renderLiveTabV432(e,host){
+  const callups=(e.callups||[]).length;
+  const starters=(e.lineup?.starters||[]).length;
+  host.innerHTML=`<div class="section-head"><div><h2>Live Match</h2><p class="muted small">Gestisci cronometro ed eventi direttamente dal campo.</p></div></div>
+  <div class="summary-counts">
+    <div class="summary-count"><strong>${callups}</strong><small>Convocati</small></div>
+    <div class="summary-count"><strong>${starters}/11</strong><small>Titolari</small></div>
+  </div>
+  <button class="primary" style="margin-top:12px" onclick="openCurrentMatchLive()">▶ APRI LIVE MATCH</button>`;
+}
+function renderManualStatsTabV432(e,host){
+  const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
+  const events=allMatchEvents(e);
+  host.innerHTML=`<div class="section-head"><div><h2>Statistiche manuali</h2><p class="muted small">Aggiungi o correggi gli eventi senza utilizzare il Live Match.</p></div></div>
+  <div class="match-manual-grid">
+    <div class="field"><label>TIPO</label><select id="manualType">
+      <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
+    </select></div>
+    <div class="field"><label>GIOCATORE</label><select id="manualPlayer">${players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('')}</select></div>
+    <div class="field"><label>MINUTO</label><input id="manualMinute" placeholder="Es. 23"></div>
+    <div class="field"><label>NOTA</label><input id="manualNote" placeholder="Facoltativa"></div>
+  </div>
+  <button class="secondary" onclick="addManualEventV432()">＋ AGGIUNGI EVENTO</button>
+  <div class="match-manual-events">${events.map((ev,i)=>`<div class="match-manual-event">
+    <div class="summary-event-icon">${eventIconV43(ev.type)}</div>
+    <div><strong>${escapeHtml(eventLabelV43(ev))}</strong><small>${escapeHtml(ev.detail||playerNameById(ev.playerId))}${ev.minute!==''?` · ${ev.minute}'`:''}</small></div>
+    <button class="mini-danger" onclick="removeManualEventV432(${i})">✕</button>
+  </div>`).join('')||'<p class="muted small">Nessun evento registrato.</p>'}</div>
+  <div class="match-section-card">
+    <h3>Risultato e dati</h3>
+    <div class="match-manual-grid">
+      <div class="field"><label>GOL CASA</label><input id="detailsHomeScore" type="number" min="0" value="${e.homeScore||0}"></div>
+      <div class="field"><label>GOL TRASFERTA</label><input id="detailsAwayScore" type="number" min="0" value="${e.awayScore||0}"></div>
+      <div class="field"><label>STATO</label><select id="detailsStatus">${['Da giocare','In corso','Terminata','Rinviata'].map(x=>`<option ${e.status===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="field"><label>CAMPO</label><input id="detailsVenue" value="${escapeHtml(e.venue||'')}"></div>
+    </div>
+    <button class="primary" onclick="saveManualMatchDataV432()">SALVA DATI PARTITA</button>
+  </div>`;
+}
+function addManualEventV432(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  e.matchEvents=e.matchEvents||[];
+  e.matchEvents.push({
+    type:document.getElementById('manualType').value,
+    playerId:Number(document.getElementById('manualPlayer').value),
+    minute:document.getElementById('manualMinute').value.trim(),
+    note:document.getElementById('manualNote').value.trim()
+  });
+  save();renderMatchDetails();currentMatchTab='manual';renderMatchTab('manual');
+}
+function removeManualEventV432(index){
+  const e=getCurrentMatchDetails();if(!e)return;
+  const source=e.live?.events?.length?e.live.events:e.matchEvents;
+  source.splice(index,1);
+  save();renderMatchDetails();currentMatchTab='manual';renderMatchTab('manual');
+}
+function saveManualMatchDataV432(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  e.homeScore=document.getElementById('detailsHomeScore').value;
+  e.awayScore=document.getElementById('detailsAwayScore').value;
+  e.status=document.getElementById('detailsStatus').value;
+  e.venue=document.getElementById('detailsVenue').value.trim();
+  save();renderEvents();renderDashboard();renderMatchDetails();alert('Dati partita salvati.');
+}
+function openCurrentMatchCallups(){renderMatchTab('callups')}
+function openCurrentMatchLineup(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  currentTacticalEventId=e.id;
+  ensureEventLineup(e);
+  show('tactical');renderTacticalBoard();
+}
 function openCurrentMatchLive(){
   const e=getCurrentMatchDetails();if(!e)return;
   if((e.callups||[]).length===0){alert('Prima seleziona i convocati.');return}
   if((e.lineup?.starters||[]).length!==11){alert('Prima completa la formazione con 11 titolari.');return}
-  startLiveMatch(e.id)
+  startLiveMatch(e.id);
 }
-function openCurrentMatchManualStats(){
-  const e=getCurrentMatchDetails();if(!e)return;
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">INSERIMENTO MANUALE</p><h2>Statistiche partita</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <p class="muted">Questa sezione permetterà di inserire risultato, marcatori, assist, ammonizioni, espulsioni e sostituzioni anche senza utilizzare il Live Match.</p>
-  <button class="primary full-btn" onclick="closeModal()">OK</button>`;
-  modal.classList.add('open')
-}
-
+function openCurrentMatchManualStats(){renderMatchTab('manual')}
 
 function getClubLogo(){
   return state.branding?.logo||state.society?.logo||'';

@@ -1,17 +1,23 @@
-HANK MANAGER v4.3.1 FIX
+HANK MANAGER v4.3.2 – MATCH PAGE
 
-CORREZIONE URGENTE
-- Risolto l'errore JavaScript che bloccava completamente l'app.
-- Ripristinati i pulsanti Inizia ora e la navigazione inferiore.
-- Mantenute tutte le novità della v4.3.
-- Aggiornata la cache PWA per mostrare subito la versione corretta.
+CORREZIONI
+- Eliminato il grande pulsante + doppione in Rosa e Calendario.
+- Scheda partita trasformata in una vera pagina.
+- La barra inferiore scompare quando apri partita, formazione o Live Match.
+- Logo della società mostrato nella scheda partita.
+- Riepilogo visibile subito sotto risultato:
+  marcatori, assist, ammonizioni, espulsioni e sostituzioni.
+- Tab Convocati: mostra e modifica i presenti.
+- Tab Formazione: mostra il campo e le sostituzioni effettuate.
+- Tab Live Match: apre la gestione live.
+- Tab Statistiche: inserimento e correzione manuale degli eventi.
+- Rimosso il vecchio riepilogo “15 convocati / 11 su 11 / Live pronta”.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
-2. Sostituisci tutti i file del repository.
+2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Fix app startup JavaScript error v4.3.1
+   Improve match page tabs logo and summary v4.3.2
 4. Commit to main.
 5. Push origin.
-6. Attendi Vercel.
-7. Apri il sito con Ctrl+F5 oppure in navigazione in incognito.
+6. Attendi Vercel e aggiorna con Ctrl+F5.

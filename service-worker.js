@@ -1,4 +1,4 @@
-const CACHE='hank-manager-v431-fix-v1';
+const CACHE='hank-manager-v432-match-page-v1';
 const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./manifest.json'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));

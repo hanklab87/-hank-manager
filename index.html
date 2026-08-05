@@ -108,7 +108,7 @@
     <div id="events" style="margin-top:18px"></div>
   </section>
 <section id="tactical" class="screen">
-<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.3.1 FIX</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
+<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.3.2 MATCH PAGE</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
 <div class="formation-layout"><div>
 <div class="tactical-toolbar"><div class="field"><label>MODULO</label><select id="formationSelect" onchange="applyFormation(this.value)"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-3</option><option>4-3-1-2</option></select></div><div class="field"><label>RIEPILOGO</label><div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div></div></div>
 <div class="clean-pitch" id="cleanPitch"></div>
@@ -123,8 +123,6 @@
   <button id="nCalendar" onclick="show('calendar')"><b>📅</b>Calendario</button>
   <button onclick="alert('Statistiche in arrivo')"><b>📊</b>Statistiche</button>
 </nav>
-<button id="fab" class="fab hidden" onclick="fabAction()">＋</button>
-
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 
 <script src="js/app.js"></script>
@@ -178,8 +176,8 @@
 </section>
 
 
-<section id="matchDetails" class="screen">
-  <div class="modern-header">
+<section id="matchDetails" class="screen match-details-screen">
+  <div class="match-details-top">
     <button class="icon-action" onclick="show('calendar');renderEvents()">←</button>
     <div>
       <p class="eyebrow" id="matchCompetitionLabel">CAMPIONATO</p>
@@ -191,12 +189,12 @@
     <div class="competition-pill" id="matchCompetition">Campionato</div>
     <div class="match-teams-modern">
       <div class="team-side">
-        <div class="mini-club-logo">HM</div>
+        <div class="mini-club-logo" id="matchHomeLogo">HM</div>
         <strong id="matchHomeTeam">Maccabi Roma</strong>
       </div>
       <div class="match-score-main" id="matchMainScore">0 - 0</div>
       <div class="team-side">
-        <div class="mini-club-logo opponent">FC</div>
+        <div class="mini-club-logo opponent" id="matchAwayLogo">FC</div>
         <strong id="matchAwayTeam">Avversario</strong>
       </div>
     </div>
@@ -207,25 +205,21 @@
     </div>
   </article>
 
-  <div class="match-action-grid">
-    <button class="match-action convocati" onclick="openCurrentMatchCallups()">
-      <span>👥</span><strong>Convocati</strong><small>Seleziona i presenti</small>
-    </button>
-    <button class="match-action formazione" onclick="openCurrentMatchLineup()">
-      <span>👕</span><strong>Formazione</strong><small>Scegli modulo e titolari</small>
-    </button>
-    <button class="match-action live" onclick="openCurrentMatchLive()">
-      <span>▶</span><strong>Live Match</strong><small>Avvia la partita</small>
-    </button>
-    <button class="match-action stats" onclick="openCurrentMatchManualStats()">
-      <span>▥</span><strong>Statistiche</strong><small>Inserimento manuale</small>
-    </button>
+  <article class="card-modern match-quick-summary">
+    <div class="section-head">
+      <div><p class="eyebrow">RIEPILOGO</p><h2>Partita</h2></div>
+    </div>
+    <div id="matchDirectSummary"></div>
+  </article>
+
+  <div class="match-tabs">
+    <button id="tabCallups" onclick="renderMatchTab('callups')">Convocati</button>
+    <button id="tabLineup" onclick="renderMatchTab('lineup')">Formazione</button>
+    <button id="tabLive" onclick="renderMatchTab('live')">Live Match</button>
+    <button id="tabManual" onclick="renderMatchTab('manual')">Statistiche</button>
   </div>
 
-  <article class="card-modern">
-    <div class="section-head"><div><p class="eyebrow">STATO PREPARAZIONE</p><h2>Riepilogo</h2></div></div>
-    <div id="matchPreparationSummary" class="preparation-grid"></div>
-  </article>
+  <div id="matchTabContent" class="match-tab-content"></div>
 </section>
 
 <section id="liveMatch" class="screen">
