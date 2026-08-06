@@ -910,3 +910,29 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
   font-size:9px;
   font-weight:950;
 }
+
+/* Hank Manager v4.4.3 */
+.roster-role-title{
+  margin-top:16px;
+  margin-bottom:7px;
+}
+.mvp-select-wrap{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.mvp-select-wrap select{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#08121a;
+  color:var(--text);
+  padding:10px;
+}
+.mvp-stat-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:#ffc257;
+  font-weight:950;
+}

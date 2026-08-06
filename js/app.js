@@ -159,19 +159,34 @@ function setFilter(btn){
 }
 function renderPlayers(){
   const q=(document.getElementById('search')?.value||'').toLowerCase();
-  const arr=state.players.filter(p=>(currentFilter==='Tutti'||p.role===currentFilter)&&(p.name||'').toLowerCase().includes(q));
+
+  const allPlayers=state.players
+    .filter(p=>String(p.role||'').toLowerCase()!=='allenatore')
+    .filter(p=>(currentFilter==='Tutti'||p.role===currentFilter)&&(p.name||'').toLowerCase().includes(q))
+    .sort((a,b)=>roleOrderV44(a.role)-roleOrderV44(b.role)||Number(a.number)-Number(b.number));
+
   const count=document.getElementById('rosterCount');
-  if(count)count.textContent=state.players.length;
-  playerList.innerHTML=arr.map(p=>`<div class="player" onclick="openPlayer(${p.id})">
-    <div class="player-left">
-      <div class="avatar">${p.photo?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}</div>
-      <div style="min-width:0">
-        <div class="pname">${escapeHtml(p.name)}</div>
-        <div class="prole">${escapeHtml(p.role)}</div>
+  if(count)count.textContent=state.players.filter(p=>String(p.role||'').toLowerCase()!=='allenatore').length;
+
+  let currentGroup='';
+  playerList.innerHTML=allPlayers.map(p=>{
+    const group=roleGroupV44(p.role);
+    const heading=group!==currentGroup?`<div class="role-group-title roster-role-title">${group}</div>`:'';
+    currentGroup=group;
+
+    return `${heading}<div class="player" onclick="openPlayer(${p.id})">
+      <div class="player-left">
+        <div class="avatar">
+          ${p.photo?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}
+        </div>
+        <div style="min-width:0">
+          <div class="pname">${escapeHtml(p.name)}</div>
+          <div class="prole">${escapeHtml(p.role)}</div>
+        </div>
       </div>
-    </div>
-    <div class="number">${p.number}</div>
-  </div>`).join('')||'<div class="card empty">Nessun giocatore trovato.</div>';
+      <div class="number">${p.number}</div>
+    </div>`;
+  }).join('')||'<div class="card empty">Nessun giocatore trovato.</div>';
 }
 function openPlayer(id){
   const p=state.players.find(x=>String(x.id)===String(id));if(!p)return;
@@ -1579,6 +1594,7 @@ function renderManualStatsTabV432(e,host){
   <div class="rating-panel-v433">
     <div class="section-head"><div><h2>Voti giocatori</h2><p class="muted small">Solo titolari e giocatori entrati in campo.</p></div></div>
     ${renderRatingsPanelV433(e)}
+    ${renderMvpSelectorV443(e)}
   </div>`;
 }
 
@@ -1595,6 +1611,41 @@ function renderRatingsPanelV433(e){
   }).join('')}</div>
   <button class="primary" onclick="saveDetailsRatingsV433()">SALVA VOTI</button>`;
 }
+
+function renderMvpSelectorV443(e){
+  const participants=getMatchParticipants(e)
+    .map(id=>state.players.find(p=>String(p.id)===String(id)))
+    .filter(Boolean)
+    .sort((a,b)=>roleOrderV44(a.role)-roleOrderV44(b.role)||Number(a.number)-Number(b.number));
+
+  if(!participants.length){
+    return '<div class="mvp-select-wrap"><p class="muted small">Nessun giocatore disponibile per l’MVP.</p></div>';
+  }
+
+  const current=e.live?.mvpPlayerId||e.mvpPlayerId||'';
+
+  return `<div class="mvp-select-wrap">
+    <div class="section-head"><div><h2>Migliore in campo</h2><p class="muted small">Seleziona l’MVP della partita.</p></div></div>
+    <select id="matchMvpSelect">
+      <option value="">Nessun MVP selezionato</option>
+      ${participants.map(p=>`<option value="${p.id}" ${String(current)===String(p.id)?'selected':''}>#${p.number} ${escapeHtml(p.name)}</option>`).join('')}
+    </select>
+    <button class="primary" style="margin-top:10px" onclick="saveMatchMvpV443()">SALVA MVP</button>
+  </div>`;
+}
+function saveMatchMvpV443(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  const value=document.getElementById('matchMvpSelect')?.value||'';
+
+  e.live=e.live||{};
+  e.live.mvpPlayerId=value?Number(value):null;
+  e.mvpPlayerId=value?Number(value):null;
+
+  save();
+  alert('Migliore in campo salvato.');
+  renderMatchTab('manual');
+}
+
 function saveDetailsRatingsV433(){
   const e=getCurrentMatchDetails();if(!e)return;
   e.ratings=e.ratings||{};
@@ -1781,7 +1832,7 @@ function aggregatedPlayerStatsV43(){
   const map={};
   state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
     player:p,appearances:0,minutes:0,goals:0,yellow:0,red:0,ownGoals:0,
-    goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id)
+    goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id),mvp:0
   });
   state.events.filter(e=>e.status==='Terminata').forEach(e=>{
     const participants=getMatchParticipants(e);
@@ -1813,6 +1864,9 @@ function aggregatedPlayerStatsV43(){
       const keepers=participants.filter(id=>(map[id]?.player.role||'').toLowerCase().includes('port'));
       if(keepers.length===1)map[keepers[0]].goalsConceded+=remaining;
     }
+
+    const mvpId=Number(e.live?.mvpPlayerId||e.mvpPlayerId||0);
+    if(mvpId&&map[mvpId])map[mvpId].mvp++;
   });
   return Object.values(map);
 }
@@ -1820,7 +1874,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   currentStatsTabV43=tab;
   const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
   if(!host)return;
-  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',goalkeepers:'Portieri'};
+  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',mvp:'MVP',goalkeepers:'Portieri'};
   const data=aggregatedPlayerStatsV43();
   let rows=data;
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
@@ -1835,6 +1889,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       let value=x[tab]||0,detail=x.player.role;
       if(tab==='rating')value=x.rating?x.rating.toFixed(2):'—';
       if(tab==='minutes')value=`${x.minutes}'`;
+      if(tab==='mvp')value=`⭐ ${x.mvp}`;
       if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati`}
       return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${x.player.number} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
     }).join('')||'<div class="card empty">Nessun dato disponibile.</div>'}</div>`;
