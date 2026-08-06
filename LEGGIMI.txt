@@ -1,21 +1,21 @@
-HANK MANAGER v4.4.3 – MVP & ROSA
+HANK MANAGER v4.4.4 – MINUTES FIX
 
-NOVITÀ
-- Rosa ordinata per ruolo:
-  Portieri, Difensori centrali, Terzini, Centrocampisti, Attaccanti.
-- Allenatore escluso dalla Rosa.
-- Conteggio Rosa aggiornato solo sui giocatori.
-- A fine partita, nella sezione voti, puoi selezionare il Migliore in campo.
-- L'MVP può essere scelto solo tra i giocatori realmente utilizzati.
-- MVP salvato nella singola partita.
-- Nuova classifica MVP nelle Statistiche giocatori.
-- Media voto e numero di MVP restano due classifiche separate.
+CORREZIONI
+- Minuti conteggiati per tutti i titolari.
+- Minuti conteggiati correttamente per i subentrati.
+- Calcolo basato sul minuto ufficiale della partita.
+- Le simulazioni veloci non producono più 0 minuti.
+- Cambio al 35°:
+  35 minuti al giocatore uscito;
+  dal 35° alla fine al giocatore entrato.
+- Statistiche Presenze e Minuti aggiornate correttamente.
+- Il riepilogo voti mostra i minuti registrati.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
 2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Add MVP ranking and order roster by role v4.4.3
+   Fix player minutes for starters and substitutes v4.4.4
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.

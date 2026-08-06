@@ -801,7 +801,9 @@ function startLiveMatch(id){
     if(!e.live.playerMinutes[pid]){
       e.live.playerMinutes[pid]={
         startedAtSeconds:getTotalPlayingSecondsV44(e),
+        startedAtOfficialMinute:0,
         endedAtSeconds:null,
+        endedAtOfficialMinute:null,
         minutes:0,
         starter:true
       };
@@ -1226,19 +1228,24 @@ function makeLiveSubstitution(outId,inId,slotIndex){
 
   e.live.playerMinutes[outId]=e.live.playerMinutes[outId]||{
     startedAtSeconds:0,
+    startedAtOfficialMinute:0,
     endedAtSeconds:null,
+    endedAtOfficialMinute:null,
     minutes:0,
     starter:true
   };
   e.live.playerMinutes[outId].endedAtSeconds=actualSeconds;
+  e.live.playerMinutes[outId].endedAtOfficialMinute=minute;
   e.live.playerMinutes[outId].minutes=Math.max(
-    0,
-    Math.floor((actualSeconds-Number(e.live.playerMinutes[outId].startedAtSeconds||0))/60)
+    1,
+    minute-Number(e.live.playerMinutes[outId].startedAtOfficialMinute||0)
   );
 
   e.live.playerMinutes[inId]={
     startedAtSeconds:actualSeconds,
+    startedAtOfficialMinute:minute,
     endedAtSeconds:null,
+    endedAtOfficialMinute:null,
     minutes:0,
     starter:false
   };
@@ -1277,15 +1284,22 @@ function finishLiveMatch(){
   Object.values(e.live.onField||{}).forEach(pid=>{
     e.live.playerMinutes[pid]=e.live.playerMinutes[pid]||{
       startedAtSeconds:0,
+      startedAtOfficialMinute:0,
       endedAtSeconds:null,
+      endedAtOfficialMinute:null,
       minutes:0,
       starter:true
     };
     if(e.live.playerMinutes[pid].endedAtSeconds==null){
+      const officialEnd=Math.max(
+        Number(e.live.periodLength||40)*2,
+        numericOfficialMinuteV44(e)
+      );
       e.live.playerMinutes[pid].endedAtSeconds=actualSeconds;
+      e.live.playerMinutes[pid].endedAtOfficialMinute=officialEnd;
       e.live.playerMinutes[pid].minutes=Math.max(
-        0,
-        Math.floor((actualSeconds-Number(e.live.playerMinutes[pid].startedAtSeconds||0))/60)
+        1,
+        officialEnd-Number(e.live.playerMinutes[pid].startedAtOfficialMinute||0)
       );
     }
   });
@@ -1365,6 +1379,7 @@ function undoLastLiveEvent(){
     delete e.live.playerMinutes[ev.inId];
     if(e.live.playerMinutes[ev.outId]){
       e.live.playerMinutes[ev.outId].endedAtSeconds=null;
+      e.live.playerMinutes[ev.outId].endedAtOfficialMinute=null;
       e.live.playerMinutes[ev.outId].minutes=0;
     }
   }
@@ -1761,7 +1776,26 @@ function playerNameById(id){
 }
 function playerMinutesForMatch(e,id){
   const m=e.live?.playerMinutes?.[id]||e.live?.playerMinutes?.[String(id)];
-  return Number(m?.minutes||0);
+  if(!m)return 0;
+
+  if(Number(m.minutes||0)>0)return Number(m.minutes);
+
+  if(m.endedAtOfficialMinute!==undefined&&m.endedAtOfficialMinute!==null){
+    return Math.max(
+      0,
+      Number(m.endedAtOfficialMinute||0)-Number(m.startedAtOfficialMinute||0)
+    );
+  }
+
+  if(m.endedAtSeconds!==undefined&&m.endedAtSeconds!==null){
+    const seconds=Math.max(
+      0,
+      Number(m.endedAtSeconds||0)-Number(m.startedAtSeconds||0)
+    );
+    return seconds>0?Math.max(1,Math.ceil(seconds/60)):0;
+  }
+
+  return 0;
 }
 function buildMatchSummaryHtml(e){
   const events=allMatchEvents(e);
@@ -1836,7 +1870,12 @@ function aggregatedPlayerStatsV43(){
   });
   state.events.filter(e=>e.status==='Terminata').forEach(e=>{
     const participants=getMatchParticipants(e);
-    participants.forEach(id=>{if(map[id]){map[id].appearances++;map[id].minutes+=playerMinutesForMatch(e,id)}});
+    participants.forEach(id=>{
+      if(map[id]){
+        map[id].appearances++;
+        map[id].minutes+=Number(playerMinutesForMatch(e,id)||0);
+      }
+    });
     allMatchEvents(e).forEach(ev=>{
       const s=map[Number(ev.playerId)];if(!s)return;
       if(['goal','Gol','Rigore segnato'].includes(ev.type))s.goals++;
