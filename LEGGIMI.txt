@@ -1,22 +1,30 @@
-HANK MANAGER v4.3.5 – PORTIERI & FORMAZIONE
+HANK MANAGER v4.4 – LIVE MATCH A DUE TEMPI
 
 NOVITÀ
-- Formazione con nomi più grandi.
-- Modulo utilizzato sempre visibile.
-- Panchina completa accanto al campo.
-- Sostituzioni effettuate sotto la panchina.
-- Rimossa completamente la voce Assist:
-  Live Match, inserimento manuale, riepilogo e statistiche.
-- Corretta l'attribuzione dei gol subiti ai portieri.
-- Se un portiere entra dalla panchina e registra Gol subito,
-  il dato viene assegnato a quel portiere specifico.
-- I gol subiti risultano corretti anche dopo le sostituzioni.
+- Scelta giocatori ordinata per ruolo:
+  Portieri, Difensori centrali, Terzini, Centrocampisti,
+  Esterni, Trequartisti, Attaccanti.
+- Panchina delle sostituzioni ordinata nello stesso modo.
+- Durata configurabile: 2×20, 2×25, 2×30, 2×35, 2×40, 2×45.
+- Pulsante Inizia 1° tempo.
+- Cronometro con recupero: 40+1, 40+2, 40+3...
+- Pulsante Fine 1° tempo.
+- Stato Intervallo.
+- Pulsante Inizia 2° tempo.
+- Secondo tempo visualizzabile:
+  continuo da 40 oppure separato da 0.
+- Gli eventi del secondo tempo salvano sempre il minuto reale.
+- Pulsante Fine partita.
+- Minuti giocati calcolati sul tempo effettivamente trascorso in campo.
+- Possibilità di indicare il Migliore in campo durante il Live Match.
+- MVP evidenziato sul campo e nella schermata dei voti.
+- A fine partita si apre direttamente la sezione voti.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
 2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Fix goalkeeper conceded goals and improve lineup v4.3.5
+   Add two half live match role ordering and MVP v4.4
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.

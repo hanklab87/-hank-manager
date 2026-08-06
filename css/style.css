@@ -811,3 +811,76 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 .lineup-bench-player strong{font-size:10px}
 .lineup-bench-player small{display:block;color:var(--muted);font-size:9px}
 .lineup-section-title{margin:14px 0 8px;font-size:13px}
+
+/* Hank Manager v4.4 - Live Match a due tempi */
+.live-phase-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:120px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:6px 10px;
+  color:var(--muted);
+  background:rgba(255,255,255,.04);
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.live-phase-badge.playing{
+  color:var(--green);
+  border-color:rgba(84,227,141,.35);
+  background:rgba(84,227,141,.10);
+}
+.live-phase-badge.halftime{
+  color:#ffc257;
+  border-color:rgba(255,194,87,.4);
+  background:rgba(255,194,87,.10);
+}
+.live-period-settings{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.live-period-settings label{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:900;
+}
+.live-period-settings select{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#09131c;
+  color:var(--text);
+  padding:7px 9px;
+  font-size:10px;
+}
+.live-controls{justify-content:center}
+.mvp-live-button{
+  border-color:rgba(255,194,87,.45)!important;
+  background:rgba(255,194,87,.10)!important;
+}
+.mvp-player{
+  box-shadow:0 0 0 4px rgba(255,194,87,.24),0 10px 24px rgba(0,0,0,.35)!important;
+  border-color:#ffc257!important;
+}
+.mvp-marker{
+  display:block;
+  margin-top:3px;
+  color:#ffc257;
+  font-size:10px;
+  font-weight:950;
+}
+.role-group-title{
+  margin:12px 0 5px;
+  padding:6px 8px;
+  border-radius:9px;
+  background:rgba(255,255,255,.045);
+  color:var(--muted);
+  font-size:9px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
