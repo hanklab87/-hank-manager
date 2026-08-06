@@ -1,24 +1,22 @@
-HANK MANAGER v4.3.4 – TEAM STATS
+HANK MANAGER v4.3.5 – PORTIERI & FORMAZIONE
 
 NOVITÀ
-- Eliminato il tasto Partita dalla barra inferiore.
-- Scheda partita aperta come vera pagina a schermo intero.
-- Eliminata la barra/spazio nero prima della scheda.
-- Aggiunto Autogol nel Live Match per i giocatori di movimento.
-- Autogol aggiorna automaticamente il risultato avversario.
-- Logo reale nella sezione Società.
-- Possibilità di caricare il logo direttamente da Società.
-- Nuova sezione Statistiche squadra:
-  Partite, vittorie, pareggi, sconfitte, gol fatti, gol subiti.
-- Analisi gol fatti e subiti nei segmenti:
-  0–20, 21–40, 41–60, 61–80+.
-- Statistiche divise tra Squadra e Giocatori.
+- Formazione con nomi più grandi.
+- Modulo utilizzato sempre visibile.
+- Panchina completa accanto al campo.
+- Sostituzioni effettuate sotto la panchina.
+- Rimossa completamente la voce Assist:
+  Live Match, inserimento manuale, riepilogo e statistiche.
+- Corretta l'attribuzione dei gol subiti ai portieri.
+- Se un portiere entra dalla panchina e registra Gol subito,
+  il dato viene assegnato a quel portiere specifico.
+- I gol subiti risultano corretti anche dopo le sostituzioni.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
 2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Add team stats own goals and fix match page v4.3.4
+   Fix goalkeeper conceded goals and improve lineup v4.3.5
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.

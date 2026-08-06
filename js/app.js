@@ -223,7 +223,7 @@ function addPlayer(){
   const name=document.getElementById('pn').value.trim();
   const number=document.getElementById('pnum').value;
   if(!name||number==='')return alert('Inserisci nome e numero');
-  const player=readPlayerForm({id:Date.now(),apps:0,goals:0,assists:0,photo:''});
+  const player=readPlayerForm({id:Date.now(),apps:0,goals:0,photo:''});
   const file=document.getElementById('pphoto').files[0];
   if(file){
     const r=new FileReader();
@@ -424,7 +424,7 @@ function openMatchCenter(id){
 
       <div class="match-section-card">
         <h3>Inserimento manuale eventi</h3>
-        <div class="field"><label>TIPO EVENTO</label><select id="matchEventType"><option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option></select></div>
+        <div class="field"><label>TIPO EVENTO</label><select id="matchEventType"><option>Gol</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option></select></div>
         <div class="form-grid"><div class="field"><label>GIOCATORE</label><select id="matchEventPlayer">${playerOptions}</select></div><div class="field"><label>MINUTO</label><input id="matchEventMinute" placeholder="Es. 23"></div></div>
         <div class="field"><label>NOTA</label><input id="matchEventNote" value=""></div>
         <button class="secondary" onclick="addMatchEvent(${id})">＋ AGGIUNGI EVENTO</button>
@@ -542,7 +542,7 @@ function seasonStats(){
 }
 function playerStats(){
   const map={};
-  state.players.forEach(p=>map[p.id]={player:p,goals:0,assists:0,yellow:0,red:0,ownGoals:0,apps:0});
+  state.players.forEach(p=>map[p.id]={player:p,goals:0,yellow:0,red:0,ownGoals:0,apps:0});
   state.events.filter(e=>e.type==='Partita').forEach(e=>{
     (e.callups||[]).forEach(id=>{if(map[id])map[id].apps++});
     (e.matchEvents||[]).forEach(ev=>{
@@ -719,7 +719,6 @@ function openLivePlayerMenu(playerId,slotIndex){
   sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">EVENTO GIOCATORE</p><h2>#${p.number} ${escapeHtml(p.name)}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
   <div class="live-event-grid">
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'goal')">⚽ Gol</button>
-    <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'assist')">🎯 Assist</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'yellow')">🟨 Ammonizione</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'red')">🟥 Espulsione</button>
     ${(p.role||'').toLowerCase().includes('port')?`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'conceded')">🥅 Gol subito</button>`:`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'ownGoal')">🔁 Autogol</button>`}
@@ -731,7 +730,7 @@ function openLivePlayerMenu(playerId,slotIndex){
 function addLivePlayerEvent(playerId,type){
   const e=getLiveEvent(),p=state.players.find(x=>String(x.id)===String(playerId));if(!e||!p)return;
   const minute=Math.floor(getLiveElapsed(e)/60);
-  const map={goal:['Gol','⚽'],assist:['Assist','🎯'],yellow:['Ammonizione','🟨'],red:['Espulsione','🟥'],conceded:['Gol subito','🥅'],ownGoal:['Autogol','🔁']};
+  const map={goal:['Gol','⚽'],yellow:['Ammonizione','🟨'],red:['Espulsione','🟥'],conceded:['Gol subito','🥅'],ownGoal:['Autogol','🔁']};
   const [label,icon]=map[type];
   const ev={id:Date.now(),type,playerId,minute,label:`${icon} ${label}`,detail:p.name};
   e.live.events.push(ev);
@@ -751,7 +750,7 @@ function addLivePlayerEvent(playerId,type){
     }
   }
   p.stats=p.stats||{};
-  const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards',ownGoal:'ownGoals'}[type];
+  const key={goal:'goals',yellow:'yellowCards',red:'redCards',ownGoal:'ownGoals'}[type];
   if(key)p.stats[key]=Number(p.stats[key]||0)+1;
   save();closeModal();renderLiveMatch()
 }
@@ -809,8 +808,8 @@ function undoLastLiveEvent(){
     if(teamAway){e.live.homeScore=Math.max(0,Number(e.live.homeScore||0)-1);e.homeScore=e.live.homeScore}
     else{e.live.awayScore=Math.max(0,Number(e.live.awayScore||0)-1);e.awayScore=e.live.awayScore}
   }
-  if(['goal','assist','yellow','red','ownGoal'].includes(ev.type)){
-    const p=state.players.find(x=>String(x.id)===String(ev.playerId));if(p){p.stats=p.stats||{};const key={goal:'goals',assist:'assists',yellow:'yellowCards',red:'redCards',ownGoal:'ownGoals'}[ev.type];p.stats[key]=Math.max(0,Number(p.stats[key]||0)-1)}
+  if(['goal','yellow','red','ownGoal'].includes(ev.type)){
+    const p=state.players.find(x=>String(x.id)===String(ev.playerId));if(p){p.stats=p.stats||{};const key={goal:'goals',yellow:'yellowCards',red:'redCards',ownGoal:'ownGoals'}[ev.type];p.stats[key]=Math.max(0,Number(p.stats[key]||0)-1)}
   }
   if(ev.type==='sub'){
     e.live.onField[ev.slotIndex]=ev.outId;
@@ -939,14 +938,12 @@ function renderMatchDetails(){
   renderMatchTab(currentMatchTab);
 }
 function categorizedMatchEventsV432(e){
-  const groups={goals:[],assists:[],yellow:[],red:[],subs:[]};
+  const groups={goals:[],yellow:[],red:[],subs:[]};
   allMatchEvents(e).forEach(ev=>{
     const type=String(ev.type||'').toLowerCase();
     const minute=ev.minute!==''&&ev.minute!==undefined?`${ev.minute}'`:'';
     if(type==='goal'||type==='gol'||type==='rigore segnato'){
       groups.goals.push({name:playerNameById(ev.playerId),minute});
-    }else if(type==='assist'){
-      groups.assists.push({name:playerNameById(ev.playerId),minute});
     }else if(type==='yellow'||type==='ammonizione'){
       groups.yellow.push({name:playerNameById(ev.playerId),minute});
     }else if(type==='red'||type==='espulsione'){
@@ -971,7 +968,6 @@ function renderDirectMatchSummaryV432(e){
   const g=categorizedMatchEventsV432(e);
   host.innerHTML=`<div class="direct-summary-grid">
     ${directGroupV432('⚽','Marcatori',g.goals)}
-    ${directGroupV432('🎯','Assist',g.assists)}
     ${directGroupV432('🟨','Ammonizioni',g.yellow)}
     ${directGroupV432('🟥','Espulsioni',g.red)}
     ${directGroupV432('🔄','Sostituzioni',g.subs)}
@@ -1011,6 +1007,18 @@ function renderLineupTabV432(e,host){
   ensureEventLineup(e);
   const assignments=e.lineup?.slotAssignments||{};
   const preset=FORMATION_PRESETS[e.lineup?.formation||'4-3-3']||FORMATION_PRESETS['4-3-3'];
+
+  const starters=Object.values(assignments)
+    .map(id=>state.players.find(x=>String(x.id)===String(id)))
+    .filter(Boolean);
+
+  const starterIds=new Set(starters.map(p=>String(p.id)));
+  const bench=(e.callups||[])
+    .map(id=>state.players.find(x=>String(x.id)===String(id)))
+    .filter(Boolean)
+    .filter(p=>!starterIds.has(String(p.id)))
+    .sort((a,b)=>Number(a.number)-Number(b.number));
+
   const playersHtml=preset.map((s,i)=>{
     const id=assignments[i];
     const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
@@ -1019,20 +1027,41 @@ function renderLineupTabV432(e,host){
       <span class="lineup-preview-name">${escapeHtml(p.name.split(' ').slice(-1)[0])}</span>
     </div>`;
   }).join('');
+
   const subs=lineupSubstitutionsV432(e);
-  host.innerHTML=`<div class="section-head"><div><h2>Formazione</h2><p class="muted small">Titolari e sostituzioni della partita.</p></div></div>
+
+  host.innerHTML=`<div class="section-head">
+    <div>
+      <h2>Formazione</h2>
+      <p class="muted small">Modulo utilizzato e giocatori convocati.</p>
+    </div>
+  </div>
+
   <div class="formation-selector-inline">
     <div class="field"><label>MODULO</label><select onchange="changeFormationFromMatchV433(this.value)">
       ${Object.keys(FORMATION_PRESETS).map(name=>`<option ${name===(e.lineup?.formation||'4-3-3')?'selected':''}>${name}</option>`).join('')}
     </select></div>
     <button class="secondary" onclick="openCurrentMatchLineup()">MODIFICA TITOLARI</button>
   </div>
+
   <div class="lineup-preview-wrap">
     <div class="lineup-mini-pitch">${playersHtml}</div>
     <div>
-      <h3 style="margin:0 0 10px">Sostituzioni</h3>
-      <div class="substitution-list">${subs.map(ev=>`<div class="substitution-row"><strong>${escapeHtml(ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`)}</strong><small>${ev.minute!==''?ev.minute+"'":''}</small></div>`).join('')||'<p class="muted small">Nessuna sostituzione registrata.</p>'}</div>
+      <h3 class="lineup-section-title">Panchina</h3>
+      <div class="lineup-bench-grid">
+        ${bench.map(p=>`<div class="lineup-bench-player">
+          <span class="number-pill">${p.number}</span>
+          <div><strong>${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)}</small></div>
+        </div>`).join('')||'<p class="muted small">Nessun giocatore in panchina.</p>'}
+      </div>
 
+      <h3 class="lineup-section-title">Sostituzioni effettuate</h3>
+      <div class="substitution-list">
+        ${subs.map(ev=>`<div class="substitution-row">
+          <strong>${escapeHtml(ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`)}</strong>
+          <small>${ev.minute!==''?ev.minute+"'":''}</small>
+        </div>`).join('')||'<p class="muted small">Nessuna sostituzione registrata.</p>'}
+      </div>
     </div>
   </div>`;
 }
@@ -1061,7 +1090,7 @@ function renderManualStatsTabV432(e,host){
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche manuali</h2><p class="muted small">Aggiungi o correggi gli eventi senza utilizzare il Live Match.</p></div></div>
   <div class="match-manual-grid">
     <div class="field"><label>TIPO</label><select id="manualType">
-      <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
+      <option>Gol</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
     </select></div>
     <div class="field"><label>GIOCATORE</label><select id="manualPlayer">${players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('')}</select></div>
     <div class="field"><label>MINUTO</label><input id="manualMinute" placeholder="Es. 23"></div>
@@ -1186,7 +1215,7 @@ function allMatchEvents(e){
 }
 function eventLabelV43(ev){
   const labels={
-    goal:'Gol',Gol:'Gol',assist:'Assist',Assist:'Assist',
+    goal:'Gol',Gol:'Gol',
     yellow:'Ammonizione',Ammonizione:'Ammonizione',
     red:'Espulsione',Espulsione:'Espulsione',
     ownGoal:'Autogol',Autogol:'Autogol',
@@ -1197,7 +1226,7 @@ function eventLabelV43(ev){
   return labels[ev.type]||ev.label||ev.type||'Evento';
 }
 function eventIconV43(type){
-  return ({goal:'⚽',Gol:'⚽',assist:'🎯',Assist:'🎯',yellow:'🟨',Ammonizione:'🟨',red:'🟥',Espulsione:'🟥',ownGoal:'🔁',Autogol:'🔁',sub:'🔄',Sostituzione:'🔄','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•'
+  return ({goal:'⚽',Gol:'⚽',yellow:'🟨',Ammonizione:'🟨',red:'🟥',Espulsione:'🟥',ownGoal:'🔁',Autogol:'🔁',sub:'🔄',Sostituzione:'🔄','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•'
 }
 function playerNameById(id){
   return state.players.find(p=>String(p.id)===String(id))?.name||'Giocatore';
@@ -1210,7 +1239,6 @@ function buildMatchSummaryHtml(e){
   const events=allMatchEvents(e);
   const participants=getMatchParticipants(e);
   const goals=events.filter(ev=>['goal','Gol','Rigore segnato'].includes(ev.type));
-  const assists=events.filter(ev=>['assist','Assist'].includes(ev.type));
   const yellows=events.filter(ev=>['yellow','Ammonizione'].includes(ev.type));
   const reds=events.filter(ev=>['red','Espulsione'].includes(ev.type));
   const subs=events.filter(ev=>['sub','Sostituzione'].includes(ev.type));
@@ -1238,7 +1266,6 @@ function buildMatchSummaryHtml(e){
         <div class="summary-count"><strong>${(e.callups||[]).length}</strong><small>Convocati</small></div>
         <div class="summary-count"><strong>${participants.length}</strong><small>Giocatori utilizzati</small></div>
         <div class="summary-count"><strong>${goals.length}</strong><small>Gol registrati</small></div>
-        <div class="summary-count"><strong>${assists.length}</strong><small>Assist</small></div>
         <div class="summary-count"><strong>${yellows.length}</strong><small>Ammonizioni</small></div>
         <div class="summary-count"><strong>${reds.length}</strong><small>Espulsioni</small></div>
       </div>
@@ -1276,7 +1303,7 @@ let currentStatsTabV43='appearances';
 function aggregatedPlayerStatsV43(){
   const map={};
   state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
-    player:p,appearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
+    player:p,appearances:0,minutes:0,goals:0,yellow:0,red:0,ownGoals:0,
     goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id)
   });
   state.events.filter(e=>e.status==='Terminata').forEach(e=>{
@@ -1285,15 +1312,30 @@ function aggregatedPlayerStatsV43(){
     allMatchEvents(e).forEach(ev=>{
       const s=map[Number(ev.playerId)];if(!s)return;
       if(['goal','Gol','Rigore segnato'].includes(ev.type))s.goals++;
-      if(['assist','Assist'].includes(ev.type))s.assists++;
       if(['yellow','Ammonizione'].includes(ev.type))s.yellow++;
       if(['red','Espulsione'].includes(ev.type))s.red++;
       if(['ownGoal','Autogol'].includes(ev.type))s.ownGoals++;
       if(ev.type==='Rigore parato')s.penaltiesSaved++;
     });
-    const conceded=Number((e.homeAway==='Trasferta'?e.homeScore:e.awayScore)||0);
-    const keepers=participants.filter(id=>(map[id]?.player.role||'').toLowerCase().includes('port'));
-    if(keepers.length===1)map[keepers[0]].goalsConceded+=conceded;
+    const concededEvents=allMatchEvents(e).filter(ev=>String(ev.type||'').toLowerCase()==='conceded');
+    concededEvents.forEach(ev=>{
+      const keeperId=Number(ev.playerId);
+      if(map[keeperId])map[keeperId].goalsConceded++;
+    });
+
+    const ownGoalEvents=allMatchEvents(e).filter(ev=>{
+      const type=String(ev.type||'').toLowerCase();
+      return type==='owngoal'||type==='autogol';
+    });
+
+    const opponentGoals=Number((e.homeAway==='Trasferta'?e.homeScore:e.awayScore)||0);
+    const assignedGoals=concededEvents.length+ownGoalEvents.length;
+    const remaining=Math.max(0,opponentGoals-assignedGoals);
+
+    if(remaining>0){
+      const keepers=participants.filter(id=>(map[id]?.player.role||'').toLowerCase().includes('port'));
+      if(keepers.length===1)map[keepers[0]].goalsConceded+=remaining;
+    }
   });
   return Object.values(map);
 }
@@ -1301,7 +1343,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   currentStatsTabV43=tab;
   const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
   if(!host)return;
-  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',goalkeepers:'Portieri'};
+  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',goalkeepers:'Portieri'};
   const data=aggregatedPlayerStatsV43();
   let rows=data;
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);

@@ -781,3 +781,33 @@ body.detail-open #matchDetails .match-tab-content{
   margin-right:16px!important;
 }
 body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
+
+/* Hank Manager v4.3.5 */
+.lineup-preview-name{
+  max-width:110px!important;
+  padding:4px 8px!important;
+  font-size:10px!important;
+}
+.lineup-preview-number{
+  width:50px!important;
+  height:50px!important;
+  font-size:15px!important;
+}
+.lineup-bench-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+.lineup-bench-player{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:9px;
+  background:rgba(255,255,255,.035);
+}
+.lineup-bench-player strong{font-size:10px}
+.lineup-bench-player small{display:block;color:var(--muted);font-size:9px}
+.lineup-section-title{margin:14px 0 8px;font-size:13px}
