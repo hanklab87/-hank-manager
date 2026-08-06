@@ -405,7 +405,7 @@ function openMatchCenter(id){
   const home=isAway?e.opponent:team;
   const away=isAway?team:e.opponent;
   const selected=new Set(e.callups||[]);
-  const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>Number(a.number)-Number(b.number));
+  const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>roleOrderV44(a.role)-roleOrderV44(b.role)||Number(a.number)-Number(b.number));
   const playerOptions=players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('');
   const timeline=[...(e.matchEvents||[])].sort((a,b)=>(Number(a.minute)||999)-(Number(b.minute)||999)).map((ev,i)=>{
     const p=state.players.find(x=>String(x.id)===String(ev.playerId));
@@ -460,6 +460,7 @@ function openMatchCenter(id){
         <h3>Note del mister</h3>
         <textarea id="mcNotes">${escapeHtml(e.notes||'')}</textarea>
         <button class="primary" onclick="saveMatchCenter(${id})">SALVA SCHEDA PARTITA</button>
+        <button class="secondary" style="margin-top:8px" onclick="resetCurrentMatchV441(${id})">↺ AZZERA PARTITA</button>
         <button class="danger-full" onclick="deleteEvent(${id})">ELIMINA PARTITA</button>
       </div>`}
     </div>`;
@@ -477,10 +478,68 @@ function collectMatchForm(e){
   e.callups=[...document.querySelectorAll('.callupCheck:checked')].map(x=>Number(x.value));
   e.availability={};
 }
+
+function resetCurrentMatchV441(id){
+  const e=state.events.find(x=>x.id===id);if(!e)return;
+  if(!confirm('Azzero completamente questa partita? Convocati, formazione, eventi, voti, cronometro e risultato verranno cancellati.'))return;
+
+  e.callups=[];
+  e.availability={};
+  e.homeScore='';
+  e.awayScore='';
+  e.status='Da giocare';
+  e.notes='';
+  e.ratings={};
+  e.matchEvents=[];
+  e.statsApplied=false;
+  e.statsFinalized=false;
+  e.timer={running:false,startedAt:null,elapsedSeconds:0};
+  e.lineup={
+    formation:'4-3-3',
+    starters:[],
+    reserves:[],
+    positions:{},
+    slotAssignments:{}
+  };
+  e.live={
+    active:false,
+    running:false,
+    finished:false,
+    phase:'pre',
+    periodLength:40,
+    periodElapsedSeconds:0,
+    totalPlayingSeconds:0,
+    periodStartedAt:null,
+    playingStartedAt:null,
+    secondHalfDisplay:'continuous',
+    homeScore:0,
+    awayScore:0,
+    events:[],
+    onField:{},
+    bench:[],
+    playerMinutes:{},
+    mvpPlayerId:null
+  };
+
+  save();
+  closeModal();
+  renderEvents();
+  renderNextMatch();
+  renderDashboard();
+  alert('Partita azzerata. Ora puoi prepararla e rigiocarla da zero.');
+}
+
 function saveMatchCenter(id){
   const e=state.events.find(x=>x.id===id);if(!e)return;
   collectMatchForm(e);
-  save();closeModal();renderEvents();renderNextMatch();renderDashboard();
+  e.live=e.live||{};
+  e.live.homeScore=Number(e.homeScore||0);
+  e.live.awayScore=Number(e.awayScore||0);
+  save();
+  closeModal();
+  renderEvents();
+  renderNextMatch();
+  renderDashboard();
 }
 function addMatchEvent(id){
   const e=state.events.find(x=>x.id===id);if(!e)return;
@@ -637,19 +696,17 @@ ensureEventLineup(e);document.getElementById('formationSelect').value=e.lineup.f
 pitch.innerHTML='<div class="pitch-line half"></div><div class="pitch-line circle"></div><div class="pitch-line box-top"></div><div class="pitch-line box-bottom"></div><div class="pitch-line six-top"></div><div class="pitch-line six-bottom"></div>';
 (FORMATION_PRESETS[e.lineup.formation]||FORMATION_PRESETS['4-3-3']).forEach((s,i)=>{const pid=e.lineup.slotAssignments[i],p=state.players.find(x=>String(x.id)===String(pid)),el=document.createElement('div');el.className='formation-slot';el.style.left=s[0]+'%';el.style.top=s[1]+'%';el.innerHTML=`<button class="slot-button ${p?'filled':''}" onclick="openSlotPicker(${i},'${s[2]}')">${p?p.number:'+'}</button><span class="slot-name">${p?escapeHtml(p.name.split(' ').slice(-1)[0]):s[2]}</span><div class="slot-role">${s[2]}</div>`;pitch.appendChild(el)});renderReserves()}
 function roleOrderV44(role){
-  const value=String(role||'').toLowerCase();
+  const value=String(role||'').trim().toLowerCase();
   if(value.includes('port'))return 0;
-  if(value.includes('difens'))return 1;
+  if(value.includes('difensore centrale')||value==='difensore'||value.includes('centrale difens'))return 1;
   if(value.includes('terzin'))return 2;
   if(value.includes('centrocamp'))return 3;
-  if(value.includes('estern'))return 4;
-  if(value.includes('trequart'))return 5;
-  if(value.includes('attacc'))return 6;
-  return 7;
+  if(value.includes('attacc'))return 4;
+  return 5;
 }
 function roleGroupV44(role){
   const order=roleOrderV44(role);
-  return ['Portieri','Difensori centrali','Terzini','Centrocampisti','Esterni','Trequartisti','Attaccanti','Altri'][order];
+  return ['Portieri','Difensori centrali','Terzini','Centrocampisti','Attaccanti','Altri'][order];
 }
 function openSlotPicker(i,r){
   const e=getTacticalEvent();
@@ -876,11 +933,13 @@ function finishFirstHalfV44(){
 function beginSecondHalfV44(){
   const e=getLiveEvent();if(!e||e.live.phase!=='halftime')return;
   e.live.phase='second';
+  e.live.secondHalfDisplay='continuous';
   e.live.running=true;
   e.live.periodElapsedSeconds=0;
   e.live.periodStartedAt=Date.now();
   e.live.playingStartedAt=Date.now();
-  save();renderLiveMatch();
+  save();
+  renderLiveMatch();
 }
 function toggleLiveTimer(){
   const e=getLiveEvent();if(!e)return;
@@ -914,28 +973,38 @@ function renderLiveControlsV44(e){
 
   if(l.phase==='pre'){
     settings.innerHTML=`<label>Durata partita</label><select onchange="setPeriodLengthV44(this.value)">${durationOptions}</select>`;
-    controls.innerHTML=`<button class="primary compact-btn" onclick="beginFirstHalfV44()">▶ INIZIA 1° TEMPO</button>
-      <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MINUTO</button>`;
-  }else if(l.phase==='first'){
-    settings.innerHTML=`<span class="muted small">Tempo: ${l.periodLength} minuti + recupero</span>`;
-    controls.innerHTML=`<button class="primary compact-btn" onclick="pauseResumeLiveV44()">${l.running?'⏸ PAUSA':'▶ RIPRENDI'}</button>
-      <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MINUTO</button>
-      <button class="secondary compact-btn" onclick="finishFirstHalfV44()">⏹ FINE 1° TEMPO</button>`;
-  }else if(l.phase==='halftime'){
-    settings.innerHTML=`<label>Orologio 2° tempo</label><select onchange="setSecondHalfDisplayV44(this.value)">
-      <option value="continuous" ${l.secondHalfDisplay==='continuous'?'selected':''}>Continua da ${l.periodLength}'</option>
-      <option value="separate" ${l.secondHalfDisplay==='separate'?'selected':''}>Riparte da 0'</option>
-    </select>`;
-    controls.innerHTML=`<button class="primary compact-btn" onclick="beginSecondHalfV44()">▶ INIZIA 2° TEMPO</button>`;
-  }else if(l.phase==='second'){
-    settings.innerHTML=`<span class="muted small">2° tempo · ${l.secondHalfDisplay==='continuous'?'cronometro continuo':'cronometro separato'}</span>`;
-    controls.innerHTML=`<button class="primary compact-btn" onclick="pauseResumeLiveV44()">${l.running?'⏸ PAUSA':'▶ RIPRENDI'}</button>
-      <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MINUTO</button>
-      <button class="danger compact-btn" onclick="finishLiveMatch()">■ FINE PARTITA</button>`;
-  }else{
-    settings.innerHTML='';
-    controls.innerHTML=`<button class="secondary compact-btn" onclick="exitLiveMatch()">VEDI RIEPILOGO</button>`;
+    controls.innerHTML=`
+      <button class="primary compact-btn live-main-action" onclick="beginFirstHalfV44()">▶ INIZIA PRIMO TEMPO</button>
+      <button class="secondary compact-btn" onclick="editLiveMinute()">✎ IMPOSTA MINUTO</button>`;
+    return;
   }
+
+  if(l.phase==='first'){
+    settings.innerHTML=`<span class="muted small">Primo tempo · ${l.periodLength} minuti + recupero</span>`;
+    controls.innerHTML=`
+      <button class="secondary compact-btn" onclick="pauseResumeLiveV44()">${l.running?'⏸ PAUSA':'▶ RIPRENDI'}</button>
+      <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MODIFICA MINUTO</button>
+      <button class="warning compact-btn live-main-action" onclick="finishFirstHalfV44()">⏹ FINE PRIMO TEMPO</button>`;
+    return;
+  }
+
+  if(l.phase==='halftime'){
+    settings.innerHTML=`<span class="muted small">Intervallo</span>`;
+    controls.innerHTML=`<button class="primary compact-btn live-main-action" onclick="beginSecondHalfV44()">▶ INIZIA SECONDO TEMPO</button>`;
+    return;
+  }
+
+  if(l.phase==='second'){
+    settings.innerHTML=`<span class="muted small">Secondo tempo · minuto ufficiale continuo</span>`;
+    controls.innerHTML=`
+      <button class="secondary compact-btn" onclick="pauseResumeLiveV44()">${l.running?'⏸ PAUSA':'▶ RIPRENDI'}</button>
+      <button class="secondary compact-btn" onclick="editLiveMinute()">✎ MODIFICA MINUTO</button>
+      <button class="danger compact-btn live-main-action" onclick="finishLiveMatch()">■ FINE PARTITA</button>`;
+    return;
+  }
+
+  settings.innerHTML='';
+  controls.innerHTML=`<button class="secondary compact-btn" onclick="exitLiveMatch()">VEDI RIEPILOGO</button>`;
 }
 function renderLiveMatch(){
   const e=getLiveEvent();if(!e)return;

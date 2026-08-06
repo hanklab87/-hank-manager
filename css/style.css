@@ -884,3 +884,12 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
   text-transform:uppercase;
   letter-spacing:.05em;
 }
+
+/* Hank Manager v4.4.1 */
+.live-main-action{min-width:180px;font-size:10px!important}
+.warning{
+  border:1px solid rgba(255,194,87,.42);
+  background:rgba(255,194,87,.12);
+  color:#ffc257;
+  font-weight:950;
+}
