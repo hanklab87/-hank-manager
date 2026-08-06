@@ -893,3 +893,20 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
   color:#ffc257;
   font-weight:950;
 }
+
+/* Hank Manager v4.4.2 - Calendar and match opening fix */
+.match-page-actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:9px;
+  margin:0 16px 12px;
+}
+.danger-compact{
+  border:1px solid rgba(255,91,103,.42);
+  border-radius:12px;
+  padding:10px 13px;
+  background:rgba(255,91,103,.10);
+  color:#ff7c86;
+  font-size:9px;
+  font-weight:950;
+}

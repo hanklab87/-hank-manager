@@ -1,23 +1,22 @@
-HANK MANAGER v4.4.1 – TEMPI & RESET
+HANK MANAGER v4.4.2 – CALENDAR FIX
 
 CORREZIONI
-- Live Match con quattro passaggi chiari:
-  Inizia primo tempo, Fine primo tempo, Inizia secondo tempo, Fine partita.
-- Intervallo tra i due tempi.
-- Recupero del primo tempo come 40+1, 40+2, ecc.
-- Secondo tempo sempre dal minuto ufficiale 40.
-- Giocatori ordinati:
-  Portieri, Difensori centrali, Terzini, Centrocampisti, Attaccanti.
-- Risultato casa e trasferta modificabile e sincronizzato col Live Match.
-- Pulsante “Azzera partita”.
-- Il reset cancella convocati, formazione, eventi, voti, cronometro, MVP e risultato.
-- La gara torna nello stato “Da giocare”.
+- Ripristinata l'apertura delle partite dal Calendario.
+- Ripristinate scheda partita, Convocati, Formazione, Live Match e Statistiche.
+- Aggiunto pulsante “Modifica evento”.
+- Aggiunto pulsante “Elimina”.
+- Dalla sezione Statistiche puoi:
+  modificare risultato e dati;
+  azzerare completamente la partita;
+  eliminare definitivamente l'evento.
+- Mantenute le funzioni v4.4.1:
+  primo tempo, intervallo, secondo tempo, fine partita e reset.
 
 INSTALLAZIONE
 1. Estrai lo ZIP.
 2. Sostituisci tutti i file nel repository.
 3. Summary:
-   Fix match periods role order and add match reset v4.4.1
+   Fix calendar match opening and add edit delete v4.4.2
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.
