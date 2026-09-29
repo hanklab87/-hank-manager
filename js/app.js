@@ -176,6 +176,62 @@ if(!state.migrations.realMatch20260928Details){
   localStorage.setItem('hank_v04',JSON.stringify(state));
 }
 
+
+// v4.4.9: migrazione correttiva robusta per rosa e gara reale FC Palocco.
+// Usa una chiave nuova, quindi si applica anche ai browser che avevano già eseguito le migrazioni 4.4.7/4.4.8.
+if(!state.migrations) state.migrations={};
+if(!state.migrations.fixRealMatch20260928V449){
+  // Ripristina Silvio Venturi se una vecchia rosa locale non lo contiene.
+  let venturi=state.players.find(p=>String(p.name||'').toLowerCase().includes('venturi'));
+  if(!venturi){
+    const template=defaultPlayers.find(p=>p.name==='Silvio Venturi');
+    const used=new Set(state.players.map(p=>Number(p.id)));
+    let id=7; while(used.has(id)) id++;
+    venturi={...template,id};
+    state.players.push(venturi);
+  }
+  const byName=(needle)=>state.players.find(p=>String(p.name||'').toLowerCase().includes(needle.toLowerCase()))?.id;
+  const ids={
+    tommaso:byName('Tommaso Maroder'), gazzo:byName('Alessandro Gazzo'), spagnoletto:byName('Stefano Spagnoletto'),
+    gabbani:byName('Alessandro Gabbani'), fiorentini:byName('Marco Fiorentini'), sabia:byName('Salvatore Sabia'),
+    edoardo:byName('Edoardo Maroder'), gioia:byName('Alessio Gioia'), francesco:byName('Francesco Araujo'),
+    gianni:byName('Gianni Araujo'), venturi:venturi.id, fella:byName('Fellah')||byName('Fella'), gavriel:byName('Gavriel Pavoncello')
+  };
+  let e=state.events.find(x=>x.date==='2026-09-28' && String(x.opponent||'').toLowerCase().includes('palocco'));
+  if(!e){
+    e={...defaultEvents.find(x=>x.id===2002),id:2002};
+    state.events.push(e);
+  }
+  const starters=[ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.gianni,ids.venturi].filter(Boolean);
+  const callups=[...starters,ids.fella,ids.gavriel].filter(Boolean);
+  e.status='Terminata'; e.homeAway='Trasferta'; e.opponent='FC Palocco'; e.homeScore=0; e.awayScore=2;
+  e.callups=callups;
+  e.lineup=e.lineup&&typeof e.lineup==='object'?e.lineup:{};
+  e.lineup.formation='4-3-3'; e.lineup.starters=starters; e.lineup.reserves=[ids.fella,ids.gavriel].filter(Boolean);
+  // Slot coerenti con il nuovo orientamento: TS a sinistra, TD a destra; AS a sinistra, AD a destra.
+  e.lineup.slotAssignments={0:ids.tommaso,1:ids.fiorentini,2:ids.spagnoletto,3:ids.gabbani,4:ids.gazzo,5:ids.sabia,6:ids.edoardo,7:ids.gioia,8:ids.francesco,9:ids.venturi,10:ids.gianni};
+  e.ratings={...(e.ratings||{})};
+  const votes=[[ids.tommaso,6.5],[ids.gazzo,7],[ids.spagnoletto,6.5],[ids.gabbani,7],[ids.fiorentini,7],[ids.sabia,7],[ids.edoardo,7],[ids.gioia,7],[ids.francesco,7],[ids.gianni,6.5],[ids.venturi,8],[ids.gavriel,6.5]];
+  votes.forEach(([id,v])=>{if(id)e.ratings[id]=v});
+  e.matchEvents=[
+    {id:'real-20260928-g1-v449',type:'Gol',playerId:ids.venturi,assistPlayerId:ids.gazzo,minute:38,note:'38° primo tempo'},
+    {id:'real-20260928-y1-v449',type:'Ammonizione',playerId:ids.fiorentini,minute:'',note:''},
+    {id:'real-20260928-sub1-v449',type:'Sostituzione',outId:ids.gianni,inId:ids.gavriel,minute:60,note:'20° secondo tempo'},
+    {id:'real-20260928-g2-v449',type:'Gol',playerId:ids.venturi,assistPlayerId:ids.gabbani,minute:84,note:'80+4'},
+    {id:'real-20260928-y2-v449',type:'Ammonizione',playerId:ids.venturi,minute:'',note:''}
+  ];
+  e.scorers=[{playerId:ids.venturi,minute:38,assistPlayerId:ids.gazzo},{playerId:ids.venturi,minute:84,assistPlayerId:ids.gabbani}];
+  e.live=e.live&&typeof e.live==='object'?e.live:{};
+  Object.assign(e.live,{active:false,running:false,finished:true,phase:'finished',periodLength:40,homeScore:0,awayScore:2,firstHalfStoppage:3,secondHalfStoppage:5,totalPlayingSeconds:85*60,elapsedSeconds:85*60,events:[]});
+  e.live.bench=[ids.fella].filter(Boolean); e.live.playerMinutes={};
+  [ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.venturi].filter(Boolean).forEach(id=>e.live.playerMinutes[id]={startedAtOfficialMinute:0,endedAtOfficialMinute:85,minutes:85});
+  if(ids.gianni)e.live.playerMinutes[ids.gianni]={startedAtOfficialMinute:0,endedAtOfficialMinute:60,minutes:60};
+  if(ids.gavriel)e.live.playerMinutes[ids.gavriel]={startedAtOfficialMinute:60,endedAtOfficialMinute:85,minutes:25};
+  e.statsFinalized=true; e.statsApplied=true;
+  state.migrations.fixRealMatch20260928V449=true;
+  localStorage.setItem('hank_v04',JSON.stringify(state));
+}
+
 state.society=state.society&&typeof state.society==='object'?state.society:{
   name:state.profile?.team||'Maccabi Roma',
   legalName:'',
@@ -255,7 +311,37 @@ function show(id){
   if(id==='tactical'){renderTacticalBoard();}
   if(id==='squad'){nSquad?.classList.add('active');renderPlayers()}
   if(id==='calendar'){nCalendar?.classList.add('active');renderEvents()}
-  window.scrollTo(0,0);
+  if(id==='society'){renderSociety();}
+  window.scrollTo({top:0,left:0,behavior:'auto'});
+}
+function renderSociety(){
+  const s=state.society||{};
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val||'—'};
+  set('societyTeamName',s.name||state.profile?.team||'Maccabi Roma');
+  set('societyFounded',s.founded?`Fondata nel ${s.founded}`:'Società sportiva dilettantistica');
+  const logo=document.getElementById('clubLogoPreview');
+  if(logo){const name=s.name||state.profile?.team||'Maccabi Roma';logo.textContent=(name.match(/\b\w/g)||['H','M']).slice(0,2).join('').toUpperCase();}
+  const row=(label,val)=>`<div class="info-row-modern"><span>${label}</span><strong>${escapeHtml(val||'—')}</strong></div>`;
+  const g=document.getElementById('societyGeneral'); if(g)g.innerHTML=row('Denominazione',s.legalName||s.name||state.profile?.team)+row('Categoria',s.category)+row('Girone',s.group)+row('Campo',s.homeGround)+row('Indirizzo',s.address)+row('Colori',s.colors);
+  const c=document.getElementById('societyContacts'); if(c)c.innerHTML=row('Presidente',s.president)+row('Allenatore',s.coach)+row('Vice allenatore',s.assistantCoach)+row('Dirigente',s.manager)+row('Telefono',s.phone)+row('Email',s.email);
+  set('societyNotes',s.notes||'Nessuna nota inserita.');
+}
+function openSocietyEditor(){
+  const s=state.society||{};
+  sheet.innerHTML=`<h2>Modifica società</h2><div class="form-grid">
+    <div class="field"><label>Nome squadra</label><input id="socName" value="${escapeHtml(s.name||state.profile?.team||'Maccabi Roma')}"></div>
+    <div class="field"><label>Campo</label><input id="socGround" value="${escapeHtml(s.homeGround||'')}"></div>
+    <div class="field"><label>Categoria</label><input id="socCategory" value="${escapeHtml(s.category||'')}"></div>
+    <div class="field"><label>Allenatore</label><input id="socCoach" value="${escapeHtml(s.coach||'')}"></div>
+    <div class="field"><label>Colori</label><input id="socColors" value="${escapeHtml(s.colors||'')}"></div>
+    <div class="field"><label>Note</label><textarea id="socNotes">${escapeHtml(s.notes||'')}</textarea></div>
+  </div><div class="form-grid"><button class="primary" onclick="saveSocietyEditor()">SALVA</button><button class="secondary" onclick="closeModal()">ANNULLA</button></div>`;
+  modal.classList.add('open');
+}
+function saveSocietyEditor(){
+  state.society={...(state.society||{}),name:document.getElementById('socName').value.trim(),homeGround:document.getElementById('socGround').value.trim(),category:document.getElementById('socCategory').value.trim(),coach:document.getElementById('socCoach').value.trim(),colors:document.getElementById('socColors').value.trim(),notes:document.getElementById('socNotes').value.trim()};
+  if(state.profile&&state.society.name)state.profile.team=state.society.name;
+  save();closeModal();renderSociety();
 }
 function startApp(){
   const n=document.getElementById('name').value.trim()||'Enrico Ascoli';
@@ -801,13 +887,13 @@ function showStats(){
 
 
 const FORMATION_PRESETS={
-'4-3-3':[[50,91,'POR'],[18,73,'TD'],[39,77,'DC'],[61,77,'DC'],[82,73,'TS'],[28,54,'CC'],[50,59,'CC'],[72,54,'CC'],[20,27,'AD'],[50,21,'ATT'],[80,27,'AS']],
-'4-2-3-1':[[50,91,'POR'],[18,73,'TD'],[39,77,'DC'],[61,77,'DC'],[82,73,'TS'],[38,58,'MED'],[62,58,'MED'],[20,39,'AD'],[50,36,'TRQ'],[80,39,'AS'],[50,19,'ATT']],
-'4-4-2':[[50,91,'POR'],[18,73,'TD'],[39,77,'DC'],[61,77,'DC'],[82,73,'TS'],[18,51,'ED'],[39,56,'CC'],[61,56,'CC'],[82,51,'ES'],[37,25,'ATT'],[63,25,'ATT']],
-'3-5-2':[[50,91,'POR'],[27,75,'DC'],[50,79,'DC'],[73,75,'DC'],[12,50,'ED'],[32,57,'CC'],[50,61,'MED'],[68,57,'CC'],[88,50,'ES'],[37,24,'ATT'],[63,24,'ATT']],
-'3-4-2-1':[[50,91,'POR'],[27,75,'DC'],[50,79,'DC'],[73,75,'DC'],[15,52,'ED'],[38,58,'CC'],[62,58,'CC'],[85,52,'ES'],[35,34,'TRQ'],[65,34,'TRQ'],[50,17,'ATT']],
-'3-4-3':[[50,91,'POR'],[27,75,'DC'],[50,79,'DC'],[73,75,'DC'],[17,53,'ED'],[40,59,'CC'],[60,59,'CC'],[83,53,'ES'],[20,27,'AD'],[50,20,'ATT'],[80,27,'AS']],
-'4-3-1-2':[[50,91,'POR'],[18,73,'TD'],[39,77,'DC'],[61,77,'DC'],[82,73,'TS'],[28,55,'CC'],[50,60,'MED'],[72,55,'CC'],[50,39,'TRQ'],[37,22,'ATT'],[63,22,'ATT']]
+'4-3-3':[[50,91,'POR'],[18,73,'TS'],[39,77,'DC'],[61,77,'DC'],[82,73,'TD'],[28,54,'CC'],[50,59,'CC'],[72,54,'CC'],[20,27,'AS'],[50,21,'ATT'],[80,27,'AD']],
+'4-2-3-1':[[50,91,'POR'],[18,73,'TS'],[39,77,'DC'],[61,77,'DC'],[82,73,'TD'],[38,58,'MED'],[62,58,'MED'],[20,39,'AS'],[50,36,'TRQ'],[80,39,'AD'],[50,19,'ATT']],
+'4-4-2':[[50,91,'POR'],[18,73,'TS'],[39,77,'DC'],[61,77,'DC'],[82,73,'TD'],[18,51,'ES'],[39,56,'CC'],[61,56,'CC'],[82,51,'ED'],[37,25,'ATT'],[63,25,'ATT']],
+'3-5-2':[[50,91,'POR'],[27,75,'DC'],[50,79,'DC'],[73,75,'DC'],[12,50,'ES'],[32,57,'CC'],[50,61,'MED'],[68,57,'CC'],[88,50,'ED'],[37,24,'ATT'],[63,24,'ATT']],
+'3-4-2-1':[[50,91,'POR'],[27,75,'DC'],[50,79,'DC'],[73,75,'DC'],[15,52,'ES'],[38,58,'CC'],[62,58,'CC'],[85,52,'ED'],[35,34,'TRQ'],[65,34,'TRQ'],[50,17,'ATT']],
+'3-4-3':[[50,91,'POR'],[27,75,'DC'],[50,79,'DC'],[73,75,'DC'],[17,53,'ES'],[40,59,'CC'],[60,59,'CC'],[83,53,'ED'],[20,27,'AS'],[50,20,'ATT'],[80,27,'AD']],
+'4-3-1-2':[[50,91,'POR'],[18,73,'TS'],[39,77,'DC'],[61,77,'DC'],[82,73,'TD'],[28,55,'CC'],[50,60,'MED'],[72,55,'CC'],[50,39,'TRQ'],[37,22,'ATT'],[63,22,'ATT']]
 };
 function getTacticalEvent(){return state.events.find(e=>String(e.id)===String(currentTacticalEventId))}
 function ensureEventLineup(e){
