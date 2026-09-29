@@ -28,3 +28,9 @@ v4.4.6 - Assist, Fantavoto e correzioni post-partita
 - Fantavoto: voto +3 gol, +1 assist, -0,5 ammonizione, -1 espulsione, -2 rigore sbagliato, -1 gol subito dal portiere.
 - Classifica Fantavoto come media delle partite con voto.
 - Backup Esporta/Importa mantenuto disponibile dalla Home.
+
+v4.4.7 - Bonus portieri + gara reale 28/09
+- Porta inviolata: +1 Fantavoto al portiere e statistica dedicata.
+- Rigore parato: +3 Fantavoto.
+- Migrazione non distruttiva della gara FC Palocco-Maccabi del 28/09/2026 con convocati, titolari, voti, 2 gol di Venturi e ammonizioni Fiorentini/Venturi.
+- Nessun reset degli altri dati locali.

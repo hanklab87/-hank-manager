@@ -96,6 +96,86 @@ state.events=state.events.map(e=>({
   }
 }));
 
+// v4.4.7: aggiorna una sola volta la gara reale del 28/09/2026 senza cancellare gli altri dati salvati.
+if(!state.migrations) state.migrations={};
+if(!state.migrations.realMatch20260928){
+  const e=state.events.find(x=>x.date==='2026-09-28' && String(x.opponent||'').toLowerCase().includes('palocco'));
+  if(e){
+    const ids={tommaso:10,gazzo:2,spagnoletto:23,gabbani:6,fiorentini:9,sabia:3,edoardo:14,gioia:16,francesco:8,gianni:13,venturi:7,fella:22,gavriel:21};
+    e.status='Terminata';
+    e.callups=[ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.gianni,ids.venturi,ids.fella,ids.gavriel];
+    e.lineup=e.lineup&&typeof e.lineup==='object'?e.lineup:{};
+    e.lineup.formation=e.lineup.formation||'4-3-3';
+    e.lineup.starters=[ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.gianni,ids.venturi];
+    e.lineup.reserves=[ids.fella,ids.gavriel];
+    e.lineup.positions=e.lineup.positions||{};
+    e.homeScore=0; e.awayScore=2;
+    e.ratings={...(e.ratings||{}),
+      [ids.tommaso]:6.5,[ids.gazzo]:7,[ids.spagnoletto]:6.5,[ids.gabbani]:7,[ids.fiorentini]:7,
+      [ids.sabia]:7,[ids.edoardo]:7,[ids.gioia]:7,[ids.francesco]:7,[ids.gianni]:6.5,[ids.venturi]:8
+    };
+    // Gli assist non sono stati indicati: non vengono inventati e potranno essere aggiunti manualmente.
+    e.matchEvents=[
+      {id:'real-20260928-g1',type:'Gol',playerId:ids.venturi,minute:38,note:'1° tempo'},
+      {id:'real-20260928-y1',type:'Ammonizione',playerId:ids.fiorentini,minute:'',note:''},
+      {id:'real-20260928-g2',type:'Gol',playerId:ids.venturi,minute:84,note:'44° secondo tempo'},
+      {id:'real-20260928-y2',type:'Ammonizione',playerId:ids.venturi,minute:'',note:''}
+    ];
+    e.scorers=[{playerId:ids.venturi,minute:38},{playerId:ids.venturi,minute:84}];
+    e.live=e.live&&typeof e.live==='object'?e.live:{};
+    e.live.active=false; e.live.running=false; e.live.finished=true; e.live.homeScore=0; e.live.awayScore=2; e.live.events=[];
+    e.live.onField=e.live.onField||{}; e.live.bench=[ids.fella,ids.gavriel]; e.live.playerMinutes=e.live.playerMinutes||{};
+    e.statsFinalized=true; e.statsApplied=true;
+  }
+  state.migrations.realMatch20260928=true;
+  localStorage.setItem('hank_v04',JSON.stringify(state));
+}
+
+
+// v4.4.8: completa i dati reali della gara FC Palocco-Maccabi del 28/09/2026.
+// Migrazione non distruttiva: modifica solo questa gara e conserva tutti gli altri dati locali.
+if(!state.migrations.realMatch20260928Details){
+  const e=state.events.find(x=>x.date==='2026-09-28' && String(x.opponent||'').toLowerCase().includes('palocco'));
+  if(e){
+    const ids={tommaso:10,gazzo:2,spagnoletto:23,gabbani:6,fiorentini:9,sabia:3,edoardo:14,gioia:16,francesco:8,gianni:13,venturi:7,fella:22,gavriel:21};
+    e.status='Terminata';
+    e.callups=[ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.gianni,ids.venturi,ids.fella,ids.gavriel];
+    e.lineup=e.lineup&&typeof e.lineup==='object'?e.lineup:{};
+    e.lineup.formation=e.lineup.formation||'4-3-3';
+    e.lineup.starters=[ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.gianni,ids.venturi];
+    e.lineup.reserves=[ids.fella,ids.gavriel];
+    e.homeScore=0; e.awayScore=2;
+    e.ratings={...(e.ratings||{}),
+      [ids.tommaso]:6.5,[ids.gazzo]:7,[ids.spagnoletto]:6.5,[ids.gabbani]:7,[ids.fiorentini]:7,
+      [ids.sabia]:7,[ids.edoardo]:7,[ids.gioia]:7,[ids.francesco]:7,[ids.gianni]:6.5,[ids.venturi]:8,[ids.gavriel]:6.5
+    };
+    e.matchEvents=[
+      {id:'real-20260928-g1',type:'Gol',playerId:ids.venturi,assistPlayerId:ids.gazzo,minute:38,note:'38° primo tempo'},
+      {id:'real-20260928-y1',type:'Ammonizione',playerId:ids.fiorentini,minute:'',note:''},
+      {id:'real-20260928-sub1',type:'Sostituzione',outId:ids.gianni,inId:ids.gavriel,minute:60,note:'20° secondo tempo'},
+      {id:'real-20260928-g2',type:'Gol',playerId:ids.venturi,assistPlayerId:ids.gabbani,minute:84,note:'80+4'},
+      {id:'real-20260928-y2',type:'Ammonizione',playerId:ids.venturi,minute:'',note:''}
+    ];
+    e.scorers=[{playerId:ids.venturi,minute:38,assistPlayerId:ids.gazzo},{playerId:ids.venturi,minute:84,assistPlayerId:ids.gabbani}];
+    e.live=e.live&&typeof e.live==='object'?e.live:{};
+    e.live.active=false; e.live.running=false; e.live.finished=true; e.live.phase='finished';
+    e.live.periodLength=40; e.live.homeScore=0; e.live.awayScore=2; e.live.events=[];
+    e.live.firstHalfStoppage=3; e.live.secondHalfStoppage=5;
+    e.live.totalPlayingSeconds=85*60; e.live.elapsedSeconds=85*60;
+    e.live.bench=[ids.fella];
+    e.live.playerMinutes={};
+    [ids.tommaso,ids.gazzo,ids.spagnoletto,ids.gabbani,ids.fiorentini,ids.sabia,ids.edoardo,ids.gioia,ids.francesco,ids.venturi].forEach(pid=>{
+      e.live.playerMinutes[pid]={startedAtOfficialMinute:0,endedAtOfficialMinute:85,minutes:85};
+    });
+    e.live.playerMinutes[ids.gianni]={startedAtOfficialMinute:0,endedAtOfficialMinute:60,minutes:60};
+    e.live.playerMinutes[ids.gavriel]={startedAtOfficialMinute:60,endedAtOfficialMinute:85,minutes:25};
+    // Fellah resta convocato ma non entra: nessun record minuti, quindi 0 presenze e 0 minuti.
+    e.statsFinalized=true; e.statsApplied=true;
+  }
+  state.migrations.realMatch20260928Details=true;
+  localStorage.setItem('hank_v04',JSON.stringify(state));
+}
+
 state.society=state.society&&typeof state.society==='object'?state.society:{
   name:state.profile?.team||'Maccabi Roma',
   legalName:'',
@@ -1948,6 +2028,7 @@ function fantasyVoteForMatch(e,playerId){
       if(['yellow','Ammonizione'].includes(ev.type))value-=0.5;
       if(['red','Espulsione'].includes(ev.type))value-=1;
       if(['Rigore sbagliato','penaltyMissed'].includes(ev.type))value-=2;
+      if(ev.type==='Rigore parato')value+=3;
       if(ev.type==='conceded'){value-=1;explicitConceded++;}
     }
     if(aid===Number(playerId))value+=1;
@@ -1962,6 +2043,10 @@ function fantasyVoteForMatch(e,playerId){
       value-=Math.max(0,opponentGoals-ownGoals-explicitConceded);
     }
   }
+  if((player?.role||'').toLowerCase().includes('port')){
+    const opponentGoals=Number((e.homeAway==='Trasferta'?e.homeScore:e.awayScore)||0);
+    if(opponentGoals===0 && getMatchParticipants(e).includes(Number(playerId))) value+=1;
+  }
   return Math.round(value*2)/2;
 }
 
@@ -1970,7 +2055,7 @@ function aggregatedPlayerStatsV43(){
   const map={};
   state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
     player:p,appearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
-    goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id),fantasy:0,fantasyMatches:0,mvp:0
+    goalsConceded:0,penaltiesSaved:0,cleanSheets:0,rating:ratingAverageForPlayer(p.id),fantasy:0,fantasyMatches:0,mvp:0
   });
   state.events.filter(e=>e.status==='Terminata').forEach(e=>{
     const participants=getMatchParticipants(e);
@@ -2009,6 +2094,9 @@ function aggregatedPlayerStatsV43(){
       const keepers=participants.filter(id=>(map[id]?.player.role||'').toLowerCase().includes('port'));
       if(keepers.length===1)map[keepers[0]].goalsConceded+=remaining;
     }
+    if(opponentGoals===0){
+      participants.filter(id=>(map[id]?.player.role||'').toLowerCase().includes('port')).forEach(id=>{ if(map[id]) map[id].cleanSheets++; });
+    }
 
     participants.forEach(id=>{
       if(!map[id])return;
@@ -2026,7 +2114,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   currentStatsTabV43=tab;
   const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
   if(!host)return;
-  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',goalkeepers:'Portieri'};
+  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',cleanSheets:'Porte inviolate',goalkeepers:'Portieri'};
   const data=aggregatedPlayerStatsV43();
   let rows=data;
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
@@ -2044,7 +2132,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       if(tab==='minutes')value=`${x.minutes}'`;
       if(tab==='fantasy')value=x.fantasyMatches?(x.fantasy/x.fantasyMatches).toFixed(2):'—';
       if(tab==='mvp')value=`⭐ ${x.mvp}`;
-      if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati`}
+      if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati · ${x.cleanSheets} porte inviolate`}
       return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${x.player.number} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
     }).join('')||'<div class="card empty">Nessun dato disponibile.</div>'}</div>`;
 }
