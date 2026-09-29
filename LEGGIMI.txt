@@ -19,3 +19,12 @@ INSTALLAZIONE
 4. Commit to main.
 5. Push origin.
 6. Attendi Vercel e aggiorna con Ctrl+F5.
+
+v4.4.6 - Assist, Fantavoto e correzioni post-partita
+- Nessun reset automatico: conserva i dati gia salvati nel browser.
+- Assist selezionabile subito dopo un gol nel Live Match.
+- Assist disponibile anche negli eventi manuali e nelle statistiche.
+- Corretto il salvataggio/lettura degli eventi manuali aggiunti dopo una partita con eventi Live.
+- Fantavoto: voto +3 gol, +1 assist, -0,5 ammonizione, -1 espulsione, -2 rigore sbagliato, -1 gol subito dal portiere.
+- Classifica Fantavoto come media delle partite con voto.
+- Backup Esporta/Importa mantenuto disponibile dalla Home.

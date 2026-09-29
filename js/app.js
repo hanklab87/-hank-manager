@@ -33,13 +33,9 @@ let state=JSON.parse(localStorage.getItem('hank_v04')||'null')||{profile:null,pl
 if(!state.players||state.players.length<20) state.players=defaultPlayers;
 if(!state.events||state.events.length<22) state.events=defaultEvents;
 if(!state.branding) state.branding={logo:'',sponsors:[]};
-// Avvio ufficiale stagione 2026/27: una sola pulizia dei dati di prova.
-if(state.dataSeedVersion!=='2026-27-official-v1'){
-  state.players=JSON.parse(JSON.stringify(defaultPlayers));
-  state.events=JSON.parse(JSON.stringify(defaultEvents));
-  state.dataSeedVersion='2026-27-official-v1';
-  localStorage.setItem('hank_v04',JSON.stringify(state));
-}
+// Dalla v4.4.6 gli aggiornamenti non sovrascrivono mai i dati già salvati nel browser.
+// Su una nuova installazione i default vengono già caricati dalla creazione iniziale di state.
+if(!state.dataSeedVersion) state.dataSeedVersion='2026-27-official-v1';
 state.events=state.events.map(e=>({...e,
   callups:Array.isArray(e.callups)?e.callups:[],
   scorers:Array.isArray(e.scorers)?e.scorers:[],
@@ -500,7 +496,7 @@ function openMatchCenter(id){
 
       <div class="match-section-card">
         <h3>Inserimento manuale eventi</h3>
-        <div class="field"><label>TIPO EVENTO</label><select id="matchEventType"><option>Gol</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option></select></div>
+        <div class="field"><label>TIPO EVENTO</label><select id="matchEventType"><option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option></select></div>
         <div class="form-grid"><div class="field"><label>GIOCATORE</label><select id="matchEventPlayer">${playerOptions}</select></div><div class="field"><label>MINUTO</label><input id="matchEventMinute" placeholder="Es. 23"></div></div>
         <div class="field"><label>NOTA</label><input id="matchEventNote" value=""></div>
         <button class="secondary" onclick="addMatchEvent(${id})">＋ AGGIUNGI EVENTO</button>
@@ -608,7 +604,7 @@ function removeMatchEvent(id,index){
   e.matchEvents.splice(index,1);save();openMatchCenter(id);
 }
 function eventIcon(type){
-  return ({'Gol':'⚽','Assist':'🎯','Ammonizione':'🟨','Espulsione':'🟥','Autogol':'🔁','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤',conceded:'🥅'})[type]||'•';
+  return ({'Gol':'⚽','Assist':'🎯','Ammonizione':'🟨','Espulsione':'🟥','Autogol':'🔁','Rigore segnato':'🥅','Rigore sbagliato':'❌',penaltyMissed:'❌','Rigore parato':'🧤',conceded:'🥅'})[type]||'•';
 }
 function matchOutcomeLabel(e,team){
   if(e.status!=='Terminata'||e.homeScore===''||e.awayScore==='')return e.status||'Da giocare';
@@ -677,20 +673,24 @@ function seasonStats(){
 }
 function playerStats(){
   const map={};
-  state.players.forEach(p=>map[p.id]={player:p,goals:0,yellow:0,red:0,ownGoals:0,apps:0});
+  state.players.forEach(p=>map[p.id]={player:p,goals:0,assists:0,yellow:0,red:0,ownGoals:0,apps:0});
   state.events.filter(e=>e.type==='Partita').forEach(e=>{
-    (e.callups||[]).forEach(id=>{if(map[id])map[id].apps++});
-    (e.matchEvents||[]).forEach(ev=>{
-      const s=map[ev.playerId];if(!s)return;
-      if(ev.type==='Gol'||ev.type==='Rigore segnato')s.goals++;
-      if(ev.type==='Assist')s.assists++;
-      if(ev.type==='Ammonizione')s.yellow++;
-      if(ev.type==='Espulsione')s.red++;
-      if(ev.type==='Autogol')s.ownGoals++;
+    getMatchParticipants(e).forEach(id=>{if(map[id])map[id].apps++});
+    allMatchEvents(e).forEach(ev=>{
+      const s=map[Number(ev.playerId)];
+      if(s){
+        if(['goal','Gol','Rigore segnato'].includes(ev.type))s.goals++;
+        if(['Assist','assist'].includes(ev.type))s.assists++;
+        if(['yellow','Ammonizione'].includes(ev.type))s.yellow++;
+        if(['red','Espulsione'].includes(ev.type))s.red++;
+        if(['ownGoal','Autogol'].includes(ev.type))s.ownGoals++;
+      }
+      if(ev.assistPlayerId&&map[Number(ev.assistPlayerId)])map[Number(ev.assistPlayerId)].assists++;
     });
   });
   return Object.values(map);
 }
+
 function renderDashboard(){
   const s=seasonStats();
   const top=playerStats().sort((a,b)=>b.goals-a.goals||b.assists-a.assists).slice(0,5);
@@ -1153,6 +1153,7 @@ function openLivePlayerMenu(playerId,slotIndex){
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'goal')">⚽ Gol</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'yellow')">🟨 Ammonizione</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'red')">🟥 Espulsione</button>
+    <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'penaltyMissed')">❌ Rigore sbagliato</button>
     ${(p.role||'').toLowerCase().includes('port')
       ?`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'conceded')">🥅 Gol subito</button>`
       :`<button class="live-event-btn goal-conceded-btn" onclick="addLivePlayerEvent(${playerId},'ownGoal')">🔁 Autogol</button>`}
@@ -1179,7 +1180,8 @@ function addLivePlayerEvent(playerId,type){
     yellow:['Ammonizione','🟨'],
     red:['Espulsione','🟥'],
     conceded:['Gol subito','🥅'],
-    ownGoal:['Autogol','🔁']
+    ownGoal:['Autogol','🔁'],
+    penaltyMissed:['Rigore sbagliato','❌']
   };
   const [label,icon]=map[type];
   const ev={
@@ -1228,6 +1230,25 @@ function addLivePlayerEvent(playerId,type){
   save();
   closeModal();
   renderLiveMatch();
+  if(type==='goal')setTimeout(()=>openAssistPickerForGoal(ev.id),50);
+}
+function openAssistPickerForGoal(goalEventId){
+  const e=getLiveEvent();if(!e)return;
+  const goal=(e.live.events||[]).find(ev=>String(ev.id)===String(goalEventId));if(!goal)return;
+  const scorerId=Number(goal.playerId);
+  const ids=Object.values(e.live.onField||{}).map(Number).filter(id=>id&&id!==scorerId);
+  const players=ids.map(id=>state.players.find(p=>Number(p.id)===id)).filter(Boolean)
+    .sort((a,b)=>roleOrderV44(a.role)-roleOrderV44(b.role)||Number(a.number)-Number(b.number));
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">GOL REGISTRATO</p><h2>Chi ha fatto l’assist?</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+    <button class="picker-row" onclick="saveAssistForGoal(${goalEventId},null)"><div><strong>Nessun assist</strong><small>Azione personale, rimpallo o non disponibile</small></div><span>—</span></button>
+    ${players.map(p=>`<button class="picker-row" onclick="saveAssistForGoal(${goalEventId},${p.id})"><div><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${escapeHtml(p.role)}</small></div><span>🎯 ASSIST</span></button>`).join('')}`;
+  modal.classList.add('open');
+}
+function saveAssistForGoal(goalEventId,assistPlayerId){
+  const e=getLiveEvent();if(!e)return;
+  const goal=(e.live.events||[]).find(ev=>String(ev.id)===String(goalEventId));if(!goal)return;
+  goal.assistPlayerId=assistPlayerId?Number(assistPlayerId):null;
+  save();closeModal();renderLiveMatch();
 }
 function openSubstitutionPicker(outPlayerId,slotIndex){
   const e=getLiveEvent();if(!e)return;
@@ -1623,7 +1644,7 @@ function renderManualStatsTabV432(e,host){
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche manuali</h2><p class="muted small">Aggiungi o correggi gli eventi senza utilizzare il Live Match.</p></div></div>
   <div class="match-manual-grid">
     <div class="field"><label>TIPO</label><select id="manualType">
-      <option>Gol</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
+      <option>Gol</option><option>Assist</option><option>Ammonizione</option><option>Espulsione</option><option>Autogol</option><option>Rigore segnato</option><option>Rigore sbagliato</option><option>Rigore parato</option>
     </select></div>
     <div class="field"><label>GIOCATORE</label><select id="manualPlayer">${players.map(p=>`<option value="${p.id}">#${p.number} ${escapeHtml(p.name)}</option>`).join('')}</select></div>
     <div class="field"><label>MINUTO</label><input id="manualMinute" placeholder="Es. 23"></div>
@@ -1662,7 +1683,7 @@ function renderRatingsPanelV433(e){
     const vote=e.ratings?.[id]??e.ratings?.[String(id)]??'';
     return `<div class="rating-row">
       <div><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${playerMinutesForMatch(e,id)} minuti giocati</small></div>
-      <input class="details-rating-input" data-player="${id}" type="number" min="0" max="10" step="0.5" value="${vote}" placeholder="Voto">
+      <div class="rating-input-wrap"><input class="details-rating-input" data-player="${id}" type="number" min="0" max="10" step="0.5" value="${vote}" placeholder="Voto"><small>Fantavoto: ${vote!==''?fantasyVoteForMatch(e,id).toFixed(1):'—'}</small></div>
     </div>`;
   }).join('')}</div>
   <button class="primary" onclick="saveDetailsRatingsV433()">SALVA VOTI</button>`;
@@ -1728,8 +1749,9 @@ function addManualEventV432(){
 }
 function removeManualEventV432(index){
   const e=getCurrentMatchDetails();if(!e)return;
-  const source=e.live?.events?.length?e.live.events:e.matchEvents;
-  source.splice(index,1);
+  const liveCount=Array.isArray(e.live?.events)?e.live.events.length:0;
+  if(index<liveCount)e.live.events.splice(index,1);
+  else {e.matchEvents=e.matchEvents||[];e.matchEvents.splice(index-liveCount,1)}
   save();renderMatchDetails();currentMatchTab='manual';renderMatchTab('manual');
 }
 
@@ -1791,32 +1813,30 @@ function getMatchParticipants(e){
   return [...ids].filter(Boolean);
 }
 function allMatchEvents(e){
-  const source=(e.live?.events?.length?e.live.events:e.matchEvents)||[];
+  const liveEvents=Array.isArray(e.live?.events)?e.live.events:[];
+  const manualEvents=Array.isArray(e.matchEvents)?e.matchEvents:[];
+  const source=[...liveEvents,...manualEvents];
   return source.map(ev=>({
-    type:ev.type||'',
-    playerId:ev.playerId,
-    minute:ev.minute??'',
-    note:ev.note||'',
-    detail:ev.detail||'',
-    label:ev.label||'',
-    inId:ev.inId,
-    outId:ev.outId
+    id:ev.id, type:ev.type||'', playerId:ev.playerId, assistPlayerId:ev.assistPlayerId||null,
+    minute:ev.minute??'', note:ev.note||'', detail:ev.detail||'', label:ev.label||'',
+    inId:ev.inId, outId:ev.outId
   }));
 }
 function eventLabelV43(ev){
   const labels={
     goal:'Gol',Gol:'Gol',
+    assist:'Assist',Assist:'Assist',
     yellow:'Ammonizione',Ammonizione:'Ammonizione',
     red:'Espulsione',Espulsione:'Espulsione',
     ownGoal:'Autogol',Autogol:'Autogol',
     sub:'Sostituzione',Sostituzione:'Sostituzione',
     'Rigore segnato':'Rigore segnato','Rigore sbagliato':'Rigore sbagliato','Rigore parato':'Rigore parato',
-    conceded:'Gol subito'
+    conceded:'Gol subito', penaltyMissed:'Rigore sbagliato'
   };
   return labels[ev.type]||ev.label||ev.type||'Evento';
 }
 function eventIconV43(type){
-  return ({goal:'⚽',Gol:'⚽',yellow:'🟨',Ammonizione:'🟨',red:'🟥',Espulsione:'🟥',ownGoal:'🔁',Autogol:'🔁',sub:'🔄',Sostituzione:'🔄','Rigore segnato':'🥅','Rigore sbagliato':'❌','Rigore parato':'🧤'})[type]||'•'
+  return ({goal:'⚽',Gol:'⚽',assist:'🎯',Assist:'🎯',yellow:'🟨',Ammonizione:'🟨',red:'🟥',Espulsione:'🟥',ownGoal:'🔁',Autogol:'🔁',sub:'🔄',Sostituzione:'🔄','Rigore segnato':'🥅','Rigore sbagliato':'❌',penaltyMissed:'❌','Rigore parato':'🧤'})[type]||'•'
 }
 function playerNameById(id){
   return state.players.find(p=>String(p.id)===String(id))?.name||'Giocatore';
@@ -1858,6 +1878,7 @@ function buildMatchSummaryHtml(e){
   const subs=events.filter(ev=>['sub','Sostituzione'].includes(ev.type));
   const eventRows=events.map(ev=>{
     let detail=ev.detail||playerNameById(ev.playerId);
+    if(ev.assistPlayerId)detail+=` · Assist: ${playerNameById(ev.assistPlayerId)}`;
     if(['sub','Sostituzione'].includes(ev.type))detail=ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`;
     return `<div class="summary-event">
       <div class="summary-event-icon">${eventIconV43(ev.type)}</div>
@@ -1869,7 +1890,7 @@ function buildMatchSummaryHtml(e){
     const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
     const vote=e.ratings?.[id]??e.ratings?.[String(id)]??'';
     return `<div class="rating-row">
-      <div><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${playerMinutesForMatch(e,id)} minuti</small></div>
+      <div><strong>#${p.number} ${escapeHtml(p.name)}</strong><small>${playerMinutesForMatch(e,id)} minuti · Fantavoto ${vote!==''?fantasyVoteForMatch(e,id).toFixed(1):'—'}</small></div>
       <input class="match-rating-input" data-player="${id}" type="number" min="0" max="10" step="0.5" value="${vote}" placeholder="Voto">
     </div>`;
   }).join('');
@@ -1913,12 +1934,43 @@ function ratingAverageForPlayer(playerId){
 }
 
 
+function fantasyVoteForMatch(e,playerId){
+  const base=Number(e.ratings?.[playerId]??e.ratings?.[String(playerId)]);
+  if(!Number.isFinite(base))return 0;
+  let value=base;
+  const events=allMatchEvents(e);
+  let explicitConceded=0;
+  events.forEach(ev=>{
+    const pid=Number(ev.playerId),aid=Number(ev.assistPlayerId);
+    if(pid===Number(playerId)){
+      if(['goal','Gol','Rigore segnato'].includes(ev.type))value+=3;
+      if(['Assist','assist'].includes(ev.type))value+=1;
+      if(['yellow','Ammonizione'].includes(ev.type))value-=0.5;
+      if(['red','Espulsione'].includes(ev.type))value-=1;
+      if(['Rigore sbagliato','penaltyMissed'].includes(ev.type))value-=2;
+      if(ev.type==='conceded'){value-=1;explicitConceded++;}
+    }
+    if(aid===Number(playerId))value+=1;
+  });
+  const player=state.players.find(p=>Number(p.id)===Number(playerId));
+  if((player?.role||'').toLowerCase().includes('port')){
+    const participants=getMatchParticipants(e);
+    const keepers=participants.filter(id=>(state.players.find(p=>Number(p.id)===Number(id))?.role||'').toLowerCase().includes('port'));
+    if(keepers.length===1&&Number(keepers[0])===Number(playerId)){
+      const opponentGoals=Number((e.homeAway==='Trasferta'?e.homeScore:e.awayScore)||0);
+      const ownGoals=events.filter(ev=>['ownGoal','Autogol'].includes(ev.type)).length;
+      value-=Math.max(0,opponentGoals-ownGoals-explicitConceded);
+    }
+  }
+  return Math.round(value*2)/2;
+}
+
 let currentStatsTabV43='appearances';
 function aggregatedPlayerStatsV43(){
   const map={};
   state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
-    player:p,appearances:0,minutes:0,goals:0,yellow:0,red:0,ownGoals:0,
-    goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id),mvp:0
+    player:p,appearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
+    goalsConceded:0,penaltiesSaved:0,rating:ratingAverageForPlayer(p.id),fantasy:0,fantasyMatches:0,mvp:0
   });
   state.events.filter(e=>e.status==='Terminata').forEach(e=>{
     const participants=getMatchParticipants(e);
@@ -1931,6 +1983,8 @@ function aggregatedPlayerStatsV43(){
     allMatchEvents(e).forEach(ev=>{
       const s=map[Number(ev.playerId)];if(!s)return;
       if(['goal','Gol','Rigore segnato'].includes(ev.type))s.goals++;
+      if(['Assist','assist'].includes(ev.type))s.assists++;
+      if(ev.assistPlayerId&&map[Number(ev.assistPlayerId)])map[Number(ev.assistPlayerId)].assists++;
       if(['yellow','Ammonizione'].includes(ev.type))s.yellow++;
       if(['red','Espulsione'].includes(ev.type))s.red++;
       if(['ownGoal','Autogol'].includes(ev.type))s.ownGoals++;
@@ -1956,6 +2010,13 @@ function aggregatedPlayerStatsV43(){
       if(keepers.length===1)map[keepers[0]].goalsConceded+=remaining;
     }
 
+    participants.forEach(id=>{
+      if(!map[id])return;
+      const base=e.ratings?.[id]??e.ratings?.[String(id)];
+      if(base===undefined||base==='')return;
+      map[id].fantasy+=fantasyVoteForMatch(e,id);
+      map[id].fantasyMatches++;
+    });
     const mvpId=Number(e.live?.mvpPlayerId||e.mvpPlayerId||0);
     if(mvpId&&map[mvpId])map[mvpId].mvp++;
   });
@@ -1965,10 +2026,11 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   currentStatsTabV43=tab;
   const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
   if(!host)return;
-  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',mvp:'MVP',goalkeepers:'Portieri'};
+  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',goalkeepers:'Portieri'};
   const data=aggregatedPlayerStatsV43();
   let rows=data;
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
+  else if(tab==='fantasy')rows=[...data].sort((a,b)=>((b.fantasyMatches?b.fantasy/b.fantasyMatches:0)-(a.fantasyMatches?a.fantasy/a.fantasyMatches:0)));
   else rows=[...data].sort((a,b)=>(b[tab]||0)-(a[tab]||0));
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche giocatori</h2><p class="muted small">Calcolate dalle partite terminate</p></div></div>
     <div class="stats-tabs-v43">
@@ -1980,6 +2042,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       let value=x[tab]||0,detail=x.player.role;
       if(tab==='rating')value=x.rating?x.rating.toFixed(2):'—';
       if(tab==='minutes')value=`${x.minutes}'`;
+      if(tab==='fantasy')value=x.fantasyMatches?(x.fantasy/x.fantasyMatches).toFixed(2):'—';
       if(tab==='mvp')value=`⭐ ${x.mvp}`;
       if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati`}
       return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${x.player.number} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
@@ -2053,7 +2116,7 @@ function exportBackup(){
   try{
     const payload={
       app:'Hank Manager',
-      version:'4.0-modern-foundation',
+      version:'4.4.6-assist-fantasy',
       exportedAt:new Date().toISOString(),
       state
     };
