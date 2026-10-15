@@ -1,4 +1,4 @@
-const CACHE='hank-manager-v500-cloud-beta-1';
+const CACHE='hank-manager-v502-beta2';
 const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./manifest.json','./js/cloud.js'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));

@@ -36,3 +36,6 @@ v4.4.7 - Bonus portieri + gara reale 28/09
 - Nessun reset degli altri dati locali.
 
 v4.4.11: andamento ultime cinque partite e voti delle ultime cinque presenze, con filtro competizione. Nessun reset dati.
+
+
+v5.0 Beta 2: sincronizzazione automatica OPT-IN con baseline per dispositivo, polling 20 secondi, controllo revisione server, blocco conflitti e backup locale prima di ogni recupero. Non attivare su due dispositivi prima di aver verificato gli archivi. Per la sicurezza dei dati, i conflitti richiedono risoluzione manuale.
