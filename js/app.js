@@ -1317,6 +1317,7 @@ function openLivePlayerMenu(playerId,slotIndex){
   </div>
   <div class="live-event-grid">
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'goal')">⚽ Gol</button>
+    <button class="live-event-btn" onclick="openLateAssistPicker(${playerId})">🎯 Assist</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'yellow')">🟨 Ammonizione</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'red')">🟥 Espulsione</button>
     <button class="live-event-btn" onclick="addLivePlayerEvent(${playerId},'penaltyMissed')">❌ Rigore sbagliato</button>
@@ -1397,6 +1398,16 @@ function addLivePlayerEvent(playerId,type){
   closeModal();
   renderLiveMatch();
   if(type==='goal')setTimeout(()=>openAssistPickerForGoal(ev.id),50);
+}
+function openLateAssistPicker(playerId){
+  const e=getLiveEvent();if(!e)return;
+  const goals=(e.live?.events||[]).filter(ev=>['goal','Gol','Rigore segnato'].includes(ev.type)&&Number(ev.playerId)!==Number(playerId));
+  const p=state.players.find(x=>Number(x.id)===Number(playerId));
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">ASSIST DIMENTICATO</p><h2>${escapeHtml(p?.name||'Giocatore')}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  <p class="muted small">Scegli il gol a cui associare l'assist. I gol già assegnati a un altro assistman possono essere corretti.</p>
+  ${goals.map(g=>`<button class="picker-row" onclick="saveAssistForGoal(${JSON.stringify(g.id)},${Number(playerId)})"><div><strong>⚽ ${escapeHtml(playerNameById(g.playerId))} · ${escapeHtml(String(g.displayMinute||g.minute||'?'))}'</strong><small>${g.assistPlayerId?'Assist attuale: '+escapeHtml(playerNameById(g.assistPlayerId)):'Assist non assegnato'}</small></div><span>🎯</span></button>`).join('')||'<div class="card empty">Non ci sono gol da associare a questo giocatore.</div>'}
+  <button class="secondary" onclick="closeModal()">Chiudi</button>`;
+  modal.classList.add('open');
 }
 function openAssistPickerForGoal(goalEventId){
   const e=getLiveEvent();if(!e)return;
@@ -2063,7 +2074,7 @@ function buildMatchSummaryHtml(e){
   return `
     <div class="match-section-card">
       <h3>Riepilogo partita</h3>
-      <div class="summary-counts">
+      ${statsCompetitionSelectorV4410('team')}\n    <div class="summary-counts">
         <div class="summary-count"><strong>${(e.callups||[]).length}</strong><small>Convocati</small></div>
         <div class="summary-count"><strong>${participants.length}</strong><small>Giocatori utilizzati</small></div>
         <div class="summary-count"><strong>${goals.length}</strong><small>Gol registrati</small></div>
@@ -2136,18 +2147,35 @@ function fantasyVoteForMatch(e,playerId){
   return Math.round(value*2)/2;
 }
 
+let currentStatsCompetition='all';
+function matchCompetitionV4410(e){
+ const raw=String(e.competition||e.competitionType||e.category||e.type||e.tournament||'').toLowerCase();
+ if(raw.includes('super')||raw.includes('champions'))return 'champions';
+ if(raw.includes('serie')||raw.includes('campionato')||raw.includes('élite')||raw.includes('elite'))return 'league';
+ return 'other';
+}
+function filteredFinishedMatchesV4410(){
+ return state.events.filter(e=>e.status==='Terminata'&&(currentStatsCompetition==='all'||matchCompetitionV4410(e)===currentStatsCompetition));
+}
+function statsCompetitionSelectorV4410(mode){
+ return `<div class="match-section-card"><label for="statsComp4410"><strong>Competizione</strong></label><select id="statsComp4410" onchange="currentStatsCompetition=this.value;${mode==='team'?'renderTeamStatisticsV434()':"renderStatisticsV43(currentStatsTabV43)"}">
+ ${[['all','Tutte le competizioni'],['league','Serie A d’Élite'],['champions','Super Champions'],['other','Coppe e tornei']].map(([v,t])=>`<option value="${v}" ${currentStatsCompetition===v?'selected':''}>${t}</option>`).join('')}</select></div>`;
+}
 let currentStatsTabV43='appearances';
 function aggregatedPlayerStatsV43(){
   const map={};
   state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
-    player:p,appearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
+    player:p,appearances:0,starts:0,subAppearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
     goalsConceded:0,penaltiesSaved:0,cleanSheets:0,rating:ratingAverageForPlayer(p.id),fantasy:0,fantasyMatches:0,mvp:0
   });
-  state.events.filter(e=>e.status==='Terminata').forEach(e=>{
+  filteredFinishedMatchesV4410().forEach(e=>{
     const participants=getMatchParticipants(e);
     participants.forEach(id=>{
       if(map[id]){
         map[id].appearances++;
+        const starters=(e.lineup?.starters||[]).map(x=>Number(typeof x==='object'?(x.playerId??x.id):x));
+        if(starters.includes(Number(id)))map[id].starts++;
+        else map[id].subAppearances++;
         map[id].minutes+=Number(playerMinutesForMatch(e,id)||0);
       }
     });
@@ -2194,13 +2222,14 @@ function aggregatedPlayerStatsV43(){
     const mvpId=Number(e.live?.mvpPlayerId||e.mvpPlayerId||0);
     if(mvpId&&map[mvpId])map[mvpId].mvp++;
   });
+  Object.values(map).forEach(x=>x.avgMinutes=x.appearances?x.minutes/x.appearances:0);
   return Object.values(map);
 }
 function renderStatisticsV43(tab=currentStatsTabV43){
   currentStatsTabV43=tab;
   const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
   if(!host)return;
-  const labels={appearances:'Presenze',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',cleanSheets:'Porte inviolate',goalkeepers:'Portieri'};
+  const labels={appearances:'Presenze',starts:'Titolare',subAppearances:'Subentrato',avgMinutes:'Minuti medi',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',cleanSheets:'Porte inviolate',goalkeepers:'Portieri'};
   const data=aggregatedPlayerStatsV43();
   let rows=data;
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
@@ -2216,6 +2245,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       let value=x[tab]||0,detail=x.player.role;
       if(tab==='rating')value=x.rating?x.rating.toFixed(2):'—';
       if(tab==='minutes')value=`${x.minutes}'`;
+      if(tab==='avgMinutes')value=`${x.avgMinutes.toFixed(1)}'`;
       if(tab==='fantasy')value=x.fantasyMatches?(x.fantasy/x.fantasyMatches).toFixed(2):'—';
       if(tab==='mvp')value=`⭐ ${x.mvp}`;
       if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati · ${x.cleanSheets} porte inviolate`}
@@ -2226,7 +2256,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
 
 function teamStatisticsV434(){
   const team=state.profile?.team||state.society?.name||'Maccabi Roma';
-  const finished=state.events.filter(e=>e.status==='Terminata');
+  const finished=filteredFinishedMatchesV4410();
   const result={
     played:finished.length,wins:0,draws:0,losses:0,goalsFor:0,goalsAgainst:0,
     scored:[0,0,0,0],conceded:[0,0,0,0]
