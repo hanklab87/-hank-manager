@@ -936,3 +936,6 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
   color:#ffc257;
   font-weight:950;
 }
+
+/* Hank Cloud beta */
+.hm-cloud-overlay[hidden]{display:none!important}.hm-cloud-overlay{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.8);overflow-y:auto;padding:20px 12px;display:flex;align-items:flex-start;justify-content:center}.hm-cloud-panel{background:#102034;color:#fff;border:1px solid #456078;border-radius:16px;padding:20px;width:min(560px,100%);margin:auto 0;box-shadow:0 20px 70px #0009}.hm-cloud-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.hm-cloud-head h2{margin:0}.hm-cloud-head button{background:transparent;border:0;color:#fff;font-size:24px}.hm-cloud-panel label{display:block;margin-top:14px;margin-bottom:5px;font-size:13px;font-weight:600}.hm-cloud-panel input{display:block;width:100%;box-sizing:border-box;border-radius:8px;padding:12px;background:#fff;color:#111;border:1px solid #aaa;font-size:16px}.hm-cloud-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.hm-cloud-actions button{flex:1 1 170px;padding:12px 10px;border-radius:8px;border:1px solid #7296b4;background:#1c405d;color:#fff;font-weight:600}.hm-cloud-panel #hm-cloud-status{white-space:pre-line;line-height:1.5;margin-top:14px}

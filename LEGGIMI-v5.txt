@@ -1,0 +1,12 @@
+HANK MANAGER v5.0 BETA 1 — trasferimento cloud manuale e protetto
+
+PRIMA: esporta un backup completo su iPhone e conservalo in iCloud Drive.
+Questa versione non sincronizza automaticamente. Non usare iPhone e PC contemporaneamente.
+La schermata Home contiene «Gestisci sincronizzazione iPhone / PC».
+Su iPhone: inserisci Project URL Supabase, email/password dell’utente creato su Authentication > Users. La publishable key è già compilata. Accedi > Controlla archivio online > Carica dati di questo dispositivo. Se cloud già pieno, controlla attentamente prima di sovrascriverlo.
+Su PC: apri lo stesso sito, configura URL e account, Accedi > Controlla archivio online > Recupera dati online. Conferma solo dopo aver esportato backup del PC (se ha dati).
+Le modifiche successive non si propagano automaticamente: ripetere manualmente Carica su dispositivo di origine, poi Recupera su altro dispositivo.
+Ogni recupero crea una copia localStorage di sicurezza con prefisso hank_cloud_pre_restore_ (non sostituisce il backup esportato).
+Nessuna migrazione o cancellazione automatica di hank_v04.
+RLS della tabella hank_data deve essere configurato e attivo. La chiave segreta non va mai inserita.
+ATTENZIONE: v5.0 Beta 1 non è sincronizzazione realtime; è una prima fase controllata.

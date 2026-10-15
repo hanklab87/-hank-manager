@@ -62,6 +62,8 @@
     </div>
 
     
+    <div class="section-head"><div><h2>Cloud personale · v5.0 Beta</h2><p class="muted small">Collegamento protetto a Supabase. Nessuna sincronizzazione automatica in questa fase.</p></div></div>
+    <button class="secondary full-btn" onclick="hmCloudOpen()">☁️ Gestisci sincronizzazione iPhone / PC</button>
     <div class="section-head"><div><h2>Backup dati</h2><p class="muted small">Salva o ripristina la stagione prima degli aggiornamenti.</p></div></div>
     <div class="grid">
       <button class="quick" onclick="exportBackup()"><div class="quick-icon">⬇️</div><b>Esporta backup</b><span>Scarica tutti i dati</span></button>
@@ -283,5 +285,22 @@
     </button>
 </div>
 
+
+<div id="hm-cloud-overlay" class="hm-cloud-overlay" hidden>
+ <div class="hm-cloud-panel" role="dialog" aria-modal="true" aria-label="Sincronizzazione Hank Manager">
+  <div class="hm-cloud-head"><h2>☁️ Hank Manager Cloud</h2><button type="button" onclick="hmCloudClose()" aria-label="Chiudi">✕</button></div>
+  <p class="muted small">Prima configurazione: usa l'iPhone che contiene le partite reali. Le operazioni cloud sono manuali e richiedono conferma.</p>
+  <label>Project URL Supabase</label><input id="hm-cloud-url" type="url" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off" spellcheck="false">
+  <label>Publishable key (pubblica)</label><input id="hm-cloud-key" type="text" spellcheck="false" autocomplete="off">
+  <label>Email del tuo account Supabase</label><input id="hm-cloud-email" type="email" autocomplete="username">
+  <label>Password del tuo account (non quella del database)</label><input id="hm-cloud-password" type="password" autocomplete="current-password">
+  <div class="hm-cloud-actions"><button type="button" onclick="hmCloudLogin()">Accedi</button><button type="button" onclick="hmCloudLogout()">Esci</button></div>
+  <p id="hm-cloud-status" role="status" class="muted small">Non collegato.</p>
+  <div class="hm-cloud-actions"><button type="button" onclick="hmCloudInspect()">1. Controlla archivio online</button><button type="button" onclick="exportBackup()">Esporta backup locale</button></div>
+  <div class="hm-cloud-actions"><button type="button" onclick="hmCloudUpload()">2. Carica dati di questo dispositivo</button><button type="button" onclick="hmCloudDownload()">3. Recupera dati online</button></div>
+  <p class="muted small"><strong>Attenzione:</strong> il caricamento non cancella i dati locali; il recupero sostituisce i dati locali soltanto dopo backup e conferma. Non utilizzare due dispositivi contemporaneamente in questa versione.</p>
+ </div>
+</div>
+<script src="js/cloud.js"></script>
 </body>
 </html>
