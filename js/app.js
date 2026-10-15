@@ -2242,6 +2242,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       <button class="active">Giocatori</button>
     </div>
     <div class="stats-tabs-v43">${Object.entries(labels).map(([k,v])=>`<button class="${tab===k?'active':''}" onclick="renderStatisticsV43('${k}')">${v}</button>`).join('')}</div>
+    ${playerTrendV4411()}
     <div class="stats-ranking">${rows.map((x,i)=>{
       let value=x[tab]||0,detail=x.player.role;
       if(tab==='rating')value=x.rating?x.rating.toFixed(2):'—';
@@ -2255,6 +2256,23 @@ function renderStatisticsV43(tab=currentStatsTabV43){
 }
 
 
+
+let trendPlayerV4411=0;
+function lastFiveV4411(){return [...filteredFinishedMatchesV4410()].filter(e=>e.type==='Partita').sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.time||'').localeCompare(String(a.time||''))).slice(0,5)}
+function teamTrendV4411(){
+ const games=lastFiveV4411();let w=0,d=0,l=0,gf=0,ga=0;
+ const rows=games.map(e=>{const away=e.homeAway==='Trasferta',f=Number(away?e.awayScore:e.homeScore)||0,a=Number(away?e.homeScore:e.awayScore)||0;gf+=f;ga+=a;const r=f>a?'V':f<a?'S':'P';if(r==='V')w++;else if(r==='S')l++;else d++;return `<div class="stats-row"><div class="stats-rank">${r}</div><div><strong>${escapeHtml(e.opponent||'Avversario')}</strong><small>${escapeHtml(formatDate(e.date))} · ${escapeHtml(e.homeAway||'')}</small></div><div class="stats-value">${f}–${a}</div></div>`});
+ return `<div class="match-section-card"><h3>Ultime ${games.length||5} partite</h3>${games.length?`<p class="muted small">${w} vittorie · ${d} pareggi · ${l} sconfitte · ${gf} gol fatti · ${ga} subiti</p><div class="stats-ranking">${rows.join('')}</div>`:'<p class="muted small">Nessuna partita terminata per questa competizione.</p>'}</div>`;
+}
+function playerTrendV4411(){
+ const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>a.name.localeCompare(b.name,'it'));
+ if(!players.length)return '';
+ if(!players.some(p=>Number(p.id)===Number(trendPlayerV4411)))trendPlayerV4411=Number(players[0].id);
+ const pid=trendPlayerV4411;
+ const games=[...filteredFinishedMatchesV4410()].filter(e=>e.type==='Partita'&&e.ratings&&e.ratings[pid]!==undefined&&e.ratings[pid]!==''&&Number.isFinite(Number(e.ratings[pid]))).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+ const recent=games.slice(0,5),avg=a=>(a.reduce((n,e)=>n+Number(e.ratings[pid]),0)/a.length).toFixed(2);
+ return `<div class="match-section-card"><h3>Andamento giocatore · ultime 5 presenze con voto</h3><select onchange="trendPlayerV4411=Number(this.value);renderStatisticsV43(currentStatsTabV43)">${players.map(p=>`<option value="${Number(p.id)}" ${Number(p.id)===pid?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}</select>${recent.length?`<p class="muted small">Media ultime ${recent.length}: <strong>${avg(recent)}</strong> · Media stagionale: <strong>${avg(games)}</strong></p><div class="stats-ranking">${recent.map(e=>`<div class="stats-row"><div><strong>${escapeHtml(e.opponent||'Avversario')}</strong><small>${escapeHtml(formatDate(e.date))}</small></div><div class="stats-value">${Number(e.ratings[pid]).toFixed(1)}</div></div>`).join('')}</div>`:'<p class="muted small">Nessun voto disponibile.</p>'}</div>`;
+}
 function teamStatisticsV434(){
   const team=state.profile?.team||state.society?.name||'Maccabi Roma';
   const finished=filteredFinishedMatchesV4410();
@@ -2301,6 +2319,7 @@ function renderTeamStatisticsV434(){
       <div class="summary-count"><strong>${s.goalsFor}</strong><small>Gol fatti</small></div>
       <div class="summary-count"><strong>${s.goalsAgainst}</strong><small>Gol subiti</small></div>
     </div>
+    ${teamTrendV4411()}
     <div class="match-section-card">
       <h3>Gol per momento della partita</h3>
       <div class="stats-ranking">${labels.map((label,i)=>`<div class="stats-row">
