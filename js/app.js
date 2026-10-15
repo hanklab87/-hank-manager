@@ -2074,7 +2074,7 @@ function buildMatchSummaryHtml(e){
   return `
     <div class="match-section-card">
       <h3>Riepilogo partita</h3>
-      ${statsCompetitionSelectorV4410('team')}\n    <div class="summary-counts">
+    <div class="summary-counts">
         <div class="summary-count"><strong>${(e.callups||[]).length}</strong><small>Convocati</small></div>
         <div class="summary-count"><strong>${participants.length}</strong><small>Giocatori utilizzati</small></div>
         <div class="summary-count"><strong>${goals.length}</strong><small>Gol registrati</small></div>
@@ -2104,7 +2104,7 @@ function saveMatchRatings(id){
 }
 function ratingAverageForPlayer(playerId){
   const votes=state.events
-    .filter(e=>e.status==='Terminata'&&e.ratings&&(e.ratings[playerId]!==undefined||e.ratings[String(playerId)]!==undefined))
+    .filter(e=>e.status==='Terminata'&&(currentStatsCompetition==='all'||matchCompetitionV4410(e)===currentStatsCompetition)&&e.ratings&&(e.ratings[playerId]!==undefined||e.ratings[String(playerId)]!==undefined))
     .map(e=>Number(e.ratings[playerId]??e.ratings[String(playerId)]))
     .filter(Number.isFinite);
   return votes.length?votes.reduce((a,b)=>a+b,0)/votes.length:0;
@@ -2236,6 +2236,7 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   else if(tab==='fantasy')rows=[...data].sort((a,b)=>((b.fantasyMatches?b.fantasy/b.fantasyMatches:0)-(a.fantasyMatches?a.fantasy/a.fantasyMatches:0)));
   else rows=[...data].sort((a,b)=>(b[tab]||0)-(a[tab]||0));
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche giocatori</h2><p class="muted small">Calcolate dalle partite terminate</p></div></div>
+    ${statsCompetitionSelectorV4410('players')}
     <div class="stats-tabs-v43">
       <button onclick="renderTeamStatisticsV434()">Squadra</button>
       <button class="active">Giocatori</button>
@@ -2291,6 +2292,7 @@ function renderTeamStatisticsV434(){
   if(!host)return;
   const labels=['0–20','21–40','41–60','61–80+'];
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche squadra</h2><p class="muted small">Riepilogo delle partite terminate</p></div></div>
+    ${statsCompetitionSelectorV4410('team')}
     <div class="summary-counts">
       <div class="summary-count"><strong>${s.played}</strong><small>Partite</small></div>
       <div class="summary-count"><strong>${s.wins}</strong><small>Vittorie</small></div>
