@@ -1,41 +1,4 @@
-HANK MANAGER v4.4.4 – MINUTES FIX
+HANK MANAGER v5.0 BETA 2.2 - FIX RECUPERO CLOUD
 
-CORREZIONI
-- Minuti conteggiati per tutti i titolari.
-- Minuti conteggiati correttamente per i subentrati.
-- Calcolo basato sul minuto ufficiale della partita.
-- Le simulazioni veloci non producono più 0 minuti.
-- Cambio al 35°:
-  35 minuti al giocatore uscito;
-  dal 35° alla fine al giocatore entrato.
-- Statistiche Presenze e Minuti aggiornate correttamente.
-- Il riepilogo voti mostra i minuti registrati.
-
-INSTALLAZIONE
-1. Estrai lo ZIP.
-2. Sostituisci tutti i file nel repository.
-3. Summary:
-   Fix player minutes for starters and substitutes v4.4.4
-4. Commit to main.
-5. Push origin.
-6. Attendi Vercel e aggiorna con Ctrl+F5.
-
-v4.4.6 - Assist, Fantavoto e correzioni post-partita
-- Nessun reset automatico: conserva i dati gia salvati nel browser.
-- Assist selezionabile subito dopo un gol nel Live Match.
-- Assist disponibile anche negli eventi manuali e nelle statistiche.
-- Corretto il salvataggio/lettura degli eventi manuali aggiunti dopo una partita con eventi Live.
-- Fantavoto: voto +3 gol, +1 assist, -0,5 ammonizione, -1 espulsione, -2 rigore sbagliato, -1 gol subito dal portiere.
-- Classifica Fantavoto come media delle partite con voto.
-- Backup Esporta/Importa mantenuto disponibile dalla Home.
-
-v4.4.7 - Bonus portieri + gara reale 28/09
-- Porta inviolata: +1 Fantavoto al portiere e statistica dedicata.
-- Rigore parato: +3 Fantavoto.
-- Migrazione non distruttiva della gara FC Palocco-Maccabi del 28/09/2026 con convocati, titolari, voti, 2 gol di Venturi e ammonizioni Fiorentini/Venturi.
-- Nessun reset degli altri dati locali.
-
-v4.4.11: andamento ultime cinque partite e voti delle ultime cinque presenze, con filtro competizione. Nessun reset dati.
-
-
-v5.0 Beta 2: sincronizzazione automatica OPT-IN con baseline per dispositivo, polling 20 secondi, controllo revisione server, blocco conflitti e backup locale prima di ogni recupero. Non attivare su due dispositivi prima di aver verificato gli archivi. Per la sicurezza dei dati, i conflitti richiedono risoluzione manuale.
+Conservare backup iPhone e PC. Installare e verificare prima su iPhone.
+Il recupero automatico e consentito solo se la copia locale coincide con la base nota. In caso di modifiche locali e cloud, la sincronizzazione si blocca.

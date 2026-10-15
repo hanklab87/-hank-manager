@@ -39,6 +39,7 @@ function fail(err){status('⚠️ '+(err?.message||String(err)))}
 function snapshot(){return JSON.stringify(local())}
 function canonical(x){if(Array.isArray(x))return x.map(canonical);if(x&&typeof x==='object')return Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])]));return x}
 function sameData(a,b){return JSON.stringify(canonical(a))===JSON.stringify(canonical(b))}
+function sameRaw(a,b){try{return sameData(JSON.parse(a),JSON.parse(b))}catch(_){return false}}
 function setBase(revision,raw){base={uid:session?.user?.id,url:cfg.url,revision,raw};localStorage.setItem(BASE_KEY,JSON.stringify(base))}
 function disableAuto(message){autoEnabled=false;localStorage.removeItem(AUTO_KEY);const c=el('hm-cloud-auto');if(c)c.checked=false;if(message)status(message)}
 function updateAutoControl(){const c=el('hm-cloud-auto');if(c)c.checked=autoEnabled}
@@ -50,7 +51,7 @@ async function syncOnce(){
   if(!base||base.uid!==session.user.id||base.url!==cfg.url){disableAuto('⚠️ Sincronizzazione sospesa: account o progetto diverso. Verifica i dati e riattiva.');return}
   const mine=snapshot(),online=await remote();
   if(!online){disableAuto('⚠️ Archivio online assente: sincronizzazione sospesa.');return}
-  const localChanged=mine!==base.raw,remoteChanged=online.updated_at!==base.revision;
+  const localChanged=!sameRaw(mine,base.raw),remoteChanged=!sameData(online.data,JSON.parse(base.raw));
   if(localChanged&&remoteChanged){disableAuto('⚠️ CONFLITTO: modifiche sia su questo dispositivo sia nel cloud. Nessun dato sovrascritto. Esporta i backup e risolvi manualmente.');return}
   if(!localChanged&&!remoteChanged)return;
   if(localChanged){
@@ -61,7 +62,7 @@ async function syncOnce(){
   }else{
    if(!online.data||!Array.isArray(online.data.players)||!Array.isArray(online.data.events))throw Error('Dati cloud non validi.');
    // Check again before replacing local state; avoid a race with an edit made during the request.
-   if(snapshot()!==mine){disableAuto('⚠️ Modifiche locali durante il controllo. Sincronizzazione sospesa.');return}
+   if(!sameRaw(snapshot(),mine)){disableAuto('⚠️ Modifiche locali durante il controllo. Sincronizzazione sospesa.');return}
    const old=localStorage.getItem('hank_v04');
    const backupKey='hank_cloud_auto_pre_restore_'+Date.now();
    try{localStorage.setItem(backupKey,old)}catch(_){disableAuto('⚠️ Impossibile salvare una copia locale prima del recupero. Sincronizzazione sospesa.');return}
@@ -78,9 +79,20 @@ window.hmCloudToggleAuto=async function(enabled){
   status('Verifica dei dati locali e del cloud prima dell’attivazione…');
   const online=await remote();if(!online)throw Error('Archivio cloud vuoto.');
   const mine=snapshot(),cloud=JSON.stringify(online.data);
-  if(!sameData(JSON.parse(mine),online.data))throw Error('I dati locali e quelli cloud sono diversi. Non attivare la sincronizzazione: controlla eventuali modifiche e conserva i backup.');
-  if(!confirm('Attivare la sincronizzazione automatica su questo dispositivo? Le modifiche verranno inviate o ricevute; i conflitti sospendono la sincronizzazione. Mantieni i backup.')){updateAutoControl();return}
-  setBase(online.updated_at,mine);checked={uid:session.user.id,revision:online.updated_at};autoEnabled=true;localStorage.setItem(AUTO_KEY,'yes');updateAutoControl();status('✓ Sincronizzazione automatica attiva su questo dispositivo.');
+  const identical=sameData(JSON.parse(mine),online.data);
+  const knownBase=base&&base.uid===session.user.id&&base.url===cfg.url&&base.raw;
+  const localUnchanged=knownBase&&sameRaw(mine,base.raw);
+  if(!identical&&!localUnchanged)throw Error('I dati locali e quelli cloud sono diversi e non è possibile dimostrare che il dispositivo sia rimasto invariato. Sincronizzazione bloccata; conserva i backup.');
+  if(!identical){
+    if(!confirm('Il cloud contiene modifiche rispetto alla copia invariata di questo dispositivo. Attivare il recupero automatico? Prima verrà creata una copia di sicurezza locale.\n\nPremi Annulla se non sei sicuro.')){updateAutoControl();return}
+    // Keep the previous baseline so syncOnce can safely recognize a remote-only change.
+  }else{
+    if(!confirm('Attivare la sincronizzazione automatica su questo dispositivo? Mantieni i backup.')){updateAutoControl();return}
+    setBase(online.updated_at,mine);
+  }
+  checked={uid:session.user.id,revision:online.updated_at};autoEnabled=true;localStorage.setItem(AUTO_KEY,'yes');updateAutoControl();
+  status(identical?'✓ Sincronizzazione automatica attiva.':'✓ Sincronizzazione attiva. Recupero protetto degli aggiornamenti cloud in corso…');
+  if(!identical)await syncOnce();
  }catch(e){disableAuto('⚠️ '+(e?.message||String(e)))}
 };
 setInterval(syncOnce,20000);
