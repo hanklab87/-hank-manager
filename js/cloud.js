@@ -11,7 +11,7 @@ const PUBLIC_KEY='sb_publishable_7TtJPjAopzRzAuR1paT9Yg__eJSKRTZ';
 const el=id=>document.getElementById(id);
 let cfg={url:'',key:PUBLIC_KEY,email:''}, session=null, checked=null;
 try{cfg={...cfg,...JSON.parse(localStorage.getItem(KEY)||'{}')};session=JSON.parse(sessionStorage.getItem(SESSION)||'null')}catch(_){}
-function status(t){el('hm-cloud-status').textContent=t}
+function status(t){const n=el('hm-cloud-status');n.textContent=t;if(t.startsWith('⚠️')){n.style.border='2px solid #f59e0b';n.style.padding='12px';n.style.borderRadius='8px';n.scrollIntoView({behavior:'smooth',block:'center'});}else{n.style.border='';n.style.padding='';n.style.borderRadius='';}}
 function validate(){
  const url=el('hm-cloud-url').value.trim().replace(/\/+$/,'');
  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url))throw Error('Inserisci il Project URL Supabase completo (https://...supabase.co).');
@@ -37,6 +37,8 @@ function local(){const raw=localStorage.getItem('hank_v04');if(!raw)throw Error(
 function describe(data){return (data.players?.length||0)+' giocatori, '+(data.events?.length||0)+' eventi, '+(data.events||[]).filter(e=>e.status==='Terminata').length+' partite/eventi terminati'}
 function fail(err){status('⚠️ '+(err?.message||String(err)))}
 function snapshot(){return JSON.stringify(local())}
+function canonical(x){if(Array.isArray(x))return x.map(canonical);if(x&&typeof x==='object')return Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])]));return x}
+function sameData(a,b){return JSON.stringify(canonical(a))===JSON.stringify(canonical(b))}
 function setBase(revision,raw){base={uid:session?.user?.id,url:cfg.url,revision,raw};localStorage.setItem(BASE_KEY,JSON.stringify(base))}
 function disableAuto(message){autoEnabled=false;localStorage.removeItem(AUTO_KEY);const c=el('hm-cloud-auto');if(c)c.checked=false;if(message)status(message)}
 function updateAutoControl(){const c=el('hm-cloud-auto');if(c)c.checked=autoEnabled}
@@ -72,10 +74,11 @@ async function syncOnce(){
 window.hmCloudToggleAuto=async function(enabled){
  if(!enabled){disableAuto('Sincronizzazione automatica disattivata.');return}
  try{
-  if(!session)throw Error('Accedi prima a Supabase.');
+  if(!session)throw Error('Accedi prima a Supabase. La sessione può scadere quando chiudi l’app.');
+  status('Verifica dei dati locali e del cloud prima dell’attivazione…');
   const online=await remote();if(!online)throw Error('Archivio cloud vuoto.');
   const mine=snapshot(),cloud=JSON.stringify(online.data);
-  if(mine!==cloud)throw Error('I dati locali e quelli cloud non coincidono. Sincronizza manualmente e ricontrolla prima di attivare.');
+  if(!sameData(JSON.parse(mine),online.data))throw Error('I dati locali e quelli cloud sono diversi. Non attivare la sincronizzazione: controlla eventuali modifiche e conserva i backup.');
   if(!confirm('Attivare la sincronizzazione automatica su questo dispositivo? Le modifiche verranno inviate o ricevute; i conflitti sospendono la sincronizzazione. Mantieni i backup.')){updateAutoControl();return}
   setBase(online.updated_at,mine);checked={uid:session.user.id,revision:online.updated_at};autoEnabled=true;localStorage.setItem(AUTO_KEY,'yes');updateAutoControl();status('✓ Sincronizzazione automatica attiva su questo dispositivo.');
  }catch(e){disableAuto('⚠️ '+(e?.message||String(e)))}
