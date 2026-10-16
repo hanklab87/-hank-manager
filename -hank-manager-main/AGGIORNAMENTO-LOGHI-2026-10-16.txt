@@ -1,0 +1,22 @@
+HANK MANAGER - AGGIORNAMENTO STEMMI (2026-10-16)
+
+Il logo Maccabi Roma fornito dall'utente e' incluso in assets/logos/maccabi-roma.png.
+I loghi avversari usano gli URL pubblici degli stemmi delle squadre sul sito EIFA CalcioElite.
+Richiedono Internet; se non disponibili compare la sigla della squadra.
+Partite gia' salvate: i loghi sono associati per nome, senza modificare gli eventi.
+Sono disponibili: FC Palocco, Lokomotiv, Atletico Vermicino, Grifone Legends,
+Atletico Smistamento, Real Baseggio, Unicum, Milani, Montagnola, Union FB,
+CRC, Real Macane, Borgorosso.
+Al momento mancano link verificati per gli stemmi Nova Virtus e Real Miami:
+queste squadre sono visualizzate con le iniziali, non con stemmi fittizi.
+
+Nessun dato nella chiave localStorage hank_v04 viene cancellato, azzerato o migrato.
+Non sono state apportate modifiche a js/cloud.js o alla logica di sincronizzazione.
+
+PER PUBBLICARE SU GITHUB / VERCEL: 
+1. Prima esportare e conservare un backup da Hank Manager.
+2. Caricare nel repository i file dello ZIP, mantenendo le cartelle.
+3. Attendere deploy Vercel e aggiornamento app su PC/iPhone.
+4. Verificare i loghi e la sincronizzazione senza modificare dati.
+
+FONTE: https://eifa.live/squadre

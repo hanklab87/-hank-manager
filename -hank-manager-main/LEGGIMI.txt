@@ -1,0 +1,4 @@
+HANK MANAGER v5.0 BETA 2.2 - FIX RECUPERO CLOUD
+
+Conservare backup iPhone e PC. Installare e verificare prima su iPhone.
+Il recupero automatico e consentito solo se la copia locale coincide con la base nota. In caso di modifiche locali e cloud, la sincronizzazione si blocca.

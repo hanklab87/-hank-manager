@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06101c">
+<title>Hank Manager</title>
+<link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07121f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hank Manager">
+</head>
+<body>
+<main class="app">
+  <div id="topbar" class="topbar hidden">
+    <div class="brand"><div class="logo">H</div><div><div class="brand-title"><span class="brand-lockup"><span class="brand-mark">HM</span><span>HANK <b>MANAGER</b></span></span></div><div class="brand-sub">MACCABI ROMA · 4.0</div></div></div>
+    <button class="profile" onclick="openBranding()">EA</button>
+  </div>
+
+  <section id="welcome" class="screen active onboard">
+    <div class="onboard-logo">H</div>
+    <span class="badge">⚽ TEAM MANAGEMENT</span>
+    <h1 style="margin-top:18px">Tutta la tua squadra.<br>In un’unica app.</h1>
+    <p class="muted" style="margin-top:14px;line-height:1.55">Rosa, calendario, convocazioni, formazione e statistiche. Tutto semplice, veloce e sempre con te.</p>
+    <button class="primary" onclick="show('setup')">INIZIA ORA</button>
+  </section>
+
+  <section id="setup" class="screen">
+    <span class="badge">CONFIGURAZIONE RAPIDA</span>
+    <h1 style="margin-top:16px">Crea il tuo profilo</h1>
+    <p class="muted" style="margin-top:8px">Bastano pochi secondi.</p>
+    <div class="field"><label>NOME</label><input id="name" value="Enrico Ascoli"></div>
+    <div class="field"><label>SQUADRA</label><input id="team" value="Maccabi Roma"></div>
+    <div class="field"><label>RUOLO</label><select id="role"><option>Allenatore</option><option>Dirigente</option></select></div>
+    <button class="primary" onclick="startApp()">ENTRA NELLA SQUADRA</button>
+  </section>
+
+  <section id="home" class="screen">
+    <p class="muted small">STAGIONE 2026/27</p>
+    <h1 id="hello" style="margin:6px 0 18px">Ciao Enrico 👋</h1>
+
+    <div class="hero">
+      <span class="badge">PROSSIMA PARTITA</span>
+      <div class="team-row">
+        <div class="club"><div class="crest" id="homeCrest">MR</div><b id="homeTeamName">Maccabi Roma</b></div>
+        <div class="vs">VS</div>
+        <div class="club"><div class="crest">?</div><b>Da definire</b></div>
+      </div>
+      <div class="meta"><span>📅 Nessuna data</span><span>📍 Campo da definire</span></div><div id="homeSponsors" class="sponsor-strip"></div>
+    </div>
+
+    <div id="dashboardV07"></div>
+
+
+    <div class="section-head"><div><h2>Panoramica</h2><p class="muted small">Gestisci la squadra</p></div></div>
+    <div class="grid">
+      <button class="quick" onclick="show('squad')"><div class="quick-icon">👥</div><b>Rosa</b><span>28 giocatori</span></button>
+      <button class="quick" onclick="show('calendar')"><div class="quick-icon">📅</div><b>Calendario</b><span>Partite e allenamenti</span></button>
+      <button class="quick" onclick="alert('Convocazioni in arrivo nella prossima versione')"><div class="quick-icon">✅</div><b>Convocazioni</b><span>Disponibilità e assenze</span></button>
+    </div>
+
+    
+    <div class="section-head"><div><h2>Cloud personale · v5.0 Beta</h2><p class="muted small">Collegamento protetto a Supabase. Nessuna sincronizzazione automatica in questa fase.</p></div></div>
+    <button class="secondary full-btn" onclick="hmCloudOpen()">☁️ Gestisci sincronizzazione iPhone / PC</button>
+    <div class="section-head"><div><h2>Backup dati</h2><p class="muted small">Salva o ripristina la stagione prima degli aggiornamenti.</p></div></div>
+    <div class="grid">
+      <button class="quick" onclick="exportBackup()"><div class="quick-icon">⬇️</div><b>Esporta backup</b><span>Scarica tutti i dati</span></button>
+      <button class="quick" onclick="document.getElementById('backupFile').click()"><div class="quick-icon">⬆️</div><b>Importa backup</b><span>Ripristina un file</span></button>
+    </div>
+    <input id="backupFile" type="file" accept=".json,application/json" hidden onchange="importBackupFile(event)">
+
+<div class="section-head"><div><h2>Numeri squadra</h2></div></div>
+    <div class="stats">
+      <div class="stat"><strong>28</strong><span>Giocatori</span></div>
+      <div class="stat"><strong>0</strong><span>Partite</span></div>
+      <div class="stat"><strong>0</strong><span>Gol</span></div>
+    </div>
+  </section>
+
+  <section id="squad" class="screen">
+    <div class="page-title-actions">
+      <div>
+        <h1>La tua rosa</h1>
+        <p class="muted" style="margin-top:7px"><span id="rosterCount">0</span> membri nella squadra</p>
+      </div>
+      <button class="page-add-button" onclick="openAddPlayer()">＋ GIOCATORE</button>
+    </div>
+    <input id="search" class="search" placeholder="Cerca un giocatore..." oninput="renderPlayers()">
+    <div class="filters" id="filters">
+      <button class="filter active" data-role="Tutti" onclick="setFilter(this)">Tutti</button>
+      <button class="filter" data-role="Portiere" onclick="setFilter(this)">Portieri</button>
+      <button class="filter" data-role="Difensore" onclick="setFilter(this)">Difensori</button>
+      <button class="filter" data-role="Terzino" onclick="setFilter(this)">Terzini</button>
+      <button class="filter" data-role="Centrocampista" onclick="setFilter(this)">Centrocampisti</button>
+      <button class="filter" data-role="Attaccante" onclick="setFilter(this)">Attaccanti</button>
+    </div>
+    <div id="playerList" class="list"></div>
+  </section>
+
+  <section id="calendar" class="screen">
+    <div class="page-title-actions">
+      <div>
+        <h1>Calendario</h1>
+        <p class="muted" style="margin-top:7px">Partite, allenamenti e riunioni</p>
+      </div>
+      <button class="page-add-button" onclick="openAddEvent()">＋ EVENTO</button>
+    </div>
+    <div id="events" style="margin-top:18px"></div>
+  </section>
+<section id="tactical" class="screen">
+<div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.4.5 SEASON START</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
+<div class="formation-layout"><div>
+<div class="tactical-toolbar"><div class="field"><label>MODULO</label><select id="formationSelect" onchange="applyFormation(this.value)"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-3</option><option>4-3-1-2</option></select></div><div class="field"><label>RIEPILOGO</label><div class="lineup-counter" id="lineupCounter">0 titolari · 0 riserve</div></div></div>
+<div class="clean-pitch" id="cleanPitch"></div>
+<div class="lineup-actions"><button class="primary" onclick="saveMatchLineup()">SALVA FORMAZIONE</button><button class="secondary" onclick="clearMatchLineup()">SVUOTA</button></div>
+</div><div class="bench-panel"><div class="section-head"><div><h2>Panchina</h2><p class="muted small">I convocati non titolari finiscono automaticamente qui.</p></div></div><div id="reservesList" class="reserves-list"></div></div></div>
+</section>
+</main>
+
+<nav id="nav" class="bottom hidden">
+  <button id="nHome" onclick="show('home')"><b>⌂</b>Home</button>
+  <button id="nSquad" onclick="show('squad')"><b>👥</b>Rosa</button>
+  <button id="nCalendar" onclick="show('calendar')"><b>📅</b>Calendario</button>
+  <button onclick="alert('Statistiche in arrivo')"><b>📊</b>Statistiche</button>
+</nav>
+<div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
+
+<script src="js/team-logos.js"></script>
+<script src="js/app.js"></script>
+
+
+
+
+
+
+<section id="society" class="screen">
+  <div class="page-header modern-header">
+    <div>
+      <p class="eyebrow">IDENTITÀ DEL CLUB</p>
+      <h1>Società</h1>
+      <p class="muted">Tutti i dati del club in un unico posto.</p>
+    </div>
+    <button class="icon-action" onclick="openSocietyEditor()" aria-label="Modifica società">✎</button>
+  </div>
+
+  <div class="club-hero card-modern">
+    <div class="club-logo-large" id="clubLogoPreview">HM</div>
+    <div>
+      <p class="eyebrow">SQUADRA</p>
+      <h2 id="societyTeamName">Maccabi Roma</h2>
+      <p class="muted" id="societyFounded">Società sportiva dilettantistica</p>
+    </div>
+  </div>
+
+  <div class="modern-grid two">
+    <article class="card-modern">
+      <div class="section-head">
+        <div><p class="eyebrow">INFORMAZIONI GENERALI</p><h2>Dati societari</h2></div>
+      </div>
+      <div id="societyGeneral" class="info-list-modern"></div>
+    </article>
+
+    <article class="card-modern">
+      <div class="section-head">
+        <div><p class="eyebrow">CONTATTI E STAFF</p><h2>Riferimenti</h2></div>
+      </div>
+      <div id="societyContacts" class="info-list-modern"></div>
+    </article>
+  </div>
+
+  <article class="card-modern">
+    <div class="section-head">
+      <div><p class="eyebrow">NOTE</p><h2>Informazioni utili</h2></div>
+    </div>
+    <p id="societyNotes" class="muted">Nessuna nota inserita.</p>
+  </article>
+</section>
+
+
+<section id="matchDetails" class="screen match-details-screen">
+  <div class="match-details-top">
+    <button class="icon-action" onclick="show('calendar');renderEvents()">←</button>
+    <div>
+      <p class="eyebrow" id="matchCompetitionLabel">CAMPIONATO</p>
+      <h1>Scheda partita</h1>
+    </div>
+  </div>
+
+  <article class="match-hero-modern card-modern">
+    <div class="competition-pill" id="matchCompetition">Campionato</div>
+    <div class="match-teams-modern">
+      <div class="team-side">
+        <div class="mini-club-logo" id="matchHomeLogo">HM</div>
+        <strong id="matchHomeTeam">Maccabi Roma</strong>
+      </div>
+      <div class="match-score-main" id="matchMainScore">0 - 0</div>
+      <div class="team-side">
+        <div class="mini-club-logo opponent" id="matchAwayLogo">FC</div>
+        <strong id="matchAwayTeam">Avversario</strong>
+      </div>
+    </div>
+    <div class="match-meta-modern">
+      <span id="matchDate">Data</span>
+      <span id="matchTime">Ora</span>
+      <span id="matchVenue">Campo</span>
+    </div>
+  </article>
+
+  <article class="card-modern match-quick-summary">
+    <div class="section-head">
+      <div><p class="eyebrow">RIEPILOGO</p><h2>Partita</h2></div>
+    </div>
+    <div id="matchDirectSummary"></div>
+  </article>
+
+  <div class="match-page-actions">
+    <button class="secondary" onclick="renderMatchTab('manual')">✎ MODIFICA EVENTO</button>
+    <button class="danger-compact" onclick="deleteCurrentMatchV442()">🗑 ELIMINA</button>
+  </div>
+
+  <div class="match-tabs">
+    <button id="tabCallups" onclick="renderMatchTab('callups')">Convocati</button>
+    <button id="tabLineup" onclick="renderMatchTab('lineup')">Formazione</button>
+    <button id="tabLive" onclick="renderMatchTab('live')">Live Match</button>
+    <button id="tabManual" onclick="renderMatchTab('manual')">Statistiche</button>
+  </div>
+
+  <div id="matchTabContent" class="match-tab-content"></div>
+</section>
+
+<section id="liveMatch" class="screen">
+  <div class="live-topbar">
+    <div>
+      <p class="eyebrow">LIVE MATCH</p>
+      <h1 id="liveMatchTitle">Maccabi Roma vs Avversario</h1>
+    </div>
+    <button class="secondary compact-btn" onclick="exitLiveMatch()">← ESCI</button>
+  </div>
+
+  <div class="live-scoreboard">
+    <div class="live-team">
+      <div class="live-team-logo" id="liveHomeLogo"></div>
+      <span id="liveHomeName">Maccabi Roma</span>
+      <strong id="liveHomeScore">0</strong>
+    </div>
+    <div class="live-center">
+      <div id="livePhase" class="live-phase-badge">DA INIZIARE</div>
+      <div id="liveClock" class="live-clock">00:00</div>
+      <div id="livePeriodSettings" class="live-period-settings"></div>
+      <div class="live-controls" id="liveControls"></div>
+    </div>
+    <div class="live-team">
+      <div class="live-team-logo" id="liveAwayLogo"></div>
+      <span id="liveAwayName">Avversario</span>
+      <strong id="liveAwayScore">0</strong>
+    </div>
+  </div>
+
+  <div class="live-layout">
+    <div>
+      <div class="clean-pitch live-pitch" id="livePitch"></div>
+    </div>
+    <div class="live-side">
+      <div class="bench-panel">
+        <div class="section-head"><div><h2>Panchina</h2><p class="muted small">Tocca un giocatore in campo per effettuare il cambio.</p></div></div>
+        <div id="liveBench" class="reserves-list"></div>
+      </div>
+
+      <div class="bench-panel">
+        <div class="section-head"><div><h2>Eventi</h2><p class="muted small">Cronologia della partita.</p></div></div>
+        <div id="liveEvents" class="live-events-list"></div>
+        <button class="secondary full-btn" onclick="undoLastLiveEvent()">↶ ANNULLA ULTIMO EVENTO</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="bottom-nav">
+<button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
+<button onclick="show('squad');renderPlayers()"><span>♙</span>Rosa</button>
+<button onclick="show('calendar');renderEvents()"><span>▣</span>Calendario</button>
+<button onclick="showStats()"><span>▥</span>Statistiche</button>
+
+    <button onclick="show('society');renderSociety()" data-screen="society">
+      <span>🏛</span><small>Società</small>
+    </button>
+</div>
+
+
+<div id="hm-cloud-overlay" class="hm-cloud-overlay" hidden>
+ <div class="hm-cloud-panel" role="dialog" aria-modal="true" aria-label="Sincronizzazione Hank Manager">
+  <div class="hm-cloud-head"><h2>☁️ Hank Manager Cloud</h2><button type="button" onclick="hmCloudClose()" aria-label="Chiudi">✕</button></div>
+  <p class="muted small">Prima configurazione: usa l'iPhone che contiene le partite reali. Le operazioni cloud sono manuali e richiedono conferma.</p>
+  <label>Project URL Supabase</label><input id="hm-cloud-url" type="url" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off" spellcheck="false">
+  <label>Publishable key (pubblica)</label><input id="hm-cloud-key" type="text" spellcheck="false" autocomplete="off">
+  <label>Email del tuo account Supabase</label><input id="hm-cloud-email" type="email" autocomplete="username">
+  <label>Password del tuo account (non quella del database)</label><input id="hm-cloud-password" type="password" autocomplete="current-password">
+  <div class="hm-cloud-actions"><button type="button" onclick="hmCloudLogin()">Accedi</button><button type="button" onclick="hmCloudLogout()">Esci</button></div>
+  <p id="hm-cloud-status" role="status" class="muted small">Non collegato.</p>
+  <div class="hm-cloud-actions"><button type="button" onclick="hmCloudInspect()">1. Controlla archivio online</button><button type="button" onclick="exportBackup()">Esporta backup locale</button></div>
+  <div class="hm-cloud-actions"><button type="button" onclick="hmCloudUpload()">2. Carica dati di questo dispositivo</button><button type="button" onclick="hmCloudDownload()">3. Recupera dati online</button></div>
+  <div class="hm-cloud-actions"><label style="display:flex;align-items:center;gap:10px"><input id="hm-cloud-auto" type="checkbox" onchange="hmCloudToggleAuto(this.checked)"> <strong>Sincronizzazione automatica (Beta 2)</strong></label></div>
+  <p class="muted small">Attivala separatamente su iPhone e PC, solo quando il cloud e il dispositivo coincidono. Controllo ogni 20 secondi con blocco in caso di conflitto. Se usi l'app offline, verifica la connessione prima di cambiare dispositivo.</p>
+  <p class="muted small"><strong>Attenzione:</strong> il caricamento non cancella i dati locali; il recupero sostituisce i dati locali soltanto dopo backup e conferma. Non utilizzare due dispositivi contemporaneamente in questa versione.</p>
+ </div>
+</div>
+<script src="js/cloud.js"></script>
+</body>
+</html>
