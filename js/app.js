@@ -320,7 +320,7 @@ function renderSociety(){
   set('societyTeamName',s.name||state.profile?.team||'Maccabi Roma');
   set('societyFounded',s.founded?`Fondata nel ${s.founded}`:'Società sportiva dilettantistica');
   const logo=document.getElementById('clubLogoPreview');
-  if(logo){const name=s.name||state.profile?.team||'Maccabi Roma';logo.textContent=(name.match(/\b\w/g)||['H','M']).slice(0,2).join('').toUpperCase();}
+  if(logo){const name=s.name||state.profile?.team||'Maccabi Roma';setLogoElement(logo,name,true);}
   const row=(label,val)=>`<div class="info-row-modern"><span>${label}</span><strong>${escapeHtml(val||'—')}</strong></div>`;
   const g=document.getElementById('societyGeneral'); if(g)g.innerHTML=row('Denominazione',s.legalName||s.name||state.profile?.team)+row('Categoria',s.category)+row('Girone',s.group)+row('Campo',s.homeGround)+row('Indirizzo',s.address)+row('Colori',s.colors);
   const c=document.getElementById('societyContacts'); if(c)c.innerHTML=row('Presidente',s.president)+row('Allenatore',s.coach)+row('Vice allenatore',s.assistantCoach)+row('Dirigente',s.manager)+row('Telefono',s.phone)+row('Email',s.email);
@@ -528,11 +528,8 @@ function addEvent(){
 }
 function renderEvents(){
   const team=state.profile?.team||'Maccabi Roma';
-  const teamLogo=state.branding?.logo||'';
   const arr=[...state.events].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-  const logoHtml=teamLogo
-    ? `<img class="team-logo-mini" src="${teamLogo}" alt="${team}">`
-    : `<div class="team-badge-mini">${initials(team)}</div>`;
+  const logoHtml=logoImgMarkup(team,getClubLogo(),'team-badge-mini');
   events.innerHTML=arr.length?arr.map(e=>{
     if(e.type!=='Partita')return `<div class="match-card clickable" onclick="openEventCenter(${e.id})"><div class="match-top"><span class="comp">${e.type}</span></div><div class="teams-line">${e.type}</div><div class="match-info">📅 ${formatDate(e.date)} ${e.time||''}<br>📍 ${e.venue||'Luogo da definire'}</div></div>`;
     const comp=e.competition==='Personalizza'?(e.customCompetition||'Personalizzata'):e.competition;
@@ -540,11 +537,11 @@ function renderEvents(){
     const home=isAway?e.opponent:team;
     const away=isAway?team:e.opponent;
     const homeVisual=isAway
-      ? `<div class="team-badge-mini">${initials(home)}</div>`
+      ? logoImgMarkup(home,getOpponentLogo(home),'team-badge-mini')
       : logoHtml;
     const awayVisual=isAway
       ? logoHtml
-      : `<div class="team-badge-mini">${initials(away)}</div>`;
+      : logoImgMarkup(away,getOpponentLogo(away),'team-badge-mini');
     const outcome=matchOutcomeLabel(e,team);
     const outcomeClass=outcome==='Vittoria'?'result-win':outcome==='Sconfitta'?'result-loss':outcome==='Pareggio'?'result-draw':'result-pending';
     return `<div class="match-card clickable ${outcomeClass}" onclick="openMatchDetails(${e.id})">
@@ -567,7 +564,6 @@ function renderNextMatch(){
   const next=matches.find(e=>e.date>=today)||matches[0];
   if(!next)return;
   const team=state.profile?.team||'Maccabi Roma';
-  const teamLogo=state.branding?.logo||'';
   const isAway=next.homeAway==='Trasferta';
   const home=isAway?next.opponent:team;
   const away=isAway?team:next.opponent;
@@ -575,18 +571,8 @@ function renderNextMatch(){
   if(clubs.length>=2){
     clubs[0].querySelector('b').textContent=home;
     clubs[1].querySelector('b').textContent=away;
-    const homeCrest=clubs[0].querySelector('.crest');
-    const awayCrest=clubs[1].querySelector('.crest');
-    if(!isAway && teamLogo){
-      homeCrest.innerHTML=`<img src="${teamLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
-    }else{
-      homeCrest.textContent=initials(home);
-    }
-    if(isAway && teamLogo){
-      awayCrest.innerHTML=`<img src="${teamLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
-    }else{
-      awayCrest.textContent=initials(away);
-    }
+    setLogoElement(clubs[0].querySelector('.crest'),home,!isAway);
+    setLogoElement(clubs[1].querySelector('.crest'),away,isAway);
   }
   const meta=document.querySelector('.hero .meta');
   if(meta)meta.innerHTML=`<span>📅 ${formatDate(next.date)} ${next.time||''}</span><span>📍 ${next.venue}</span>`;
@@ -632,9 +618,9 @@ function openMatchCenter(id){
     <div class="match-page-shell">
       <div class="match-summary-hero">
         <div class="match-teams-row">
-          <div class="match-team-side">${!isAway?clubLogoHtml(team):`<div class="match-logo-round">${initials(home)}</div>`}<strong>${escapeHtml(home)}</strong></div>
+          <div class="match-team-side">${!isAway?clubLogoHtml(team):logoImgMarkup(home,getOpponentLogo(home))}<strong>${escapeHtml(home)}</strong></div>
           <div class="match-score-big">${e.homeScore!==''?e.homeScore:0} - ${e.awayScore!==''?e.awayScore:0}</div>
-          <div class="match-team-side">${isAway?clubLogoHtml(team):`<div class="match-logo-round">${initials(away)}</div>`}<strong>${escapeHtml(away)}</strong></div>
+          <div class="match-team-side">${isAway?clubLogoHtml(team):logoImgMarkup(away,getOpponentLogo(away))}<strong>${escapeHtml(away)}</strong></div>
         </div>
         <div class="match-meta-strip"><span>${formatDate(e.date)}</span><span>${e.time||'Ora da definire'}</span><span>${escapeHtml(e.venue||'Campo da definire')}</span></div>
       </div>
@@ -786,12 +772,28 @@ function deleteEvent(id){
 function escapeHtml(value){
   return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 }
+// Read-only logos: a Maccabi asset bundled with this release + official EIFA URLs.
+// The onerror fallback shows initials if a remote logo is unavailable.
+function logoImgMarkup(name,url,kind='match-logo-round'){
+  const label=escapeHtml(name||'Squadra');
+  const fallback=escapeHtml(initials(name||'?'));
+  if(!url)return `<span class="${kind} crest-no-image">${fallback}</span>`;
+  return `<span class="${kind} logo-with-image"><img src="${escapeHtml(url)}" alt="Logo ${label}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="logo-fallback-text" hidden>${fallback}</span></span>`;
+}
+function getOpponentLogo(name){return hankOpponentLogoUrl(name)}
+function getAnyTeamLogo(name,isClub){return isClub?getClubLogo():getOpponentLogo(name)}
+function setLogoElement(element,name,isClub){
+  if(!element)return;
+  const url=getAnyTeamLogo(name,isClub);
+  const fallback=escapeHtml(initials(name||'?'));
+  element.innerHTML=url?`<img src="${escapeHtml(url)}" alt="Logo ${escapeHtml(name)}" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="logo-fallback-text" hidden>${fallback}</span>`:fallback;
+}
 function openBranding(){
   const sponsors=state.branding.sponsors||[];
   sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">IDENTITÀ SQUADRA</p><h2>Logo e sponsor</h2></div><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="logo-preview" id="logoPreview">${state.branding.logo?`<img src="${state.branding.logo}">`:'MR'}</div>
-  <div class="field"><label>LOGO DELLA SOCIETÀ</label><input id="logoInput" type="file" accept="image/*" onchange="loadTeamLogo(this)"></div>
-  ${state.branding.logo?`<button class="mini-danger" style="width:100%;margin-bottom:14px" onclick="removeTeamLogo()">RIMUOVI LOGO SOCIETÀ</button>`:''}
+  <div class="logo-preview" id="logoPreview"><img src="${escapeHtml(getClubLogo())}" alt="Logo Maccabi Roma"></div>
+  <div class="field"><label>LOGO DELLA SOCIETÀ</label><p class="muted small">Lo stemma Maccabi scelto è già incluso. Puoi sostituirlo caricando un altro file.</p><input id="logoInput" type="file" accept="image/*" onchange="loadTeamLogo(this)"></div>
+  ${state.branding.logo?`<button class="mini-danger" style="width:100%;margin-bottom:14px" onclick="removeTeamLogo()">RIPRISTINA LOGO MACCABI</button>`:''}
   <div class="section-head"><div><h2>Sponsor</h2><p class="muted small">Puoi inserirne più di uno</p></div></div>
   <div class="field"><label>NOME SPONSOR</label><input id="sponsorName"></div>
   <div class="field"><label>LOGO SPONSOR</label><input id="sponsorLogo" type="file" accept="image/*"></div>
@@ -822,8 +824,7 @@ function removeSponsor(i){state.branding.sponsors.splice(i,1);save();openBrandin
 function renderBranding(){
   const team=state.profile?.team||'Maccabi Roma';
   document.getElementById('homeTeamName').textContent=team;
-  if(state.branding.logo)document.getElementById('homeCrest').innerHTML=`<img src="${state.branding.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:20px">`;
-  else document.getElementById('homeCrest').textContent=initials(team);
+  setLogoElement(document.getElementById('homeCrest'),team,true);
   document.getElementById('homeSponsors').innerHTML=(state.branding.sponsors||[]).map(s=>`<div class="sponsor-chip">${s.logo?`<img src="${s.logo}">`:''}<span class="small">${s.name}</span></div>`).join('');
 }
 
@@ -1239,6 +1240,8 @@ function renderLiveMatch(){
   document.getElementById('liveMatchTitle').textContent=teamAway?`${e.opponent} vs ${team}`:`${team} vs ${e.opponent}`;
   document.getElementById('liveHomeName').textContent=teamAway?e.opponent:team;
   document.getElementById('liveAwayName').textContent=teamAway?team:e.opponent;
+  setLogoElement(document.getElementById('liveHomeLogo'),teamAway?e.opponent:team,!teamAway);
+  setLogoElement(document.getElementById('liveAwayLogo'),teamAway?team:e.opponent,teamAway);
   document.getElementById('liveHomeScore').textContent=l.homeScore||0;
   document.getElementById('liveAwayScore').textContent=l.awayScore||0;
   document.getElementById('liveClock').textContent=liveClockTextV44(e);
@@ -1644,8 +1647,7 @@ function getCurrentMatchDetails(){
 }
 function setMatchLogoV432(elementId,isClub,name){
   const el=document.getElementById(elementId);if(!el)return;
-  const logo=isClub?getClubLogo():'';
-  el.innerHTML=logo?`<img src="${logo}" alt="Logo ${escapeHtml(name)}" style="width:100%;height:100%;object-fit:contain">`:initials(name);
+  setLogoElement(el,name,isClub);
 }
 function renderMatchDetails(){
   const e=getCurrentMatchDetails();if(!e)return;
@@ -1974,12 +1976,10 @@ function openCurrentMatchLive(){
 function openCurrentMatchManualStats(){renderMatchTab('manual')}
 
 function getClubLogo(){
-  return state.branding?.logo||state.society?.logo||'';
+  return state.branding?.logo||state.society?.logo||HANK_DEFAULT_CLUB_LOGO;
 }
 function clubLogoHtml(teamName){
-  const logo=getClubLogo();
-  if(logo)return `<div class="match-logo-round"><img src="${logo}" alt="Logo ${escapeHtml(teamName)}"></div>`;
-  return `<div class="match-logo-round">${initials(teamName)}</div>`;
+  return logoImgMarkup(teamName,getClubLogo());
 }
 function getMatchParticipants(e){
   const ids=new Set();

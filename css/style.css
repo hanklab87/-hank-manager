@@ -939,3 +939,19 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 
 /* Hank Cloud beta */
 .hm-cloud-overlay[hidden]{display:none!important}.hm-cloud-overlay{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.8);overflow-y:auto;padding:20px 12px;display:flex;align-items:flex-start;justify-content:center}.hm-cloud-panel{background:#102034;color:#fff;border:1px solid #456078;border-radius:16px;padding:20px;width:min(560px,100%);margin:auto 0;box-shadow:0 20px 70px #0009}.hm-cloud-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.hm-cloud-head h2{margin:0}.hm-cloud-head button{background:transparent;border:0;color:#fff;font-size:24px}.hm-cloud-panel label{display:block;margin-top:14px;margin-bottom:5px;font-size:13px;font-weight:600}.hm-cloud-panel input{display:block;width:100%;box-sizing:border-box;border-radius:8px;padding:12px;background:#fff;color:#111;border:1px solid #aaa;font-size:16px}.hm-cloud-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.hm-cloud-actions button{flex:1 1 170px;padding:12px 10px;border-radius:8px;border:1px solid #7296b4;background:#1c405d;color:#fff;font-weight:600}.hm-cloud-panel #hm-cloud-status{white-space:pre-line;line-height:1.5;margin-top:14px}
+
+/* Maccabi Roma and EIFA opponent crests (v5.0 logos): display only. */
+.crest,.club-logo-large,.mini-club-logo,.team-badge-mini,.match-logo-round,.live-team-logo{overflow:hidden}
+.crest img,.club-logo-large img,.mini-club-logo img,.team-badge-mini img,.match-logo-round img,.live-team-logo img{width:100%;height:100%;object-fit:contain;display:block}
+.crest,.club-logo-large,.mini-club-logo,.team-badge-mini,.match-logo-round,.live-team-logo{background:#fff;color:#18304a}
+.logo-with-image{display:grid;place-items:center}
+.logo-fallback-text{font-weight:900;color:#18304a;font-size:inherit}
+.team-badge-mini{display:grid;place-items:center;border:1px solid rgba(255,255,255,.25)}
+.team-with-logo{min-width:0}
+.team-with-logo strong{min-width:0;overflow-wrap:anywhere}
+.club-logo-large{flex:0 0 92px}
+.live-team-logo{width:46px;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;margin:0 auto 6px;font-size:12px}
+.live-team{min-width:0}
+
+/* Honor the loading-error fallback over component image display rules. */
+.crest img[hidden],.club-logo-large img[hidden],.mini-club-logo img[hidden],.team-badge-mini img[hidden],.match-logo-round img[hidden],.live-team-logo img[hidden]{display:none!important}
