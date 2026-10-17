@@ -1,0 +1,29 @@
+HANK MANAGER - STATISTICHE: STILE UNIFICATO FILTRI - 17/10/2026
+
+AGGIORNAMENTO GRAFICO
+- Il selettore Competizione ha lo stesso aspetto del filtro Ruolo.
+- Il selettore Giocatore in «Andamento giocatore» ha lo stesso aspetto del filtro Ruolo.
+- Il selettore Ruolo mantiene stile, filtri e selezione già esistenti.
+- I filtri per ruolo e competizione, gli ordinamenti e le statistiche restano invariati.
+- Nuova versione della cache del service worker per aggiornare anche su iPhone.
+
+FILE MODIFICATI
+- js/app.js
+- css/style.css
+- service-worker.js
+
+INSTALLAZIONE (GitHub Desktop)
+1. Esportare e conservare un backup JSON aggiornato di Hank Manager.
+2. Estrarre lo ZIP.
+3. Copiare i file di questo pacchetto nella RADICE del repository locale:
+   - la cartella js (contiene solo app.js)
+   - la cartella css (contiene solo style.css)
+   - il file service-worker.js
+   Sostituire i file omonimi quando richiesto.
+   NON incollare la cartella che contiene tutti questi file.
+4. In GitHub Desktop controllare che risultino modificati SOLO i tre file sopra.
+5. Commit e Push origin; attendere la distribuzione su Vercel.
+6. Aggiornare la pagina dell'app (Ctrl+F5 sul PC) e riaprire l'app sull'iPhone.
+
+NON importare o sostituire backup e NON usare Carica dati / Recupera dati online
+come parte dell'installazione; questo aggiornamento modifica solo il codice.

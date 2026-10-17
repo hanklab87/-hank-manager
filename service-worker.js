@@ -1,4 +1,4 @@
-const CACHE='hank-manager-v506-role-stats';
+const CACHE='hank-manager-v507-stats-select-unified';
 const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./manifest.json','./js/cloud.js','./js/team-logos.js','./assets/logos/maccabi-roma.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));

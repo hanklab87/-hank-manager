@@ -2158,7 +2158,7 @@ function filteredFinishedMatchesV4410(){
  return state.events.filter(e=>e.status==='Terminata'&&(currentStatsCompetition==='all'||matchCompetitionV4410(e)===currentStatsCompetition));
 }
 function statsCompetitionSelectorV4410(mode){
- return `<div class="match-section-card"><label for="statsComp4410"><strong>Competizione</strong></label><select id="statsComp4410" onchange="currentStatsCompetition=this.value;${mode==='team'?'renderTeamStatisticsV434()':"renderStatisticsV43(currentStatsTabV43)"}">
+ return `<div class="match-section-card stats-selector-v507"><label for="statsComp4410"><strong>Competizione</strong></label><select id="statsComp4410" onchange="currentStatsCompetition=this.value;${mode==='team'?'renderTeamStatisticsV434()':"renderStatisticsV43(currentStatsTabV43)"}">
  ${[['all','Tutte le competizioni'],['league','Serie A d’Élite'],['champions','Super Champions'],['other','Coppe e tornei']].map(([v,t])=>`<option value="${v}" ${currentStatsCompetition===v?'selected':''}>${t}</option>`).join('')}</select></div>`;
 }
 // Filtri di sola visualizzazione: non sono salvati nello stato dell'app e non modificano Supabase.
@@ -2183,7 +2183,7 @@ function playerMatchesStatsRoleV506(p){
 function statsRoleSelectorV506(count){
   const roles=statsRolesV506();
   if(currentStatsRoleV506!=='all'&&!roles.includes(currentStatsRoleV506))currentStatsRoleV506='all';
-  return `<div class="match-section-card stats-role-filter-v506">
+  return `<div class="match-section-card stats-role-filter-v506 stats-selector-v507">
     <label for="statsRoleV506"><strong>Ruolo</strong></label>
     <select id="statsRoleV506" onchange="currentStatsRoleV506=this.value;renderStatisticsV43(currentStatsTabV43)">
       <option value="all" ${currentStatsRoleV506==='all'?'selected':''}>Tutti i ruoli</option>
@@ -2305,7 +2305,7 @@ function playerTrendV4411(){
  const pid=trendPlayerV4411;
  const games=[...filteredFinishedMatchesV4410()].filter(e=>e.type==='Partita'&&e.ratings&&e.ratings[pid]!==undefined&&e.ratings[pid]!==''&&Number.isFinite(Number(e.ratings[pid]))).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
  const recent=games.slice(0,5),avg=a=>(a.reduce((n,e)=>n+Number(e.ratings[pid]),0)/a.length).toFixed(2);
- return `<div class="match-section-card"><h3>Andamento giocatore · ultime 5 presenze con voto</h3><select onchange="trendPlayerV4411=Number(this.value);renderStatisticsV43(currentStatsTabV43)">${players.map(p=>`<option value="${Number(p.id)}" ${Number(p.id)===pid?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}</select>${recent.length?`<p class="muted small">Media ultime ${recent.length}: <strong>${avg(recent)}</strong> · Media stagionale: <strong>${avg(games)}</strong></p><div class="stats-ranking">${recent.map(e=>`<div class="stats-row"><div><strong>${escapeHtml(e.opponent||'Avversario')}</strong><small>${escapeHtml(formatDate(e.date))}</small></div><div class="stats-value">${Number(e.ratings[pid]).toFixed(1)}</div></div>`).join('')}</div>`:'<p class="muted small">Nessun voto disponibile.</p>'}</div>`;
+ return `<div class="match-section-card stats-selector-v507 stats-trend-selector-v507"><h3>Andamento giocatore · ultime 5 presenze con voto</h3><label for="statsTrendPlayerV507"><strong>Giocatore</strong></label><select id="statsTrendPlayerV507" onchange="trendPlayerV4411=Number(this.value);renderStatisticsV43(currentStatsTabV43)">${players.map(p=>`<option value="${Number(p.id)}" ${Number(p.id)===pid?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}</select>${recent.length?`<p class="muted small">Media ultime ${recent.length}: <strong>${avg(recent)}</strong> · Media stagionale: <strong>${avg(games)}</strong></p><div class="stats-ranking">${recent.map(e=>`<div class="stats-row"><div><strong>${escapeHtml(e.opponent||'Avversario')}</strong><small>${escapeHtml(formatDate(e.date))}</small></div><div class="stats-value">${Number(e.ratings[pid]).toFixed(1)}</div></div>`).join('')}</div>`:'<p class="muted small">Nessun voto disponibile.</p>'}</div>`;
 }
 function teamStatisticsV434(){
   const team=state.profile?.team||state.society?.name||'Maccabi Roma';

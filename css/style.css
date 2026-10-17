@@ -957,7 +957,10 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 .crest img[hidden],.club-logo-large img[hidden],.mini-club-logo img[hidden],.team-badge-mini img[hidden],.match-logo-round img[hidden],.live-team-logo img[hidden]{display:none!important}
 
 /* v5.0.6 — Filtro ruolo nelle statistiche giocatori */
-.stats-role-filter-v506{display:grid;gap:7px}
-.stats-role-filter-v506 label{font-size:12px}
-.stats-role-filter-v506 select{width:100%;max-width:420px;min-height:42px;border:1px solid var(--line);border-radius:10px;background:#08121a;color:var(--text);padding:9px 12px;font:inherit}
+/* v5.0.7 — Competizione, Ruolo e Andamento giocatore: stesso stile del filtro Ruolo. */
+.stats-selector-v507{display:grid;gap:7px}
+.stats-selector-v507 label{font-size:12px}
+.stats-selector-v507 select{display:block;width:100%;max-width:420px;min-height:42px;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;background:#08121a;color:var(--text);padding:9px 12px;font:inherit}
+.stats-selector-v507 select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.stats-trend-selector-v507 h3{margin-bottom:2px}
 .stats-role-count-v506{margin:0}
