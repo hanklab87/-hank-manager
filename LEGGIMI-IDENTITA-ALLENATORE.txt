@@ -1,0 +1,26 @@
+HANK MANAGER — IDENTITÀ ALLENATORE (v5.1)
+
+Aggiornamento incrementale basato sulla correzione Società e Stagione (v5.0.9).
+
+COSA CAMBIA
+- Tocca le iniziali in alto a destra (EA): compare la scheda Identità allenatore.
+- Nome, cognome, data di nascita, numero tesserino (anche alfanumerico), ruolo.
+- Il saluto della Home e le iniziali cambiano subito dopo il salvataggio e al successivo avvio.
+- Restano disponibili nella stessa finestra Identità squadra, logo e sponsor.
+- Il profilo resta nel normale campo state.profile ed è incluso nel backup JSON e nella sincronizzazione esistente.
+- Restano tutte le correzioni alla pagina Società, inclusa Stagione 2026/27.
+
+FILE DA COPIARE NELLA CARTELLA PRINCIPALE DEL REPOSITORY (NON IN UNA SOTTOCARTELLA)
+index.html
+js/app.js
+css/style.css
+service-worker.js
+
+IMPORTANTE
+1. Esportare il backup JSON prima dell'aggiornamento e conservarlo fuori dall'app.
+2. Copiare i file nella cartella principale del repository GitHub sul PC, mantenendo le relative sottocartelle css e js.
+3. Controllare le modifiche in GitHub Desktop, eseguire Commit e Push origin.
+4. Verificare le nuove iniziali e il saluto dopo aver modificato il nome.
+5. Non importare backup vecchi sull'app senza prima verificare la differenza: potrebbero sovrascrivere modifiche recenti.
+
+Il pacchetto non contiene dati personali, giocatori, partite, configurazioni Supabase o chiavi di accesso.

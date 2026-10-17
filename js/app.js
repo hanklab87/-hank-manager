@@ -307,7 +307,7 @@ function show(id){
   nav.classList.toggle('hidden',!inside);
   document.body.classList.toggle('detail-open',['matchDetails','tactical','liveMatch'].includes(id));
   document.querySelectorAll('.bottom button,.bottom-nav button').forEach(b=>b.classList.remove('active'));
-  if(id==='home'){nHome?.classList.add('active');renderBranding();renderNextMatch();renderDashboard();}
+  if(id==='home'){nHome?.classList.add('active');updateCoachIdentityUI();renderBranding();renderNextMatch();renderDashboard();}
   if(id==='tactical'){renderTacticalBoard();}
   if(id==='squad'){nSquad?.classList.add('active');renderPlayers()}
   if(id==='calendar'){nCalendar?.classList.add('active');renderEvents()}
@@ -361,9 +361,9 @@ function saveSocietyEditor(){
 function startApp(){
   const n=document.getElementById('name').value.trim()||'Enrico Ascoli';
   const t=document.getElementById('team').value.trim()||'Maccabi Roma';
-  state.profile={name:n,team:t,role:document.getElementById('role').value};
+  state.profile={...(state.profile||{}),name:n,team:t,role:document.getElementById('role').value};
   save();
-  hello.textContent='Ciao '+n.split(' ')[0]+' 👋';
+  updateCoachIdentityUI();
   show('home');
 }
 function setFilter(btn){
@@ -803,9 +803,73 @@ function setLogoElement(element,name,isClub){
   const fallback=escapeHtml(initials(name||'?'));
   element.innerHTML=url?`<img src="${escapeHtml(url)}" alt="Logo ${escapeHtml(name)}" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="logo-fallback-text" hidden>${fallback}</span>`:fallback;
 }
+// Identità dell'allenatore: compatibile con i vecchi backup (profile.name).
+// Nessuna migrazione automatica: i dati vengono modificati solo quando premi Salva.
+function coachIdentityV510(){
+  const p=state.profile||{};
+  const parts=String(p.name||'').trim().split(/\s+/).filter(Boolean);
+  const firstName=String(p.firstName||'').trim()||parts[0]||'';
+  const lastName=String(p.lastName||'').trim()||parts.slice(1).join(' ');
+  return {
+    firstName,
+    lastName,
+    birthDate:String(p.birthDate||''),
+    membershipNumber:String(p.membershipNumber??p.cardNumber??''),
+    role:String(p.role||'Allenatore')
+  };
+}
+function updateCoachIdentityUI(){
+  if(!state.profile)return;
+  const coach=coachIdentityV510();
+  const greeting=document.getElementById('hello');
+  if(greeting)greeting.textContent='Ciao '+(coach.firstName||'Allenatore')+' 👋';
+  const avatar=document.getElementById('coachProfileButton');
+  if(avatar){
+    const a=coach.firstName.charAt(0),b=coach.lastName.charAt(0);
+    avatar.textContent=(a+b).toLocaleUpperCase('it-IT')||'?';
+    avatar.setAttribute('aria-label','Apri il profilo di '+[coach.firstName,coach.lastName].filter(Boolean).join(' '));
+    avatar.title=[coach.firstName,coach.lastName].filter(Boolean).join(' ')||'Identità allenatore';
+  }
+}
+function saveCoachIdentityV510(){
+  const firstName=document.getElementById('coachFirstNameV510')?.value.trim()||'';
+  const lastName=document.getElementById('coachLastNameV510')?.value.trim()||'';
+  const birthDate=document.getElementById('coachBirthDateV510')?.value||'';
+  const membershipNumber=document.getElementById('coachMemberNumberV510')?.value.trim()||'';
+  const role=document.getElementById('coachRoleV510')?.value||'Allenatore';
+  if(!firstName){alert('Inserisci il nome dell’allenatore.');return;}
+  if(birthDate&&!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)){
+    alert('Controlla la data di nascita.');return;
+  }
+  // Manteniamo profile.name per compatibilità con saluto, backup e sincronizzazione.
+  state.profile={...(state.profile||{}),firstName,lastName,name:[firstName,lastName].filter(Boolean).join(' '),birthDate,membershipNumber,role};
+  save();
+  updateCoachIdentityUI();
+  openBranding();
+}
 function openBranding(){
   const sponsors=state.branding.sponsors||[];
-  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">IDENTITÀ SQUADRA</p><h2>Logo e sponsor</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  const coach=coachIdentityV510();
+  const roles=['Allenatore','Dirigente'];
+  if(coach.role&&!roles.includes(coach.role))roles.push(coach.role);
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">HANK MANAGER</p><h2>Profilo e identità</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+  <section class="coach-identity-card" aria-label="Identità allenatore">
+    <div class="coach-identity-heading">
+      <span class="coach-identity-avatar" aria-hidden="true">${escapeHtml((coach.firstName.charAt(0)+coach.lastName.charAt(0)).toLocaleUpperCase('it-IT')||'?')}</span>
+      <div><p class="muted small">IDENTITÀ ALLENATORE</p><h3>${escapeHtml([coach.firstName,coach.lastName].filter(Boolean).join(' ')||'Il tuo profilo')}</h3><p class="muted small">${escapeHtml(coach.role)}</p></div>
+    </div>
+    <div class="coach-identity-fields">
+      <div class="field"><label for="coachFirstNameV510">NOME</label><input id="coachFirstNameV510" type="text" autocomplete="given-name" value="${escapeHtml(coach.firstName)}" maxlength="80"></div>
+      <div class="field"><label for="coachLastNameV510">COGNOME</label><input id="coachLastNameV510" type="text" autocomplete="family-name" value="${escapeHtml(coach.lastName)}" maxlength="100"></div>
+      <div class="field"><label for="coachBirthDateV510">DATA DI NASCITA</label><input id="coachBirthDateV510" type="date" autocomplete="bday" value="${escapeHtml(coach.birthDate)}"></div>
+      <div class="field"><label for="coachMemberNumberV510">NUMERO TESSERINO</label><input id="coachMemberNumberV510" type="text" inputmode="text" autocomplete="off" placeholder="Es. 001234" value="${escapeHtml(coach.membershipNumber)}" maxlength="80"></div>
+      <div class="field coach-identity-role"><label for="coachRoleV510">RUOLO</label><select id="coachRoleV510">${roles.map(r=>`<option value="${escapeHtml(r)}" ${r===coach.role?'selected':''}>${escapeHtml(r)}</option>`).join('')}</select></div>
+    </div>
+    <button class="primary coach-save-button" type="button" onclick="saveCoachIdentityV510()">SALVA DATI ALLENATORE</button>
+    <p class="muted small coach-identity-help">Il nome aggiorna il saluto nella Home e le iniziali del pulsante in alto. I dati vengono conservati nel backup e sincronizzati tramite il sistema già presente.</p>
+  </section>
+  <section class="coach-club-section" aria-label="Identità squadra e sponsor">
+  <div class="section-head"><div><p class="muted small">IDENTITÀ SQUADRA</p><h2>Logo e sponsor</h2></div></div>
   <div class="logo-preview" id="logoPreview"><img src="${escapeHtml(getClubLogo())}" alt="Logo Maccabi Roma"></div>
   <div class="field"><label>LOGO DELLA SOCIETÀ</label><p class="muted small">Lo stemma Maccabi scelto è già incluso. Puoi sostituirlo caricando un altro file.</p><input id="logoInput" type="file" accept="image/*" onchange="loadTeamLogo(this)"></div>
   ${state.branding.logo?`<button class="mini-danger" style="width:100%;margin-bottom:14px" onclick="removeTeamLogo()">RIPRISTINA LOGO MACCABI</button>`:''}
@@ -813,8 +877,11 @@ function openBranding(){
   <div class="field"><label>NOME SPONSOR</label><input id="sponsorName"></div>
   <div class="field"><label>LOGO SPONSOR</label><input id="sponsorLogo" type="file" accept="image/*"></div>
   <button class="primary" onclick="addSponsor()">AGGIUNGI SPONSOR</button>
-  <div class="list">${sponsors.map((s,i)=>`<div class="player"><div class="player-left">${s.logo?`<img src="${s.logo}" style="width:42px;height:42px;object-fit:contain;background:white;border-radius:10px">`:''}<div><div class="pname">${s.name}</div><div class="prole">Sponsor</div></div></div><button class="mini-danger" onclick="removeSponsor(${i})">Elimina</button></div>`).join('')}</div>`;
+  <div class="list">${sponsors.map((s,i)=>`<div class="player"><div class="player-left">${s.logo?`<img src="${s.logo}" style="width:42px;height:42px;object-fit:contain;background:white;border-radius:10px">`:''}<div><div class="pname">${escapeHtml(s.name)}</div><div class="prole">Sponsor</div></div></div><button class="mini-danger" onclick="removeSponsor(${i})">Elimina</button></div>`).join('')}</div>
+  </section>`;
   modal.classList.add('open');
+  document.body.style.overflow='hidden';
+  sheet.scrollTop=0;
 }
 function loadTeamLogo(input){
   const file=input.files[0];if(!file)return;
@@ -2430,7 +2497,7 @@ function importBackupFile(event){
 
 function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
 function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
-if(state.profile){hello.textContent='Ciao '+state.profile.name.split(' ')[0]+' 👋';show('home');renderBranding();renderNextMatch();renderDashboard()}
+if(state.profile){updateCoachIdentityUI();show('home');renderBranding();renderNextMatch();renderDashboard()}
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 }

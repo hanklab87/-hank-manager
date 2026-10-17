@@ -1012,3 +1012,20 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
   #society .society-identity-card{gap:10px}
   #society .society-identity-copy h2{font-size:19px}
 }
+
+
+/* v5.1: identità allenatore nel pannello EA; non modifica le altre schermate. */
+.coach-identity-card{background:linear-gradient(145deg,rgba(69,228,107,.09),rgba(16,31,51,.86));border:1px solid rgba(69,228,107,.2);border-radius:20px;padding:16px;margin:14px 0 18px}
+.coach-identity-heading{display:flex;align-items:center;gap:12px;margin-bottom:13px;min-width:0}
+.coach-identity-heading>div{min-width:0}
+.coach-identity-heading h3{font-size:19px;line-height:1.2;overflow-wrap:anywhere;margin:5px 0}
+.coach-identity-avatar{flex:0 0 52px;width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(145deg,#193757,#0d223a);border:1px solid rgba(69,228,107,.35);color:#b7f7c5;font-size:20px;font-weight:900;letter-spacing:.04em}
+.coach-identity-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+.coach-identity-fields .field{min-width:0;margin:8px 0}
+.coach-identity-fields input,.coach-identity-fields select{width:100%;min-width:0}
+.coach-identity-role{grid-column:1/-1}
+.coach-save-button{width:100%;margin-top:10px}
+.coach-identity-help{margin-top:12px;line-height:1.5}
+.coach-club-section{border-top:1px solid var(--line);padding-top:4px}
+.coach-club-section>.section-head{margin-top:12px}
+@media(max-width:380px){.coach-identity-fields{grid-template-columns:1fr}.coach-identity-role{grid-column:auto}}

@@ -1,4 +1,4 @@
-const CACHE='hank-manager-v509-society-clean-fix';
+const CACHE='hank-manager-v510-coach-identity';
 const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./manifest.json','./js/cloud.js','./js/team-logos.js','./assets/logos/maccabi-roma.png','./assets/brand/icon-192.png','./assets/brand/icon-512.png','./assets/brand/apple-touch-icon.png','./assets/brand/favicon-32.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
