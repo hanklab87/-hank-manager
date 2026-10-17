@@ -7,6 +7,9 @@
 <title>Hank Manager</title>
 <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon.png">
   <meta name="theme-color" content="#07121f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,12 +18,19 @@
 <body>
 <main class="app">
   <div id="topbar" class="topbar hidden">
-    <div class="brand"><div class="logo">H</div><div><div class="brand-title"><span class="brand-lockup"><span class="brand-mark">HM</span><span>HANK <b>MANAGER</b></span></span></div><div class="brand-sub">MACCABI ROMA · 4.0</div></div></div>
-    <button class="profile" onclick="openBranding()">EA</button>
+    <div class="brand hm-header-brand">
+      <img class="hm-header-icon" src="assets/brand/icon-192.png" alt="Logo HM di Hank Manager" width="68" height="68">
+      <div class="hm-header-wordmark">
+        <div class="hm-header-hank">HANK</div>
+        <div class="hm-header-manager">MANAGER</div>
+        <div class="hm-header-tagline">GESTISCI. ALLENA. VINCI.</div>
+      </div>
+    </div>
+    <button class="profile" onclick="openBranding()" aria-label="Apri profilo e identità squadra">EA</button>
   </div>
 
   <section id="welcome" class="screen active onboard">
-    <div class="onboard-logo">H</div>
+    <img class="hm-onboard-brand" src="assets/brand/icon-192.png" alt="Logo Hank Manager" width="96" height="96">
     <span class="badge">⚽ TEAM MANAGEMENT</span>
     <h1 style="margin-top:18px">Tutta la tua squadra.<br>In un’unica app.</h1>
     <p class="muted" style="margin-top:14px;line-height:1.55">Rosa, calendario, convocazioni, formazione e statistiche. Tutto semplice, veloce e sempre con te.</p>
@@ -38,7 +48,7 @@
   </section>
 
   <section id="home" class="screen">
-    <p class="muted small" id="homeSeasonLabelV508">STAGIONE 2026/27</p>
+    <p class="muted small">STAGIONE 2026/27</p>
     <h1 id="hello" style="margin:6px 0 18px">Ciao Enrico 👋</h1>
 
     <div class="hero">
@@ -117,46 +127,6 @@
 <div class="lineup-actions"><button class="primary" onclick="saveMatchLineup()">SALVA FORMAZIONE</button><button class="secondary" onclick="clearMatchLineup()">SVUOTA</button></div>
 </div><div class="bench-panel"><div class="section-head"><div><h2>Panchina</h2><p class="muted small">I convocati non titolari finiscono automaticamente qui.</p></div></div><div id="reservesList" class="reserves-list"></div></div></div>
 </section>
-<section id="society" class="screen society-screen-v508">
-  <div class="society-page-head-v508">
-    <div>
-      <p class="eyebrow">MACCABI ROMA · IDENTITÀ DEL CLUB</p>
-      <h1>Società</h1>
-    </div>
-    <button type="button" class="society-edit-v508" onclick="openSocietyEditor()">✎ Modifica</button>
-  </div>
-
-  <div class="society-season-bar-v508">
-    <div class="society-season-field-v508">
-      <label for="societySeasonSelectV508">STAGIONE</label>
-      <select id="societySeasonSelectV508" onchange="selectSocietySeasonV508(this.value)" aria-label="Seleziona stagione"></select>
-    </div>
-    <button type="button" class="society-new-season-v508" id="societyNewSeasonButtonV508" onclick="openNewSeasonDialogV508()">＋ Nuova stagione</button>
-  </div>
-
-  <div id="societyCurrentSeasonV508">
-    <div class="club-hero card-modern society-hero-v508">
-      <div class="club-logo-large" id="clubLogoPreview">MR</div>
-      <div>
-        <p class="eyebrow">LA NOSTRA SQUADRA</p>
-        <h2 id="societyTeamName">Maccabi Roma</h2>
-        <p class="muted" id="societyCurrentSeasonCaptionV508">Stagione 2026/27</p>
-      </div>
-    </div>
-
-    <article class="card-modern society-card-v508">
-      <h2>Dati societari</h2>
-      <div id="societyGeneral" class="info-list-modern"></div>
-    </article>
-
-    <article class="card-modern society-card-v508">
-      <h2>Informazioni utili</h2>
-      <p id="societyNotes" class="muted society-notes-v508">Nessuna informazione inserita.</p>
-    </article>
-  </div>
-
-  <div id="societyArchiveV508" hidden></div>
-</section>
 </main>
 
 <nav id="nav" class="bottom hidden">
@@ -175,6 +145,48 @@
 
 
 
+<section id="society" class="screen">
+  <div class="page-header modern-header">
+    <div>
+      <p class="eyebrow">IDENTITÀ DEL CLUB</p>
+      <h1>Società</h1>
+      <p class="muted">Tutti i dati del club in un unico posto.</p>
+    </div>
+    <button class="icon-action" onclick="openSocietyEditor()" aria-label="Modifica società">✎</button>
+  </div>
+
+  <div class="club-hero card-modern">
+    <div class="club-logo-large" id="clubLogoPreview">HM</div>
+    <div>
+      <p class="eyebrow">SQUADRA</p>
+      <h2 id="societyTeamName">Maccabi Roma</h2>
+      <p class="muted" id="societyFounded">Società sportiva dilettantistica</p>
+    </div>
+  </div>
+
+  <div class="modern-grid two">
+    <article class="card-modern">
+      <div class="section-head">
+        <div><p class="eyebrow">INFORMAZIONI GENERALI</p><h2>Dati societari</h2></div>
+      </div>
+      <div id="societyGeneral" class="info-list-modern"></div>
+    </article>
+
+    <article class="card-modern">
+      <div class="section-head">
+        <div><p class="eyebrow">CONTATTI E STAFF</p><h2>Riferimenti</h2></div>
+      </div>
+      <div id="societyContacts" class="info-list-modern"></div>
+    </article>
+  </div>
+
+  <article class="card-modern">
+    <div class="section-head">
+      <div><p class="eyebrow">NOTE</p><h2>Informazioni utili</h2></div>
+    </div>
+    <p id="societyNotes" class="muted">Nessuna nota inserita.</p>
+  </article>
+</section>
 
 
 <section id="matchDetails" class="screen match-details-screen">

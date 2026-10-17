@@ -966,42 +966,22 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 .stats-role-count-v506{margin:0}
 
 
-/* Hank Manager v5.0.8 — Società essenziale e stagioni archiviate */
-.society-screen-v508{padding:4px 0 26px}
-.society-page-head-v508{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
-.society-page-head-v508 .eyebrow{margin-bottom:6px}
-.society-edit-v508{border:1px solid var(--hm-line);border-radius:13px;background:rgba(255,255,255,.06);color:var(--hm-text);padding:11px 13px;white-space:nowrap;font-weight:800;cursor:pointer}
-.society-season-bar-v508{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:12px 14px;background:linear-gradient(135deg,#142b36,#0b1a27);border:1px solid var(--hm-line);border-radius:17px;margin-bottom:16px}
-.society-season-field-v508{min-width:0;flex:1}
-.society-season-field-v508 label{display:block;font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--hm-muted);margin-bottom:6px}
-.society-season-field-v508 select{width:100%;min-width:0;border:1px solid rgba(131,215,31,.36);border-radius:12px;background:#0d1d28;color:#f5fafc;padding:10px;font-weight:850;outline:none}
-.society-new-season-v508{border:1px solid rgba(131,215,31,.28);border-radius:12px;padding:11px 12px;background:rgba(131,215,31,.13);color:var(--hm-green);font-weight:900;white-space:nowrap;cursor:pointer;font-size:12px}
-.society-hero-v508{display:flex;margin-bottom:14px;box-shadow:none}
-.society-hero-v508 h2{margin:2px 0 6px}
-.society-card-v508{margin-bottom:14px;box-shadow:none}
-.society-card-v508 h2{font-size:17px;margin-bottom:12px}
-.society-notes-v508{white-space:pre-wrap;line-height:1.65;overflow-wrap:anywhere}
-.society-screen-v508 [hidden]{display:none!important}
-.season-warning-v508{padding:12px;border:1px solid rgba(255,177,69,.35);background:rgba(255,177,69,.1);border-radius:12px;line-height:1.5;font-size:13px;margin:12px 0}
-.season-prep-v508{padding:12px;background:rgba(255,255,255,.035);border:1px solid var(--hm-line);border-radius:14px;margin:12px 0}
-.season-prep-v508 .secondary{margin-top:10px}
-.season-confirm-v508{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;margin:12px 0}
-.season-confirm-v508 input{accent-color:var(--hm-green);margin-top:3px;flex:0 0 17px}
-.season-archive-banner-v508{border:1px solid rgba(131,215,31,.2);border-radius:18px;padding:18px;background:linear-gradient(135deg,#18313b,#0b1c2a);margin-bottom:14px}
-.season-archive-banner-v508 h2{margin:8px 0}
-.season-archive-banner-v508 p:not(.eyebrow){font-size:13px;color:var(--hm-muted);line-height:1.6}
-.season-archive-banner-v508 button{margin-top:14px}
-.season-summary-v508{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
-.season-summary-v508>div{text-align:center;padding:13px 5px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--hm-line)}
-.season-summary-v508 strong{display:block;font-size:22px}
-.season-summary-v508 span{display:block;font-size:10px;color:var(--hm-muted)}
-.society-archive-match-v508{border-bottom:1px solid var(--hm-line)}
-.society-archive-match-v508 summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 0}
-.society-archive-match-v508 summary::-webkit-details-marker{display:none}
-.society-archive-match-v508 summary small{display:block;color:var(--hm-muted);margin-top:4px;font-size:11px}
-.society-archive-match-v508 summary b{white-space:nowrap;color:var(--hm-green)}
-.society-archive-detail-v508{background:rgba(255,255,255,.025);padding:12px;border-radius:10px;line-height:1.6;font-size:12px;color:var(--hm-muted);overflow-wrap:anywhere}
-.society-archive-item-v508{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-bottom:1px solid var(--hm-line);font-size:12px}
-.society-archive-item-v508 span{color:var(--hm-muted)}
-.society-archive-item-v508 small{grid-column:1/-1;color:var(--hm-muted)}
-@media(max-width:410px){.society-season-bar-v508{gap:9px;padding:10px}.society-new-season-v508{font-size:11px;padding:10px 8px}.society-hero-v508{gap:12px}.society-hero-v508 .club-logo-large{width:72px;height:72px;flex:0 0 72px}.society-hero-v508 h2{font-size:19px}}
+/* Hank Manager brand update: presentation-only, no JS/localStorage changes. */
+#topbar.topbar{gap:12px;min-height:76px;align-items:center;margin-bottom:22px}
+#topbar .hm-header-brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+#topbar .hm-header-icon{width:68px;height:68px;flex:0 0 68px;object-fit:contain;display:block;border-radius:16px}
+#topbar .hm-header-wordmark{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1}
+#topbar .hm-header-hank{font-size:clamp(24px,6.5vw,30px);font-weight:1000;letter-spacing:.095em;color:#fff;white-space:nowrap}
+#topbar .hm-header-manager{font-size:clamp(18px,5.35vw,25px);font-weight:950;letter-spacing:.135em;color:#83d71f;white-space:nowrap;margin-top:2px}
+#topbar .hm-header-tagline{font-size:clamp(8px,2.15vw,10px);font-weight:780;letter-spacing:.1em;color:#e6edf4;white-space:nowrap;margin-top:8px}
+#topbar .profile{flex:0 0 43px;cursor:pointer}
+.hm-onboard-brand{display:block;width:96px;height:96px;object-fit:contain;border-radius:23px;margin-bottom:28px}
+@media(max-width:380px){
+  #topbar.topbar{gap:8px}
+  #topbar .hm-header-brand{gap:8px}
+  #topbar .hm-header-icon{width:54px;height:54px;flex-basis:54px;border-radius:13px}
+  #topbar .hm-header-hank{font-size:23px;letter-spacing:.065em}
+  #topbar .hm-header-manager{font-size:18px;letter-spacing:.09em}
+  #topbar .hm-header-tagline{font-size:7.4px;letter-spacing:.052em;margin-top:6px}
+  #topbar .profile{width:38px;height:38px;flex-basis:38px}
+}

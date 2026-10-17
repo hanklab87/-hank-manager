@@ -1,0 +1,31 @@
+HANK MANAGER — LOGO UFFICIALE / ICONA IPHONE
+Aggiornamento grafico compatibile con i filtri Statistiche del 17 ottobre 2026.
+
+NOVITÀ
+- Sostituita la H verde e la sigla HM vecchia nella barra in alto.
+- Nuovo logo HM, scritta HANK MANAGER grande e motto GESTISCI. ALLENA. VINCI.
+- Conservato il pulsante EA in alto a destra.
+- Icone PWA 192/512, icona Apple Touch 180 e favicon 32; immagini ritagliate dal logo approvato.
+- Aggiornato il nome della cache PWA per distribuire le nuove risorse.
+
+FILE DA COPIARE NELLA RADICE DEL REPOSITORY LOCALE
+  index.html
+  manifest.json
+  service-worker.js
+  css/style.css
+  assets/brand/icon-192.png
+  assets/brand/icon-512.png
+  assets/brand/apple-touch-icon.png
+  assets/brand/favicon-32.png
+
+IMPORTANTISSIMO
+- PRIMA esportare e conservare un backup JSON di Hank Manager.
+- Copiare I CONTENUTI di questo pacchetto nella root del repository locale, NON la cartella esterna.
+- Non cancellare nessuna cartella e NON usare Importa backup / Carica dati / Recupera dati online per installare la grafica.
+- In GitHub Desktop verificare modifiche ai soli file indicati sopra, poi Commit e Push origin.
+- Attendere il deploy Vercel, ricaricare con Ctrl+F5 sul PC.
+- Su iPhone aprire l'app e ricaricarla. L'icona sulla Home può restare nella cache di iOS;
+  NON cancellare la web app dalla Home senza prima un backup locale valido e verifica dei dati,
+  perché rimuovere l'app potrebbe anche rimuovere i dati locali.
+- Nessuna modifica a js/app.js, js/cloud.js, js/team-logos.js, localStorage o Supabase.
+- Le funzionalità statistiche attuali rimangono quelle già pubblicate.
