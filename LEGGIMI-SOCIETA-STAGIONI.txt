@@ -1,0 +1,48 @@
+HANK MANAGER – SOCIETÀ ESSENZIALE + ARCHIVIO STAGIONI (17/10/2026)
+
+CONTENUTO
+1) Schermata Società corretta: non compare più la zona vuota prima dell'intestazione.
+2) Si vedono solo logo, denominazione, campo, categoria, colori sociali e informazioni utili.
+   Anche il modulo Modifica contiene solo questi cinque campi.
+   I vecchi campi non vengono cancellati dal backup, soltanto nascosti.
+3) In Società ora trovi il selettore della stagione e il comando '+ Nuova stagione'.
+   2026/27 resta la stagione attiva e INVARIATA fino all'eventuale uso esplicito del comando.
+4) Avvio di una nuova stagione, quando sarà il momento:
+   - richiede backup JSON completo salvato dall'utente;
+   - richiede conferma scritta del nome della stagione nuova;
+   - blocca l'operazione quando la sincronizzazione automatica è attiva sul dispositivo;
+   - crea un ulteriore backup di emergenza locale prima di cambiare dati;
+   - archivia integralmente rosa, eventi, partite, Live Match, statistiche, formazione,
+     convocazioni, sponsor e informazioni della società;
+   - nella stagione nuova il calendario parte vuoto; la rosa può essere conservata
+     con statistiche stagionali azzerate oppure lasciata vuota.
+5) Gli archivi si consultano in sola lettura dal selettore stagione della pagina Società:
+   risultati, formazioni, voti, episodi, minutaggio e rosa. Esiste anche il download
+   dell'archivio JSON completo della stagione.
+6) L'importazione di backup privi delle stagioni archiviate viene bloccata, per
+   prevenire perdite accidentali dello storico già creato.
+
+IMPORTANTISSIMO
+- NON utilizzare '+ Nuova stagione' adesso: siamo ancora nella stagione 2026/27!
+- All'atto di chiudere una stagione, disattivare la sincronizzazione automatica
+  su entrambi i dispositivi, fare backup da PC e iPhone e procedere su UNO SOLO.
+  Verificare i dati e poi riallineare Supabase prima di riattivare la sincronizzazione.
+- Il codice di js/cloud.js NON viene modificato. I dati restano nella stessa chiave hank_v04.
+- L'aggiornamento del codice non cancella e non azzera dati esistenti.
+
+FILE DEL PACCHETTO (SOLTANTO QUATTRO)
+index.html
+css/style.css
+js/app.js
+service-worker.js
+
+INSTALLAZIONE CON GITHUB DESKTOP
+1) Esportare prima un backup aggiornato da Hank Manager.
+2) Estrarre questo ZIP in una cartella separata.
+3) Copiare QUESTI 4 file e le loro cartelle direttamente nella radice del
+   repository locale (Documenti/GitHub/-hank-manager). Sostituire gli omonimi.
+   NON copiare la cartella contenitore dello ZIP.
+4) Aprire GitHub Desktop: dovrebbero comparire solo 4 file modificati.
+5) Commit e Push origin, poi attendere la pubblicazione di Vercel.
+6) Sul PC Ctrl+F5; su iPhone chiudere e riaprire l'app.
+7) Verificare 28 giocatori, 30 eventi, 3 partite terminate e le statistiche.
