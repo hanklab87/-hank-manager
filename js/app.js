@@ -30,8 +30,8 @@ const defaultPlayers=[
 ];
 const defaultEvents=[{"id":2001,"type":"Partita","competition":"Trofeo Cesari","customCompetition":"","round":"Finale 1°/2° posto","homeAway":"Casa","opponent":"Da definire","date":"2026-09-22","time":"21:15","venue":"Polisportivo Ostiense","status":"Da giocare"},{"id":2002,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"1ª giornata","homeAway":"Trasferta","opponent":"FC Palocco","date":"2026-09-28","time":"21:15","venue":"Aldo Brandini","status":"Da giocare"},{"id":2003,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"2ª giornata","homeAway":"Trasferta","opponent":"Lokomotiv","date":"2026-10-05","time":"21:15","venue":"Bettini","status":"Da giocare"},{"id":2004,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Casa","opponent":"Lokomotiv Roma","date":"2026-10-13","time":"21:15","venue":"La Borghesiana","status":"Da giocare"},{"id":2005,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Trasferta","opponent":"Atletico Vermicino","date":"2026-10-19","time":"21:15","venue":"Bettini","status":"Da giocare"},{"id":2006,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"3ª giornata","homeAway":"Casa","opponent":"Grifone","date":"2026-10-26","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2007,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Casa","opponent":"Grifone Legends","date":"2026-11-02","time":"21:15","venue":"La Borghesiana","status":"Da giocare"},{"id":2008,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"4ª giornata","homeAway":"Casa","opponent":"Atletico Smistamento","date":"2026-11-10","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2009,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"5ª giornata","homeAway":"Trasferta","opponent":"Real Baseggio","date":"2026-11-16","time":"21:15","venue":"Muratori","status":"Da giocare"},{"id":2010,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Trasferta","opponent":"Unicum","date":"2026-11-23","time":"21:15","venue":"Atletico 2000","status":"Da giocare"},{"id":2011,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"6ª giornata","homeAway":"Casa","opponent":"Milani","date":"2026-12-01","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2012,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"7ª giornata","homeAway":"Trasferta","opponent":"Montagnola","date":"2026-12-15","time":"21:15","venue":"Urbetevere","status":"Da giocare"},{"id":2013,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"8ª giornata","homeAway":"Casa","opponent":"Union FB","date":"2026-12-22","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2014,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"9ª giornata","homeAway":"Trasferta","opponent":"CRC","date":"2027-01-11","time":"21:15","venue":"San Tarcisio","status":"Da giocare"},{"id":2015,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Trasferta","opponent":"Real Macane","date":"2027-01-18","time":"21:15","venue":"Atletico 2000","status":"Da giocare"},{"id":2016,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"10ª giornata","homeAway":"Trasferta","opponent":"Unicum","date":"2027-01-25","time":"21:15","venue":"La Borghesiana","status":"Da giocare"},{"id":2017,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"11ª giornata","homeAway":"Casa","opponent":"Borgorosso","date":"2027-02-02","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2018,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"12ª giornata","homeAway":"Casa","opponent":"FC Palocco","date":"2027-02-09","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2019,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Trasferta","opponent":"Real Miami","date":"2027-02-16","time":"21:15","venue":"La Borghesiana","status":"Da giocare"},{"id":2020,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"13ª giornata","homeAway":"Casa","opponent":"Lokomotiv","date":"2027-02-22","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2021,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"14ª giornata","homeAway":"Trasferta","opponent":"Grifone","date":"2027-03-01","time":"21:15","venue":"Elis","status":"Da giocare"},{"id":2022,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Fase Super Champions","homeAway":"Trasferta","opponent":"Nova Virtus","date":"2027-03-08","time":"21:15","venue":"Bettini","status":"Da giocare"},{"id":2023,"type":"Partita","competition":"Super Champions","customCompetition":"","round":"Semifinali Super Champions","homeAway":"Casa","opponent":"Da definire","date":"2027-03-15","time":"21:15","venue":"Da definire","status":"Da giocare"},{"id":2024,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"15ª giornata","homeAway":"Trasferta","opponent":"Atletico Smistamento","date":"2027-03-22","time":"21:15","venue":"Ferrovieri","status":"Da giocare"},{"id":2025,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"16ª giornata","homeAway":"Casa","opponent":"Real Baseggio","date":"2027-04-05","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2026,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"17ª giornata","homeAway":"Trasferta","opponent":"Milani","date":"2027-04-12","time":"21:15","venue":"San Tarcisio","status":"Da giocare"},{"id":2027,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"18ª giornata","homeAway":"Casa","opponent":"Montagnola","date":"2027-04-20","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2028,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"19ª giornata","homeAway":"Trasferta","opponent":"Union FB","date":"2027-04-26","time":"21:15","venue":"Atletico 2000","status":"Da giocare"},{"id":2029,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"20ª giornata","homeAway":"Casa","opponent":"CRC","date":"2027-05-04","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2030,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"21ª giornata","homeAway":"Casa","opponent":"Unicum","date":"2027-05-10","time":"21:15","venue":"Ostiense","status":"Da giocare"},{"id":2031,"type":"Partita","competition":"Serie A d’Élite","customCompetition":"","round":"22ª giornata","homeAway":"Trasferta","opponent":"Borgorosso","date":"2027-05-18","time":"21:15","venue":"Ostiense","status":"Da giocare"}];
 let state=JSON.parse(localStorage.getItem('hank_v04')||'null')||{profile:null,players:defaultPlayers,events:defaultEvents,branding:{logo:'',sponsors:[]}};
-if(!Array.isArray(state.players)||(state.players.length<20&&!state.seasons?.current)) state.players=defaultPlayers;
-if(!Array.isArray(state.events)||(state.events.length<22&&!state.seasons?.current)) state.events=defaultEvents;
+if(!state.players||state.players.length<20) state.players=defaultPlayers;
+if(!state.events||state.events.length<22) state.events=defaultEvents;
 if(!state.branding) state.branding={logo:'',sponsors:[]};
 // Dalla v4.4.6 gli aggiornamenti non sovrascrivono mai i dati già salvati nel browser.
 // Su una nuova installazione i default vengono già caricati dalla creazione iniziale di state.
@@ -297,12 +297,6 @@ let liveTimerInterval=null;
 
 
 
-// v5.0.8: the season manager is stored in the existing state and hence in normal JSON/cloud backups.
-// Its creation alone does not write localStorage, avoiding a needless cloud conflict on upgrade.
-state.seasons=(state.seasons&&typeof state.seasons==='object'&&!Array.isArray(state.seasons))?state.seasons:{current:'2026/27',archives:{}};
-state.seasons.current=typeof state.seasons.current==='string'&&/^\d{4}\/\d{2}$/.test(state.seasons.current)?state.seasons.current:'2026/27';
-state.seasons.archives=(state.seasons.archives&&typeof state.seasons.archives==='object'&&!Array.isArray(state.seasons.archives))?state.seasons.archives:{};
-let societySelectedSeasonV508='';
 let currentFilter='Tutti';
 
 function save(){localStorage.setItem('hank_v04',JSON.stringify(state))}
@@ -313,180 +307,57 @@ function show(id){
   nav.classList.toggle('hidden',!inside);
   document.body.classList.toggle('detail-open',['matchDetails','tactical','liveMatch'].includes(id));
   document.querySelectorAll('.bottom button,.bottom-nav button').forEach(b=>b.classList.remove('active'));
-  if(id==='home'){nHome?.classList.add('active');renderBranding();renderNextMatch();renderDashboard();const seasonLabel=document.getElementById('homeSeasonLabelV508');if(seasonLabel)seasonLabel.textContent='STAGIONE '+state.seasons.current;}
+  if(id==='home'){nHome?.classList.add('active');renderBranding();renderNextMatch();renderDashboard();}
   if(id==='tactical'){renderTacticalBoard();}
   if(id==='squad'){nSquad?.classList.add('active');renderPlayers()}
   if(id==='calendar'){nCalendar?.classList.add('active');renderEvents()}
   if(id==='society'){renderSociety();}
   window.scrollTo({top:0,left:0,behavior:'auto'});
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
 }
 function renderSociety(){
   const s=state.society||{};
-  const seasons=state.seasons||{current:'2026/27',archives:{}};
-  const archiveYears=Object.keys(seasons.archives||{}).filter(k=>k!==seasons.current).sort((a,b)=>b.localeCompare(a));
-  const valid=[seasons.current,...archiveYears];
-  if(!valid.includes(societySelectedSeasonV508))societySelectedSeasonV508=seasons.current;
-  const select=document.getElementById('societySeasonSelectV508');
-  if(select){
-    select.innerHTML=valid.map(year=>`<option value="${escapeHtml(year)}" ${year===societySelectedSeasonV508?'selected':''}>${escapeHtml(year)}${year===seasons.current?' · attuale':' · archivio'}</option>`).join('');
-  }
-  const archived=societySelectedSeasonV508!==seasons.current;
-  const current=document.getElementById('societyCurrentSeasonV508');
-  const archive=document.getElementById('societyArchiveV508');
-  const edit=document.querySelector('.society-edit-v508');
-  const create=document.getElementById('societyNewSeasonButtonV508');
-  if(current)current.hidden=archived;
-  if(archive)archive.hidden=!archived;
-  if(edit)edit.hidden=archived;
-  if(create)create.hidden=archived;
-  if(archived){renderSocietyArchiveV508(societySelectedSeasonV508);return;}
   const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val||'—'};
   set('societyTeamName',s.name||state.profile?.team||'Maccabi Roma');
-  set('societyCurrentSeasonCaptionV508','Stagione '+seasons.current);
+  set('societyFounded',s.founded?`Fondata nel ${s.founded}`:'Società sportiva dilettantistica');
   const logo=document.getElementById('clubLogoPreview');
   if(logo){const name=s.name||state.profile?.team||'Maccabi Roma';setLogoElement(logo,name,true);}
-  const row=(label,val)=>`<div class="info-row-modern"><span>${label}</span><strong>${escapeHtml(val||'—')}</strong></div>`;
-  const general=document.getElementById('societyGeneral');
-  if(general)general.innerHTML=row('Denominazione',s.legalName||s.name||state.profile?.team)+row('Campo',s.homeGround)+row('Categoria',s.category)+row('Colori sociali',s.colors);
-  set('societyNotes',s.notes||'Nessuna informazione inserita.');
+
+  // La scheda mostra solo i dati societari compilati; nessuna modifica ai dati memorizzati.
+  const rows=[['Categoria',s.category],['Girone',s.group],['Campo',s.homeGround],['Indirizzo',s.address],['Colori sociali',s.colors]];
+  const g=document.getElementById('societyGeneral');
+  if(g)g.innerHTML=rows.filter(([,val])=>String(val??'').trim()).map(([label,val])=>
+    `<div class="info-row-modern"><span>${label}</span><strong>${escapeHtml(String(val))}</strong></div>`
+  ).join('')||'<p class="muted small">Aggiungi le informazioni tramite il pulsante Modifica.</p>';
+
+  // Le competizioni sono lette dagli eventi già registrati nella stagione 2026/27.
+  const season=String(s.season||'2026/27');
+  const seasonLabel=document.getElementById('societySeasonLabel');
+  if(seasonLabel)seasonLabel.textContent=season;
+  const matches=(state.events||[]).filter(e=>e.type==='Partita'&&String(e.date||'')>='2026-07-01'&&String(e.date||'')<'2027-07-01');
+  const competitions=[...new Set(matches.map(e=>e.customCompetition||e.competition).filter(Boolean))];
+  const target=document.getElementById('societySeasonCompetitions');
+  if(target)target.innerHTML=competitions.length
+    ?competitions.map(name=>`<span class="society-competition-chip">${escapeHtml(String(name))}</span>`).join('')
+    :'<span class="muted small">Nessuna competizione ancora inserita.</span>';
 }
 function openSocietyEditor(){
-  if(societySelectedSeasonV508!==state.seasons.current)return;
   const s=state.society||{};
-  sheet.innerHTML=`<h2>Modifica società</h2><p class="muted small" style="margin-top:8px">Solo le informazioni essenziali del club.</p>
-    <div class="field"><label>Denominazione società</label><input id="socName" value="${escapeHtml(s.legalName||s.name||state.profile?.team||'Maccabi Roma')}"></div>
+  sheet.innerHTML=`<h2>Modifica società</h2><div class="form-grid">
+    <div class="field"><label>Nome squadra</label><input id="socName" value="${escapeHtml(s.name||state.profile?.team||'Maccabi Roma')}"></div>
     <div class="field"><label>Campo</label><input id="socGround" value="${escapeHtml(s.homeGround||'')}"></div>
     <div class="field"><label>Categoria</label><input id="socCategory" value="${escapeHtml(s.category||'')}"></div>
-    <div class="field"><label>Colori sociali</label><input id="socColors" value="${escapeHtml(s.colors||'')}"></div>
-    <div class="field"><label>Informazioni utili</label><textarea id="socNotes">${escapeHtml(s.notes||'')}</textarea></div>
-    <div class="form-grid"><button class="primary" onclick="saveSocietyEditor()">SALVA</button><button class="secondary" onclick="closeModal()">ANNULLA</button></div>`;
+    <div class="field"><label>Allenatore</label><input id="socCoach" value="${escapeHtml(s.coach||'')}"></div>
+    <div class="field"><label>Colori</label><input id="socColors" value="${escapeHtml(s.colors||'')}"></div>
+    <div class="field"><label>Note</label><textarea id="socNotes">${escapeHtml(s.notes||'')}</textarea></div>
+  </div><div class="form-grid"><button class="primary" onclick="saveSocietyEditor()">SALVA</button><button class="secondary" onclick="closeModal()">ANNULLA</button></div>`;
   modal.classList.add('open');
 }
 function saveSocietyEditor(){
-  const name=document.getElementById('socName').value.trim();
-  if(!name){alert('Inserisci la denominazione della società.');return;}
-  state.society={...(state.society||{}),name,legalName:name,homeGround:document.getElementById('socGround').value.trim(),category:document.getElementById('socCategory').value.trim(),colors:document.getElementById('socColors').value.trim(),notes:document.getElementById('socNotes').value.trim()};
-  if(state.profile)state.profile.team=name;
+  state.society={...(state.society||{}),name:document.getElementById('socName').value.trim(),homeGround:document.getElementById('socGround').value.trim(),category:document.getElementById('socCategory').value.trim(),coach:document.getElementById('socCoach').value.trim(),colors:document.getElementById('socColors').value.trim(),notes:document.getElementById('socNotes').value.trim()};
+  if(state.profile&&state.society.name)state.profile.team=state.society.name;
   save();closeModal();renderSociety();
 }
-function selectSocietySeasonV508(year){
-  societySelectedSeasonV508=year;
-  renderSociety();
-}
-function nextSeasonNameV508(year){
-  const y=Number(String(year).slice(0,4))+1;
-  return y+'/'+String((y+1)%100).padStart(2,'0');
-}
-function safeSeasonSnapshotV508(season){
-  // Full original season fields, not a summary. JSON roundtrip ensures later edits cannot affect this copy.
-  return JSON.parse(JSON.stringify({
-    season,archivedAt:new Date().toISOString(),
-    profile:state.profile,players:state.players,events:state.events,
-    society:state.society,branding:state.branding,tactical:state.tactical,
-    migrations:state.migrations,dataSeedVersion:state.dataSeedVersion
-  }));
-}
-function openNewSeasonDialogV508(){
-  const current=state.seasons.current,next=nextSeasonNameV508(current);
-  const pending=state.events.filter(e=>e.type==='Partita'&&e.status!=='Terminata').length;
-  sheet.innerHTML=`<h2>Inizia la stagione ${escapeHtml(next)}</h2>
-    <p class="muted small" style="line-height:1.6;margin:12px 0">Prima sarà archiviata integralmente la <strong>${escapeHtml(current)}</strong>, con rosa, eventi, voti, gol, assist, formazioni e Live Match. Potrai sempre rivederla ed esportarla dalla pagina Società.</p>
-    ${pending?`<p class="season-warning-v508">⚠️ Ci sono ancora ${pending} partite non terminate nel calendario: questa operazione è pensata per la FINE della stagione.</p>`:''}
-    <div class="season-prep-v508"><p><strong>Passaggio 1 · Backup obbligatorio</strong></p><button type="button" class="secondary" onclick="exportBackup()">⬇ Esporta backup completo</button></div>
-    <label class="season-confirm-v508"><input id="seasonBackupConfirmedV508" type="checkbox"> Ho salvato il backup completo fuori dall'app</label>
-    <label class="season-confirm-v508"><input id="seasonKeepRosterV508" type="checkbox" checked> Mantieni le schede dei giocatori, azzerando le statistiche stagionali</label>
-    <p class="muted small" style="line-height:1.6;margin:10px 0">Nella nuova stagione il calendario partirà vuoto. L'archivio ${escapeHtml(current)} resterà conservato.</p>
-    <div class="field"><label>Per confermare, scrivi ${escapeHtml(next)}</label><input id="seasonTypeV508" autocomplete="off" placeholder="${escapeHtml(next)}"></div>
-    <div class="form-grid"><button class="primary" onclick="createNewSeasonV508()">CREA ${escapeHtml(next)}</button><button class="secondary" onclick="closeModal()">ANNULLA</button></div>`;
-  modal.classList.add('open');
-}
-function createNewSeasonV508(){
-  const old=state.seasons.current,next=nextSeasonNameV508(old);
-  if(document.getElementById('seasonTypeV508')?.value.trim()!==next){alert('Scrivi esattamente '+next+' per confermare.');return;}
-  if(!document.getElementById('seasonBackupConfirmedV508')?.checked){alert('Prima esporta e conserva il backup completo.');return;}
-  // A new season is a large intentional change; require manual cloud reconciliation rather than letting an auto tick race it.
-  if(localStorage.getItem('hank_cloud_auto_v502')==='yes'){alert('Disattiva prima la sincronizzazione automatica su entrambi i dispositivi e conserva i backup.');return;}
-  if(state.seasons.archives[old]||state.seasons.archives[next]){alert('Stagione già presente in archivio. Nessuna modifica effettuata.');return;}
-  if(!confirm('Confermi la chiusura di '+old+' e l’avvio di '+next+'? Il calendario corrente sarà disponibile nell’archivio, non nella nuova stagione.'))return;
-  const retain=document.getElementById('seasonKeepRosterV508')?.checked!==false;
-  const prior=JSON.stringify(state);
-  const oldState=state;
-  try{
-    // Additional local emergency copy: no mutation occurs if storage is full.
-    localStorage.setItem('hank_pre_new_season_'+Date.now(),prior);
-    const seasonData=safeSeasonSnapshotV508(old);
-    const players=retain?state.players.map(p=>({...p,apps:0,goals:0,assists:0,stats:{}})):[];
-    const archives={...state.seasons.archives,[old]:seasonData};
-    const candidate={...state,players,events:[],tactical:{...state.tactical,onField:[],positions:{}},seasons:{current:next,archives}};
-    if(!Array.isArray(candidate.events)||!Array.isArray(candidate.seasons.archives[old].events)||candidate.seasons.archives[old].events.length!==state.events.length)throw Error('Verifica archivio non superata.');
-    localStorage.setItem('hank_v04',JSON.stringify(candidate));
-    state=candidate;
-    societySelectedSeasonV508=next;
-    closeModal();
-    alert('Stagione '+next+' creata. La '+old+' è nell’archivio: puoi consultarla dal selettore Stagione.');
-    location.reload();
-  }catch(err){
-    state=oldState;
-    try{localStorage.setItem('hank_v04',prior)}catch(_){}
-    alert('Operazione interrotta: nessuna stagione creata. '+(err?.message||String(err)));
-  }
-}
-function renderSocietyArchiveV508(year){
-  const host=document.getElementById('societyArchiveV508');
-  const season=state.seasons.archives[year];
-  if(!host||!season)return;
-  const players=Array.isArray(season.players)?season.players:[];
-  const events=Array.isArray(season.events)?season.events:[];
-  const matches=events.filter(e=>e.type==='Partita');
-  const completed=matches.filter(e=>e.status==='Terminata');
-  const result=e=>{
-    const home=e.homeAway!=='Trasferta';
-    const a=String(e.homeScore??'').trim(),b=String(e.awayScore??'').trim();
-    return a!==''&&b!==''? (home?a+' - '+b:b+' - '+a):'—';
-  };
-  const scorers=(e)=>{
-    const scored=(e.live?.events||[]).filter(x=>x.type==='goal');
-    const manual=scored.length?scored:(e.matchEvents||[]).filter(x=>String(x.type||'').toLowerCase()==='gol');
-    return manual.map(x=>players.find(p=>String(p.id)===String(x.playerId))?.name||'Giocatore #'+x.playerId).join(', ')||'—';
-  };
-  const roster=players.map(p=>`<div class="society-archive-item-v508"><strong>${escapeHtml(p.number||'—')} · ${escapeHtml(p.name||'')}</strong><span>${escapeHtml(p.role||'')}</span><small>${Number(p.stats?.appearances||p.apps||0)} pres. · ${Number(p.stats?.goals||p.goals||0)} gol</small></div>`).join('');
-  const playerName=id=>players.find(p=>String(p.id)===String(id))?.name||'#'+id;
-  const names=ids=>(ids||[]).map(id=>escapeHtml(playerName(id))).join(', ')||'—';
-  const eventLine=x=>{
-    const type=String(x.type||'').toLowerCase();
-    const who=x.playerId?playerName(x.playerId):'';
-    const detail=type==='sub'||type==='sostituzione'?`${playerName(x.outId)} → ${playerName(x.inId)}`:
-      type==='gol'||type==='goal'?`${who}${x.assistPlayerId?' (assist '+playerName(x.assistPlayerId)+')':''}`:
-      x.detail||who||x.note||'';
-    return `<li>${escapeHtml(x.displayMinute||x.minute||'—')}′ · ${escapeHtml(x.label||x.type||'Evento')}: ${escapeHtml(detail)}</li>`;
-  };
-  const matchesHtml=matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(e=>{
-    const liveEvents=e.live?.events||[];
-    const manualEvents=e.matchEvents||[];
-    const minutes=Object.entries(e.live?.playerMinutes||{}).map(([id,v])=>escapeHtml(playerName(id))+' '+Number(v.minutes||0)+'′').join(' · ');
-    const ratings=Object.entries(e.ratings||{}).map(([id,v])=>escapeHtml(playerName(id))+' '+escapeHtml(v)).join(' · ');
-    return `<details class="society-archive-match-v508"><summary><span><strong>${escapeHtml(e.opponent||'Avversario')}</strong><small>${escapeHtml(e.date||'')} · ${escapeHtml(e.competition||'')} · ${escapeHtml(e.homeAway||'')}</small></span><b>${escapeHtml(result(e))}</b></summary>
-      <div class="society-archive-detail-v508"><p>Stato: <strong>${escapeHtml(e.status||'—')}</strong></p><p>Campo: ${escapeHtml(e.venue||'—')}</p><p>Modulo: ${escapeHtml(e.lineup?.formation||'—')}</p><p>Titolari: ${names(e.lineup?.starters)}</p><p>Riserve: ${names(e.lineup?.reserves)}</p><p>Convocati: ${names(e.callups)}</p><p>Marcatori: ${escapeHtml(scorers(e))}</p>
-      ${liveEvents.length?`<p><strong>Cronologia Live Match</strong></p><ul>${liveEvents.map(eventLine).join('')}</ul>`:''}
-      ${manualEvents.length?`<p><strong>Eventi manuali</strong></p><ul>${manualEvents.map(eventLine).join('')}</ul>`:''}
-      <p>Voti: ${ratings||'—'}</p><p>Minuti giocati: ${minutes||'—'}</p>
-      <p>MVP: ${e.live?.mvpPlayerId||e.mvpPlayerId?escapeHtml(playerName(e.live?.mvpPlayerId||e.mvpPlayerId)):'—'}</p></div></details>`;
-  }).join('');
-  host.innerHTML=`<div class="season-archive-banner-v508"><p class="eyebrow">ARCHIVIO STORICO · SOLA LETTURA</p><h2>Stagione ${escapeHtml(year)}</h2><p>La stagione è conservata. Le sue informazioni non vengono modificate dalle nuove stagioni.</p><button class="secondary" onclick="exportArchivedSeasonV508('${year}')">⬇ Esporta archivio completo ${escapeHtml(year)}</button></div>
-    <div class="season-summary-v508"><div><strong>${players.length}</strong><span>Giocatori</span></div><div><strong>${events.length}</strong><span>Eventi</span></div><div><strong>${completed.length}</strong><span>Partite terminate</span></div></div>
-    <article class="card-modern society-card-v508"><h2>Partite della stagione</h2><div class="society-archive-list-v508">${matchesHtml||'<p class="muted">Nessuna partita.</p>'}</div></article>
-    <article class="card-modern society-card-v508"><h2>Rosa della stagione</h2><div class="society-archive-roster-v508">${roster||'<p class="muted">Nessun giocatore.</p>'}</div></article>`;
-}
-function exportArchivedSeasonV508(year){
-  const archive=state.seasons?.archives?.[year];
-  if(!archive)return;
-  const text=JSON.stringify({app:'Hank Manager',exportedAt:new Date().toISOString(),season:year,archive},null,2);
-  const blob=new Blob([text],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='hank-manager-archivio-'+year.replace('/','-')+'.json';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-
 function startApp(){
   const n=document.getElementById('name').value.trim()||'Enrico Ascoli';
   const t=document.getElementById('team').value.trim()||'Maccabi Roma';
@@ -2543,12 +2414,6 @@ function importBackupFile(event){
       const imported=parsed.state||parsed;
       if(!imported||!Array.isArray(imported.players)||!Array.isArray(imported.events)){
         throw new Error('Formato non valido');
-      }
-      const savedArchives=Object.keys(state.seasons?.archives||{});
-      const missingArchives=savedArchives.filter(year=>!Object.prototype.hasOwnProperty.call(imported.seasons?.archives||{},year));
-      if(missingArchives.length){
-        alert('Questo backup non include gli archivi stagionali ('+missingArchives.join(', ')+'). Per proteggere lo storico, l’importazione è stata bloccata.');
-        return;
       }
       if(!confirm('Vuoi sostituire i dati attuali con quelli del backup?'))return;
       state=imported;

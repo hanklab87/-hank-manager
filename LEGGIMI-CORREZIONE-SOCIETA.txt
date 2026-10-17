@@ -1,0 +1,22 @@
+HANK MANAGER — CORREZIONE SOCIETÀ + STAGIONE 2026/27
+
+Correzioni:
+- Aprendo Società si vede subito il titolo e lo stemma: la pagina è stata spostata all'interno del contenitore corretto.
+- Rimossi i riquadri “Contatti e Staff” e “Note” dalla visualizzazione Società. I dati rimangono intatti nel backup e nel modulo Modifica società.
+- Ripristinato il riquadro compatto “Stagione in corso 2026/27” con le competizioni presenti nel calendario.
+- “Dati societari” più pulito: vengono mostrati soltanto i campi compilati.
+- Rinfrescata la cache PWA per distribuire la modifica su iPhone.
+
+File da copiare NELLA RADICE del repository GitHub locale (non in una sottocartella):
+  index.html
+  js/app.js
+  css/style.css
+  service-worker.js
+
+Non cambiano js/cloud.js, manifest.json, loghi, icona iPhone, localStorage o struttura dei dati.
+Le modifiche sono di presentazione, senza scrivere sui dati salvati.
+
+Prima dell'aggiornamento esporta e conserva il backup JSON dall'app.
+In GitHub Desktop verifica SOLO i quattro file sopra, poi commit e push origin.
+Attendi il deploy Vercel. Apri e aggiorna la web app; su iPhone puoi doverla chiudere e riaprire.
+NON cancellare l'icona o i dati, NON importare backup per installare il codice.

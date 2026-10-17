@@ -985,3 +985,30 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
   #topbar .hm-header-tagline{font-size:7.4px;letter-spacing:.052em;margin-top:6px}
   #topbar .profile{width:38px;height:38px;flex-basis:38px}
 }
+
+
+/* v5.0 - Society compact view: the screen now lives inside .app, like Home. */
+#society.society-screen{width:100%;padding:0 0 26px;margin:0 auto}
+.society-page-header{margin-bottom:14px}
+.society-page-header h1{margin:3px 0 0}
+#society .society-identity-card{gap:14px;padding:15px;margin-bottom:12px}
+#society .club-logo-large{width:80px;height:80px;min-width:80px;border-radius:22px;overflow:hidden}
+#society .society-identity-copy{min-width:0;flex:1}
+#society .society-identity-copy h2{font-size:clamp(20px,5.5vw,26px);line-height:1.12;margin:5px 0 7px;overflow-wrap:anywhere}
+#society .society-identity-copy .muted{font-size:12px;line-height:1.45}
+#society .society-season-card{margin-bottom:12px;padding:17px}
+#society .society-season-heading{display:flex;justify-content:space-between;gap:10px;align-items:center}
+#society .society-season-heading h2{font-size:28px;line-height:1.1;margin:5px 0 0;color:var(--hm-text)}
+#society .society-season-status{font-size:11px;font-weight:850;color:var(--hm-green);white-space:nowrap}
+#society .society-competitions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+#society .society-competition-chip{border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;color:#e6f7e8;background:rgba(131,215,31,.10);border:1px solid rgba(131,215,31,.24)}
+#society .society-data-card{padding:17px;margin-bottom:12px}
+#society .society-data-card .section-head{margin-top:0;margin-bottom:8px}
+#society .society-data-card h2{font-size:18px}
+#society .info-row-modern{padding:12px 0;align-items:center}
+#society .info-row-modern strong{max-width:62%;overflow-wrap:anywhere}
+@media(max-width:360px){
+  #society .club-logo-large{width:68px;height:68px;min-width:68px}
+  #society .society-identity-card{gap:10px}
+  #society .society-identity-copy h2{font-size:19px}
+}
