@@ -955,3 +955,9 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 
 /* Honor the loading-error fallback over component image display rules. */
 .crest img[hidden],.club-logo-large img[hidden],.mini-club-logo img[hidden],.team-badge-mini img[hidden],.match-logo-round img[hidden],.live-team-logo img[hidden]{display:none!important}
+
+/* v5.0.6 — Filtro ruolo nelle statistiche giocatori */
+.stats-role-filter-v506{display:grid;gap:7px}
+.stats-role-filter-v506 label{font-size:12px}
+.stats-role-filter-v506 select{width:100%;max-width:420px;min-height:42px;border:1px solid var(--line);border-radius:10px;background:#08121a;color:var(--text);padding:9px 12px;font:inherit}
+.stats-role-count-v506{margin:0}

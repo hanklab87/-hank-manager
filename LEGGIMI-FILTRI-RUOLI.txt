@@ -1,0 +1,23 @@
+HANK MANAGER - FILTRI STATISTICHE PER RUOLO - 17/10/2026
+
+Questo ZIP contiene SOLO i tre file aggiornati:
+- js/app.js
+- css/style.css
+- service-worker.js
+
+NOVITA'
+- Filtro per ruolo nella schermata Statistiche > Giocatori
+- Ruoli letti automaticamente dalle schede già salvate, senza modificarli
+- Filtro combinabile con competizione e classifiche di presenze, minuti, gol, assist, voti, ecc.
+- Elenco giocatori del grafico andamento limitato al ruolo scelto
+- Aggiornamento cache PWA per far comparire la novita' anche su iPhone
+
+IMPORTANTISSIMO
+Prima di installare, esportare un backup locale da Hank Manager e conservarlo.
+Questi sono file di CODICE, non backup di dati.
+Per installare con GitHub Desktop, copiare le cartelle js, css e il file
+service-worker.js NELLA CARTELLA PRINCIPALE DEL REPOSITORY; sostituire i
+singoli file quando Windows lo chiede. NON copiare la cartella contenitore.
+Controllare in GitHub Desktop che siano modificati solo questi tre file
+prima di fare Commit e Push.
+Non modificare Cloud/Supabase e non importare alcun JSON durante l'operazione.

@@ -2161,6 +2161,37 @@ function statsCompetitionSelectorV4410(mode){
  return `<div class="match-section-card"><label for="statsComp4410"><strong>Competizione</strong></label><select id="statsComp4410" onchange="currentStatsCompetition=this.value;${mode==='team'?'renderTeamStatisticsV434()':"renderStatisticsV43(currentStatsTabV43)"}">
  ${[['all','Tutte le competizioni'],['league','Serie A d’Élite'],['champions','Super Champions'],['other','Coppe e tornei']].map(([v,t])=>`<option value="${v}" ${currentStatsCompetition===v?'selected':''}>${t}</option>`).join('')}</select></div>`;
 }
+// Filtri di sola visualizzazione: non sono salvati nello stato dell'app e non modificano Supabase.
+let currentStatsRoleV506='all';
+function statsRolesV506(){
+  const preferred=['Portiere','Difensore','Terzino','Centrocampista','Attaccante'];
+  return [...new Set(state.players
+    .filter(p=>p.role!=='Allenatore')
+    .map(p=>String(p.role||'').trim())
+    .filter(Boolean))]
+    .sort((a,b)=>{
+      const ai=preferred.indexOf(a),bi=preferred.indexOf(b);
+      if(ai!==-1&&bi!==-1)return ai-bi;
+      if(ai!==-1)return -1;
+      if(bi!==-1)return 1;
+      return a.localeCompare(b,'it');
+    });
+}
+function playerMatchesStatsRoleV506(p){
+  return currentStatsRoleV506==='all'||String(p.role||'').trim()===currentStatsRoleV506;
+}
+function statsRoleSelectorV506(count){
+  const roles=statsRolesV506();
+  if(currentStatsRoleV506!=='all'&&!roles.includes(currentStatsRoleV506))currentStatsRoleV506='all';
+  return `<div class="match-section-card stats-role-filter-v506">
+    <label for="statsRoleV506"><strong>Ruolo</strong></label>
+    <select id="statsRoleV506" onchange="currentStatsRoleV506=this.value;renderStatisticsV43(currentStatsTabV43)">
+      <option value="all" ${currentStatsRoleV506==='all'?'selected':''}>Tutti i ruoli</option>
+      ${roles.map(role=>`<option value="${escapeHtml(role)}" ${currentStatsRoleV506===role?'selected':''}>${escapeHtml(role)}</option>`).join('')}
+    </select>
+    <p class="muted small stats-role-count-v506">${count} ${count===1?'giocatore':'giocatori'} ${currentStatsRoleV506==='all'?'nella rosa':`nel ruolo ${escapeHtml(currentStatsRoleV506)}`}</p>
+  </div>`;
+}
 let currentStatsTabV43='appearances';
 function aggregatedPlayerStatsV43(){
   const map={};
@@ -2230,13 +2261,17 @@ function renderStatisticsV43(tab=currentStatsTabV43){
   const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
   if(!host)return;
   const labels={appearances:'Presenze',starts:'Titolare',subAppearances:'Subentrato',avgMinutes:'Minuti medi',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',cleanSheets:'Porte inviolate',goalkeepers:'Portieri'};
-  const data=aggregatedPlayerStatsV43();
-  let rows=data;
+  if(!Object.prototype.hasOwnProperty.call(labels,tab))tab=currentStatsTabV43='appearances';
+  const roles=statsRolesV506();
+  if(currentStatsRoleV506!=='all'&&!roles.includes(currentStatsRoleV506))currentStatsRoleV506='all';
+  const data=aggregatedPlayerStatsV43().filter(x=>playerMatchesStatsRoleV506(x.player));
+  let rows;
   if(tab==='goalkeepers')rows=data.filter(x=>(x.player.role||'').toLowerCase().includes('port')).sort((a,b)=>b.penaltiesSaved-a.penaltiesSaved||a.goalsConceded-b.goalsConceded);
   else if(tab==='fantasy')rows=[...data].sort((a,b)=>((b.fantasyMatches?b.fantasy/b.fantasyMatches:0)-(a.fantasyMatches?a.fantasy/a.fantasyMatches:0)));
   else rows=[...data].sort((a,b)=>(b[tab]||0)-(a[tab]||0));
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche giocatori</h2><p class="muted small">Calcolate dalle partite terminate</p></div></div>
     ${statsCompetitionSelectorV4410('players')}
+    ${statsRoleSelectorV506(data.length)}
     <div class="stats-tabs-v43">
       <button onclick="renderTeamStatisticsV434()">Squadra</button>
       <button class="active">Giocatori</button>
@@ -2251,10 +2286,9 @@ function renderStatisticsV43(tab=currentStatsTabV43){
       if(tab==='fantasy')value=x.fantasyMatches?(x.fantasy/x.fantasyMatches).toFixed(2):'—';
       if(tab==='mvp')value=`⭐ ${x.mvp}`;
       if(tab==='goalkeepers'){value=`${x.goalsConceded} GS`;detail=`${x.penaltiesSaved} rigori parati · ${x.cleanSheets} porte inviolate`}
-      return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${x.player.number} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
-    }).join('')||'<div class="card empty">Nessun dato disponibile.</div>'}</div>`;
+      return `<div class="stats-row"><div class="stats-rank">${i+1}</div><div><strong>#${escapeHtml(x.player.number)} ${escapeHtml(x.player.name)}</strong><small>${escapeHtml(detail)}</small></div><div class="stats-value">${value}</div></div>`;
+    }).join('')||'<div class="card empty">Nessun giocatore disponibile per questo ruolo e questa classifica.</div>'}</div>`;
 }
-
 
 
 let trendPlayerV4411=0;
@@ -2265,7 +2299,7 @@ function teamTrendV4411(){
  return `<div class="match-section-card"><h3>Ultime ${games.length||5} partite</h3>${games.length?`<p class="muted small">${w} vittorie · ${d} pareggi · ${l} sconfitte · ${gf} gol fatti · ${ga} subiti</p><div class="stats-ranking">${rows.join('')}</div>`:'<p class="muted small">Nessuna partita terminata per questa competizione.</p>'}</div>`;
 }
 function playerTrendV4411(){
- const players=state.players.filter(p=>p.role!=='Allenatore').sort((a,b)=>a.name.localeCompare(b.name,'it'));
+ const players=state.players.filter(p=>p.role!=='Allenatore'&&playerMatchesStatsRoleV506(p)).sort((a,b)=>a.name.localeCompare(b.name,'it'));
  if(!players.length)return '';
  if(!players.some(p=>Number(p.id)===Number(trendPlayerV4411)))trendPlayerV4411=Number(players[0].id);
  const pid=trendPlayerV4411;
