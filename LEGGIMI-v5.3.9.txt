@@ -1,0 +1,28 @@
+HANK MANAGER v5.3.9 — COSTI AUTOMATICI FINANZE
+
+Aggiornamento incrementale della versione 5.3.8.
+
+COSTI INIZIALI 2026/27
+- Iscrizione: 1.000,00 €
+- Affiliazione: 50,00 €
+- Tesseramenti: 28 × 25,00 € = 700,00 €
+- Tessera dirigente: 7,00 €
+- Allenamenti: 530,00 €
+Totale fisso: 2.287,00 €.
+
+PARTITE AUTOMATICHE
+Ogni evento di tipo Partita, con stato Terminata e data compresa tra 1 luglio e 30 giugno della stagione selezionata, conta:
+- 160,00 € per partita (Casa, Trasferta, Campo neutro)
+- 10,00 € per lavanderia
+Totale standard 170,00 € per partita. Nessun addebito su partite Da giocare, In corso o Rinviata. Le partite vengono lette dal Calendario, non duplicate in archivio.
+
+MODIFICHE
+Nella schermata Finanze > Spese > Modifica importi è possibile modificare tutti i costi fissi, numero tesserati e tariffe partita/lavanderia. Per ogni partita terminata si possono personalizzare separatamente costo e lavanderia, anche a 0 €, oppure ripristinare le tariffe standard. I totali si aggiornano al variare dei risultati e delle date, senza duplicare movimenti.
+
+ATTENZIONE: i costi automatici sono calcolati, non sono singoli movimenti di cassa con data di pagamento. Se erano già state inserite manualmente le stesse spese nella v5.3.8, controllare ed eventualmente eliminare i duplicati manuali.
+
+I costi iniziali precompilati si applicano solo al 2026/27. Le stagioni successive partono con costi fissi a zero, modificabili, e tariffe standard per partita e lavanderia.
+
+I dati della rosa, delle partite, dei risultati, delle convocazioni e della sincronizzazione cloud non vengono modificati. Le impostazioni dei costi sono salvate in state.finances, quindi nei backup dell'app.
+
+INSTALLAZIONE: eseguire un backup. Copiare i file inclusi nello ZIP nella radice del repository, sovrascrivendo quelli con lo stesso percorso, senza eliminare gli altri file; Commit e Push origin; attendere il deploy Vercel e riaprire l'app.
