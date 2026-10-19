@@ -1,0 +1,35 @@
+HANK MANAGER v5.3.10 — FINANZE: COSTI CASA, TRASFERTA, NEUTRO E AMICHEVOLI
+
+Aggiornamento incrementale per chi ha già installato la v5.3.9.
+
+TARIFFE NUOVE (modificabili in Finanze > Spese > Modifica importi)
+- Casa: 140 € partita + 10 € lavanderia = 150 €
+- Trasferta: 160 € partita + 10 € lavanderia = 170 €
+- Campo neutro: 160 € partita + 10 € lavanderia = 170 €
+- Amichevoli: 160 € partita + 10 € lavanderia = 170 €
+- Allenamenti 2026/27: costo fisso 210 € (in precedenza 530 €)
+- Due amichevoli già disputate 2026/27: 2 x 160 € = 320 €; lavanderia 2 x 10 € = 20 €; totale 340 €.
+
+ALTRI COSTI FISSI INVARIATI
+Iscrizione 1.000 €; Affiliazione 50 €; 28 tesseramenti x 25 € = 700 €; tessera dirigente 7 €.
+Con i valori di default, costi fissi e amichevoli pregresse: 2.307 €.
+
+SALVAGUARDIA DATI
+- Nessun movimento manuale, pagamento giocatore, sponsor o altra entrata viene cancellato o modificato.
+- Gli importi personalizzati delle singole partite (override) vengono conservati.
+- Le tariffe già personalizzate di trasferta e lavanderia vengono conservate.
+- L'allenamento viene aggiornato da 530 a 210 € soltanto se il valore automatico precedente è ancora esattamente 530 €; altri valori personalizzati rimangono invariati.
+- Le nuove impostazioni vengono inizializzate una sola volta per stagione. Non vengono sovrascritte ad ogni accesso.
+- Le amichevoli già disputate ma non ancora inserite nel Calendario sono conteggiate come pregresse. Se vengono successivamente inserite e segnate Terminate, rimpiazzano le voci pregresse una per una, senza doppio conteggio. La terza amichevole terminata aggiunge altri 170 €.
+- Le partite normali si conteggiano soltanto con stato Terminata, nella stagione selezionata.
+
+IMPORTANTE
+I movimenti inseriti manualmente prima dell'aggiornamento restano invariati: se hai già registrato manualmente una delle due amichevoli, controlla il riepilogo per evitare un doppio conteggio (l'app non può riconoscere automaticamente se una spesa manuale generica si riferisce alla stessa partita).
+
+INSTALLAZIONE
+1. Esporta il backup dall'app.
+2. Estrai lo ZIP e copia i file nei medesimi percorsi del repository, senza eliminare gli altri.
+3. Commit e Push origin su GitHub Desktop.
+4. Attendi Vercel, riapri l'app, vai in Finanze > Spese e verifica i totali.
+
+Lo ZIP contiene solo i file modificati: index.html, js/finances.js, service-worker.js e questo LEGGIMI.

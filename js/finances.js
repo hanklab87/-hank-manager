@@ -1,4 +1,4 @@
-/* Hank Manager 5.3.9 – Finanze con costi automatici.
+/* Hank Manager 5.3.10 – Finanze con tariffe campo e amichevoli.
    Registro di cassa integrato in state (hank_v04): backup e cloud esistenti lo includono.
    Non modifica eventi, giocatori, formazioni, statistiche o sincronizzazione. */
 'use strict';
@@ -6,7 +6,7 @@ let financeActiveSeason = '';
 let financeActiveTab = 'overview';
 const FINANCE_EXPENSES = [
   'Iscrizione','Affiliazione','Tesseramenti','Tessera dirigente','Allenamenti','Match casalinghi',
-  'Match trasferte','Match in campo neutro','Lavanderia','Altre spese'
+  'Match trasferte','Match in campo neutro','Amichevoli','Lavanderia','Altre spese'
 ];
 const FINANCE_INCOMES = ['Quota giocatore','Sponsor','Altre entrate'];
 const financeEuro = cents => new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format((Number(cents)||0)/100);
@@ -19,8 +19,10 @@ function financeDefaultAutomatic(season){
   const current=season==='2026/27';
   return {registrationCents:current?100000:0,affiliationCents:current?5000:0,
     playerCardCents:current?2500:0,registeredPlayers:current?28:0,
-    managerCardCents:current?700:0,trainingCents:current?53000:0,
-    matchCents:16000,laundryCents:1000,matchOverrides:{}};
+    managerCardCents:current?700:0,trainingCents:current?21000:0,
+    homeMatchCents:14000,matchCents:16000,laundryCents:1000,
+    friendlyMatchesCount:current?2:0,friendlyMatchCents:16000,
+    matchOverrides:{},rateSchemaVersion:2};
 }
 const FINANCE_AUTO_FIELDS=[
   ['registrationCents','Iscrizione','euro'],
@@ -28,16 +30,46 @@ const FINANCE_AUTO_FIELDS=[
   ['playerCardCents','Tesseramento per giocatore','euro'],
   ['registeredPlayers','Numero tesserati','count'],
   ['managerCardCents','Tessera dirigente','euro'],
-  ['trainingCents','Allenamenti','euro'],
-  ['matchCents','Costo per partita','euro'],
-  ['laundryCents','Lavanderia per partita','euro']
+  ['trainingCents','Allenamenti (costo fisso)','euro'],
+  ['friendlyMatchesCount','Amichevoli già disputate (totale minimo)','count'],
+  ['friendlyMatchCents','Costo per amichevole','euro'],
+  ['homeMatchCents','Partita in casa','euro'],
+  ['matchCents','Partita in trasferta / campo neutro','euro'],
+  ['laundryCents','Lavanderia per partita (anche amichevoli)','euro']
 ];
 function financeAutomaticSettings(data=financeInit()){
   if(!data.automatic||typeof data.automatic!=='object'||Array.isArray(data.automatic))
     data.automatic=financeDefaultAutomatic(financeActiveSeason);
-  if(!data.automatic.matchOverrides||typeof data.automatic.matchOverrides!=='object')
-    data.automatic.matchOverrides={};
-  return data.automatic;
+  const a=data.automatic;
+  if(!a.matchOverrides||typeof a.matchOverrides!=='object'||Array.isArray(a.matchOverrides))
+    a.matchOverrides={};
+  // Migrazione una tantum v5.3.9 -> v5.3.10: NON tocca movimenti manuali,
+  // entrate, quote giocatori, override per partita o tariffe già personalizzate.
+  if(a.rateSchemaVersion!==2){
+    if(financeActiveSeason==='2026/27'&&a.trainingCents===53000)a.trainingCents=21000;
+    if(!Number.isSafeInteger(a.homeMatchCents))a.homeMatchCents=14000;
+    if(!Number.isSafeInteger(a.friendlyMatchCents))a.friendlyMatchCents=16000;
+    if(!Number.isSafeInteger(a.friendlyMatchesCount))a.friendlyMatchesCount=financeActiveSeason==='2026/27'?2:0;
+    a.rateSchemaVersion=2;
+  }
+  return a;
+}
+function financeIsFriendly(match){
+  const competition=match.competition==='Personalizza'?(match.customCompetition||''):match.competition;
+  return /amichevol/i.test(String(competition||''));
+}
+function financeMatchDefault(match,a){
+  return financeIsFriendly(match)?a.friendlyMatchCents:
+    match.homeAway==='Casa'?a.homeMatchCents:a.matchCents;
+}
+function financeMatchAmounts(match,a){
+  const override=a.matchOverrides[String(match.id)]||{};
+  const fallback=financeMatchDefault(match,a);
+  return {
+    matchCents:Number.isSafeInteger(override.matchCents)&&override.matchCents>=0?override.matchCents:fallback,
+    laundryCents:Number.isSafeInteger(override.laundryCents)&&override.laundryCents>=0?override.laundryCents:a.laundryCents,
+    overridden:Object.keys(override).length>0
+  };
 }
 function financePlayedMatches(){
   const year=Number(financeActiveSeason.slice(0,4));
@@ -49,31 +81,36 @@ function financePlayedMatches(){
 }
 function financeAutoCosts(data=financeInit()){
   const a=financeAutomaticSettings(data),matches=financePlayedMatches();
+  const friendlies=matches.filter(financeIsFriendly);
+  // Le due amichevoli già disputate potrebbero non essere state inserite nel
+  // Calendario. Quando vengono aggiunte come "Terminate", sostituiscono una
+  // voce storica: non si sommano una seconda volta.
+  const unlistedFriendlies=Math.max(0,a.friendlyMatchesCount-friendlies.length);
   const fixed=[
     {id:'auto-registration',category:'Iscrizione',description:'Iscrizione stagione',amountCents:a.registrationCents},
     {id:'auto-affiliation',category:'Affiliazione',description:'Affiliazione stagione',amountCents:a.affiliationCents},
     {id:'auto-playercards',category:'Tesseramenti',description:`${a.registeredPlayers} tesserati × ${financeEuro(a.playerCardCents)}`,amountCents:a.registeredPlayers*a.playerCardCents},
     {id:'auto-manager',category:'Tessera dirigente',description:'Tessera dirigente',amountCents:a.managerCardCents},
-    {id:'auto-training',category:'Allenamenti',description:'Allenamenti stagione',amountCents:a.trainingCents}
+    {id:'auto-training',category:'Allenamenti',description:'Allenamenti (costo fisso)',amountCents:a.trainingCents},
+    {id:'auto-friendly-missing',category:'Amichevoli',description:`${unlistedFriendlies} amichevoli già disputate non presenti nel Calendario × ${financeEuro(a.friendlyMatchCents)}`,amountCents:unlistedFriendlies*a.friendlyMatchCents},
+    {id:'auto-friendly-laundry-missing',category:'Lavanderia',description:`Lavanderia · ${unlistedFriendlies} amichevoli non presenti nel Calendario`,amountCents:unlistedFriendlies*a.laundryCents}
   ].map(x=>({...x,type:'expense',date:'',automatic:true})).filter(x=>x.amountCents>0);
   const variable=[];
   for(const m of matches){
-    const override=a.matchOverrides[String(m.id)]||{};
-    const matchAmount=Number.isSafeInteger(override.matchCents)&&override.matchCents>=0?override.matchCents:a.matchCents;
-    const laundryAmount=Number.isSafeInteger(override.laundryCents)&&override.laundryCents>=0?override.laundryCents:a.laundryCents;
-    const category=m.homeAway==='Trasferta'?'Match trasferte':m.homeAway==='Campo neutro'?'Match in campo neutro':'Match casalinghi';
-    const description=`${m.opponent||'Avversario'} · ${m.homeAway||'Casa'}`;
-    if(matchAmount>0)variable.push({id:`auto-match-${m.id}`,type:'expense',category,description,date:m.date,amountCents:matchAmount,automatic:true,matchId:String(m.id)});
-    if(laundryAmount>0)variable.push({id:`auto-laundry-${m.id}`,type:'expense',category:'Lavanderia',description:`Lavanderia · ${m.opponent||'Avversario'}`,date:m.date,amountCents:laundryAmount,automatic:true,matchId:String(m.id)});
+    const amounts=financeMatchAmounts(m,a);
+    const category=financeIsFriendly(m)?'Amichevoli':m.homeAway==='Trasferta'?'Match trasferte':m.homeAway==='Campo neutro'?'Match in campo neutro':'Match casalinghi';
+    const description=`${m.opponent||'Avversario'} · ${financeIsFriendly(m)?'Amichevole · ':''}${m.homeAway||'Casa'}`;
+    if(amounts.matchCents>0)variable.push({id:`auto-match-${m.id}`,type:'expense',category,description,date:m.date,amountCents:amounts.matchCents,automatic:true,matchId:String(m.id)});
+    if(amounts.laundryCents>0)variable.push({id:`auto-laundry-${m.id}`,type:'expense',category:'Lavanderia',description:`Lavanderia · ${m.opponent||'Avversario'}`,date:m.date,amountCents:amounts.laundryCents,automatic:true,matchId:String(m.id)});
   }
   const fixedTotal=fixed.reduce((sum,e)=>sum+e.amountCents,0);
   const variableTotal=variable.reduce((sum,e)=>sum+e.amountCents,0);
-  return {fixed,variable,entries:[...fixed,...variable],fixedTotal,variableTotal,total:fixedTotal+variableTotal,matches};
+  return {fixed,variable,entries:[...fixed,...variable],fixedTotal,variableTotal,total:fixedTotal+variableTotal,matches,friendlies,unlistedFriendlies};
 }
 function financeOpenAutoSettings(){
   const a=financeAutomaticSettings();
   sheet.innerHTML=`<div class="finance-form"><div class="sheet-head"><h2>Modifica costi automatici</h2><button class="close" onclick="closeModal()">✕</button></div>
-    <p class="muted small">Stagione ${financeE(financeActiveSeason)}. Tutti gli importi sono in euro. Le modifiche aggiornano i totali senza duplicare i movimenti.</p>
+    <p class="muted small">Stagione ${financeE(financeActiveSeason)}. Gli importi sono in euro. Le amichevoli già disputate sono conteggiate una sola volta, anche se successivamente vengono inserite nel Calendario. I movimenti manuali restano invariati.</p>
     ${FINANCE_AUTO_FIELDS.map(([key,label,kind])=>`<div class="field"><label for="financeAuto_${key}">${financeE(label.toUpperCase())}${kind==='euro'?' (€)':''}</label><input id="financeAuto_${key}" type="number" inputmode="${kind==='count'?'numeric':'decimal'}" min="0" step="${kind==='count'?'1':'0.01'}" value="${kind==='count'?a[key]:(a[key]/100).toFixed(2)}"></div>`).join('')}
     <div class="finance-form-buttons"><button class="primary" onclick="financeSaveAutoSettings()">SALVA COSTI</button><button class="secondary" onclick="closeModal()">ANNULLA</button></div></div>`;
   modal.classList.add('open');
@@ -92,9 +129,10 @@ function financeSaveAutoSettings(){
 }
 function financeOpenMatchCosts(id){
   const m=financePlayedMatches().find(e=>String(e.id)===String(id));if(!m)return;
-  const a=financeAutomaticSettings(),o=a.matchOverrides[String(id)]||{};
-  const match=Number.isSafeInteger(o.matchCents)?o.matchCents:a.matchCents;
-  const laundry=Number.isSafeInteger(o.laundryCents)?o.laundryCents:a.laundryCents;
+  const a=financeAutomaticSettings();
+  const amounts=financeMatchAmounts(m,a);
+  const match=amounts.matchCents;
+  const laundry=amounts.laundryCents;
   sheet.innerHTML=`<div class="finance-form"><div class="sheet-head"><h2>Costo partita</h2><button class="close" onclick="closeModal()">✕</button></div>
     <p class="muted small">${financeE(m.opponent||'Avversario')} · ${financeDate(m.date)} · ${financeE(m.homeAway||'Casa')}. Inserisci 0 € se non c'è stata una spesa.</p>
     <div class="field"><label>COSTO PARTITA (€)</label><input id="financeMatchCost" type="number" min="0" step="0.01" inputmode="decimal" value="${(match/100).toFixed(2)}"></div>
@@ -222,18 +260,18 @@ function financeRenderEntries(data,type){
   const auto=financeAutoCosts(data),a=financeAutomaticSettings(data);
   const fixed=auto.fixed.map(e=>`<div class="finance-line"><div><strong>${financeE(e.category)}</strong><small>${financeE(e.description)}</small></div><span class="finance-amount negative">${financeEuro(e.amountCents)}</span></div>`).join('');
   const matchRows=auto.matches.map(m=>{
-    const o=a.matchOverrides[String(m.id)]||{};
-    const match=Number.isSafeInteger(o.matchCents)?o.matchCents:a.matchCents;
-    const laundry=Number.isSafeInteger(o.laundryCents)?o.laundryCents:a.laundryCents;
-    return `<div class="finance-line"><div><strong>${financeE(m.opponent||'Avversario')}</strong><small>${financeDate(m.date)} · ${financeE(m.homeAway||'Casa')} · Partita ${financeEuro(match)} + lavanderia ${financeEuro(laundry)}${Object.keys(o).length?' · Personalizzata':''}</small></div><div class="finance-line-right"><span class="finance-amount negative">${financeEuro(match+laundry)}</span><button type="button" onclick="financeOpenMatchCosts(${financeE(JSON.stringify(String(m.id)))})">Modifica</button></div></div>`;
+    const amounts=financeMatchAmounts(m,a);
+    const match=amounts.matchCents,laundry=amounts.laundryCents;
+    return `<div class="finance-line"><div><strong>${financeE(m.opponent||'Avversario')}</strong><small>${financeDate(m.date)} · ${financeIsFriendly(m)?'Amichevole · ':''}${financeE(m.homeAway||'Casa')} · Partita ${financeEuro(match)} + lavanderia ${financeEuro(laundry)}${amounts.overridden?' · Personalizzata':''}</small></div><div class="finance-line-right"><span class="finance-amount negative">${financeEuro(match+laundry)}</span><button type="button" onclick="financeOpenMatchCosts(${financeE(JSON.stringify(String(m.id)))})">Modifica</button></div></div>`;
   }).join('');
   return `<div class="finance-card"><h2>Spese automatiche · ${financeEuro(auto.total)}</h2>
     <p class="muted small">Si aggiornano dalle partite con stato <strong>Terminata</strong> del Calendario. Ogni partita viene conteggiata una sola volta.</p>
     <div class="finance-actions"><button class="primary" onclick="financeOpenAutoSettings()">⚙ MODIFICA IMPORTI</button></div>
-    <div class="finance-category-title">Costi fissi · ${financeEuro(auto.fixedTotal)}</div>
+    <div class="finance-category-title">Costi fissi e amichevoli pregresse · ${financeEuro(auto.fixedTotal)}</div>
     ${fixed||'<p class="finance-empty">Nessun costo fisso impostato per questa stagione.</p>'}
-    <div class="finance-category-title">Partite e lavanderia · ${financeEuro(auto.variableTotal)}</div>
-    <p class="muted small">${auto.matches.length} partite terminate · Tariffa standard ${financeEuro(a.matchCents)} + ${financeEuro(a.laundryCents)} lavanderia</p>
+    <p class="muted small">Amichevoli: ${a.friendlyMatchesCount} già disputate · ${auto.friendlies.length} presenti come terminate nel Calendario · ${auto.unlistedFriendlies} conteggiate come pregresse. Ogni amichevole vale ${financeEuro(a.friendlyMatchCents)} + ${financeEuro(a.laundryCents)} lavanderia.</p>
+    <div class="finance-category-title">Partite dal Calendario e lavanderia · ${financeEuro(auto.variableTotal)}</div>
+    <p class="muted small">${auto.matches.length} partite terminate · Casa ${financeEuro(a.homeMatchCents)} + ${financeEuro(a.laundryCents)} · Trasferta/Neutro ${financeEuro(a.matchCents)} + ${financeEuro(a.laundryCents)} · Amichevole ${financeEuro(a.friendlyMatchCents)} + ${financeEuro(a.laundryCents)}</p>
     ${matchRows||'<p class="finance-empty">Nessuna partita ancora segnata come Terminata in questa stagione.</p>'}
   </div>
   <div class="finance-card"><h2>Altre spese manuali</h2>
