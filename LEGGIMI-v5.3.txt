@@ -1,0 +1,14 @@
+HANK MANAGER 5.3 – CORREZIONE MODIFICA PARTITA E GRAFICHE
+
+Prima di aggiornare: esportare backup JSON dall'app.
+
+Aggiornamento parziale: copiare i file e la cartella assets/social dentro la RADICE del repository esistente, mantenendo le altre cartelle.
+Non cancellare js/cloud.js, js/team-logos.js, manifest.json o assets/brand.
+
+Correzioni:
+- Scheda partita > MODIFICA EVENTO: ora cambia data, ora, avversario, campo, competizione, giornata/fase e casa/trasferta.
+- Le modifiche conservano convocati, formazione e statistiche.
+- Logo Maccabi visualizzato sul lato giusto anche in trasferta.
+- Grafica social con fondi ricavati dalle tre immagini approvate, testo dinamico e sponsor.
+
+Nota: i tre originali sono immagini piatte con testo incorporato; il renderer sovrappone un pannello scuro per evitare che i vecchi nomi e risultati rimangano visibili. L'impaginazione non e' ancora identica al 100% agli originali. Servono fondi puliti a livelli per una replica perfetta.

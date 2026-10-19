@@ -1712,6 +1712,41 @@ function undoLastLiveEvent(){
   renderLiveMatch();
 }
 
+function openEditMatchDetailsV53(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  const competition=e.competition||'Campionato';
+  const standard=['Campionato','Coppa','Torneo','Amichevole'];
+  const custom=!standard.includes(competition)||competition==='Personalizza';
+  const selectComp=custom?'Personalizza':competition;
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">SCHEDA PARTITA</p><h2>Modifica dettagli evento</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+    <p class="muted small">Le modifiche aggiornano la partita esistente senza cancellare convocati, formazione e statistiche.</p>
+    <div class="field"><label>DATA</label><input id="editMatchDateV53" type="date" value="${escapeHtml(e.date||'')}"></div>
+    <div class="field"><label>ORA</label><input id="editMatchTimeV53" type="time" value="${escapeHtml(e.time||'')}"></div>
+    <div class="field"><label>AVVERSARIO</label><input id="editMatchOpponentV53" value="${escapeHtml(e.opponent||'')}"></div>
+    <div class="field"><label>CAMPO / LUOGO</label><input id="editMatchVenueV53" value="${escapeHtml(e.venue||'')}"></div>
+    <div class="field"><label>COMPETIZIONE</label><select id="editMatchCompetitionV53" onchange="document.getElementById('editMatchCustomWrapV53').classList.toggle('hidden',this.value!=='Personalizza')">${[...standard,'Personalizza'].map(x=>`<option value="${x}" ${selectComp===x?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div class="field ${custom?'':'hidden'}" id="editMatchCustomWrapV53"><label>NOME COMPETIZIONE</label><input id="editMatchCustomV53" value="${escapeHtml(e.customCompetition||(custom&&competition!=='Personalizza'?competition:''))}"></div>
+    <div class="field"><label>GIORNATA / FASE</label><input id="editMatchRoundV53" value="${escapeHtml(e.round||'')}"></div>
+    <div class="field"><label>CASA / TRASFERTA</label><select id="editMatchHomeAwayV53">${['Casa','Trasferta','Campo neutro'].map(x=>`<option ${e.homeAway===x?'selected':''}>${x}</option>`).join('')}</select></div>
+    <button class="primary" onclick="saveEditMatchDetailsV53()">SALVA DETTAGLI PARTITA</button>`;
+  modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function saveEditMatchDetailsV53(){
+  const e=getCurrentMatchDetails();if(!e)return;
+  const date=document.getElementById('editMatchDateV53').value;
+  const opponent=document.getElementById('editMatchOpponentV53').value.trim();
+  if(!date)return alert('Inserisci una data valida.');
+  if(!opponent)return alert('Inserisci il nome della squadra avversaria.');
+  const competition=document.getElementById('editMatchCompetitionV53').value;
+  const customCompetition=document.getElementById('editMatchCustomV53').value.trim();
+  if(competition==='Personalizza'&&!customCompetition)return alert('Inserisci il nome della competizione.');
+  e.date=date;e.time=document.getElementById('editMatchTimeV53').value;
+  e.opponent=opponent;e.venue=document.getElementById('editMatchVenueV53').value.trim();
+  e.competition=competition;e.customCompetition=competition==='Personalizza'?customCompetition:'';
+  e.round=document.getElementById('editMatchRoundV53').value.trim();
+  e.homeAway=document.getElementById('editMatchHomeAwayV53').value;
+  save();closeModal();renderEvents();renderNextMatch();renderDashboard();renderMatchDetails();
+}
 function openMatchDetails(id){
   currentMatchDetailsId=id;
   currentMatchTab='callups';
@@ -2211,14 +2246,17 @@ async function createShareCanvasV52(type,e){
   const ctx=canvas.getContext('2d');
   const names=teamDisplayNamesV52(e);
   const teamLogo=getClubLogo();
-  const oppLogo=getOpponentLogoV52(e.opponent||'');
-  drawHeaderGlowV52(ctx,canvas.width,canvas.height);
+  const oppLogo=getOpponentLogo(e.opponent||'')||getOpponentLogoV52(e.opponent||'');
+  const backgrounds={callups:'assets/social/convocati-approved.png',lineup:'assets/social/formazione-approved.png',result:'assets/social/risultato-approved.png'};
+  const background=await hmLoadImageV52(backgrounds[type]);
+  if(background){ctx.drawImage(background,0,0,canvas.width,canvas.height);ctx.fillStyle='rgba(2,13,26,0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);}
+  else drawHeaderGlowV52(ctx,canvas.width,canvas.height);
   drawBrandStripV52(ctx,canvas.width,canvas.height);
   const titleMap={callups:'CONVOCATI',lineup:'FORMAZIONE UFFICIALE',result:'RISULTATO FINALE'};
-  const meta=[e.round||e.competition||e.type||'Partita', formatDate(e.date||new Date().toISOString().slice(0,10)), e.time||'', e.venue||''].filter(Boolean).join(' · ');
+  const meta=[(e.competition==='Personalizza'?e.customCompetition:e.competition)||e.type||'Partita',e.round||'', formatDate(e.date||new Date().toISOString().slice(0,10)), e.time||'', e.venue||''].filter(Boolean).join(' · ');
   drawPosterMetaV52(ctx,titleMap[type]||'GRAFICA',meta,canvas.width);
-  await drawTeamLogoV52(ctx,teamLogo||initials(names.home),170,286,110,'#0b8b68');
-  await drawTeamLogoV52(ctx,oppLogo||initials(names.away),800,286,110,'#123e73');
+  await drawTeamLogoV52(ctx,names.isAway?(oppLogo||initials(names.home)):(teamLogo||initials(names.home)),170,286,110,'#0b8b68');
+  await drawTeamLogoV52(ctx,names.isAway?(teamLogo||initials(names.away)):(oppLogo||initials(names.away)),800,286,110,'#123e73');
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillStyle='#ffffff';ctx.font='800 34px Inter, Arial, sans-serif';
   ctx.fillText(names.home,225,425);
@@ -2292,6 +2330,7 @@ async function previewShareGraphicV52(type){
   const meta=document.getElementById('socialPreviewMeta');
   const hidden=document.getElementById('socialPreviewHiddenCanvas');
   if(wrap)wrap.classList.add('loading');
+  if(type==='result'&&e.status!=='Terminata'){alert('Per creare il risultato finale, imposta prima lo stato della partita su Terminata.');if(wrap)wrap.classList.remove('loading');return;}
   const canvas=await createShareCanvasV52(type,e);
   const dataUrl=canvas.toDataURL('image/png');
   if(hidden){hidden.innerHTML=''; hidden.appendChild(canvas); canvas.style.display='none';}
