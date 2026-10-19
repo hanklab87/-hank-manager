@@ -1040,3 +1040,28 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 .social-preview-card-v52:not(.ready) .social-preview-image-v52{opacity:.18}
 .social-preview-card-v52.loading .social-preview-image-v52{opacity:.45;filter:blur(2px)}
 @media (max-width:720px){.share-social-grid-v52{grid-template-columns:1fr}.social-preview-card-v52{padding:14px}.social-preview-head-v52{flex-direction:column}.share-social-actions-v52{width:100%}.share-social-actions-v52 button{flex:1}}
+
+/* Hank Manager v5.3.7 – filtri statistiche per campo */
+.stats-filter-grid-v537{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stats-filter-grid-v537>div{display:grid;gap:7px;min-width:0}
+.stats-filter-grid-v537 select{width:100%;max-width:none}
+.stats-comparison-scroll-v537{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:12px}
+.stats-comparison-table-v537{border-collapse:separate;border-spacing:0;width:100%;min-width:560px;font-size:12px;font-variant-numeric:tabular-nums}
+.stats-comparison-table-v537 th,.stats-comparison-table-v537 td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.stats-comparison-table-v537 th:first-child,.stats-comparison-table-v537 td:first-child{text-align:left}
+.stats-comparison-table-v537 thead th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.stats-venue-link-v537{background:none;border:0;color:var(--green);font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:3px 0}
+.stats-venue-link-v537:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.stats-comparison-table-v537 tbody tr.selected{background:rgba(84,227,141,.13)}
+.stats-comparison-table-v537 tbody tr:focus-within{outline:2px solid var(--green)}
+.stats-comparison-v537 p{line-height:1.5}
+@media(max-width:520px){.stats-filter-grid-v537{grid-template-columns:1fr}}
+
+/* v5.3.7.1: statistiche sempre accessibili dalla barra inferiore */
+.stats-screen-v5371{padding-bottom:45px}
+.stats-page-head-v5371{margin:6px 0 18px}
+.stats-filter-panel-v5371{border:1px solid rgba(84,227,141,.45);background:linear-gradient(145deg,rgba(84,227,141,.09),rgba(7,18,31,.88))}
+.stats-filter-heading-v5371{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
+.stats-filter-heading-v5371 strong{font-size:15px}
+.stats-filter-heading-v5371 span{color:var(--green);font-size:9px;letter-spacing:.04em;font-weight:850}
+@media(max-width:390px){.stats-filter-heading-v5371{align-items:flex-start;flex-direction:column}}

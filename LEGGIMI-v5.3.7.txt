@@ -1,0 +1,18 @@
+HANK MANAGER v5.3.7 — FILTRI STATISTICHE PER CAMPO
+
+Novità:
+- Filtro Campo: Tutte / Casa / Trasferta / Campo neutro, combinabile con il filtro Competizione.
+- Statistiche squadra e giocatori aggiornate in base ai filtri.
+- Confronto Casa / Trasferta / Campo neutro (PG, V, P, S, GF, GS, DR, % vittorie).
+- Differenza reti e percentuale di vittorie nella panoramica squadra.
+- Le partite senza indicazione del campo restano nelle statistiche generali, ma non vengono attribuite arbitrariamente a Casa/Trasferta/Neutro.
+
+INSTALLAZIONE
+1. Dall'app esportare un backup prima dell'aggiornamento.
+2. Estrarre lo ZIP e copiare i file nella radice del repository, SENZA creare una sottocartella.
+3. Sovrascrivere i file corrispondenti, NON cancellare altri file o cartelle del repository.
+4. GitHub Desktop: Commit e Push origin. Attendere Vercel e riaprire la PWA.
+5. Aprire Statistiche -> Squadra / Giocatori e provare il nuovo filtro Campo.
+
+I filtri sono di sola visualizzazione. Non modificano i dati salvati o la sincronizzazione.
+La scheda Evento supportava già il valore "Campo neutro".

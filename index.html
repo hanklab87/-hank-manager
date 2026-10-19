@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06101c">
 <title>Hank Manager</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=5371">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/icon-192.png">
@@ -119,6 +119,13 @@
     </div>
     <div id="events" style="margin-top:18px"></div>
   </section>
+<!-- v5.3.7.1: schermata statistiche autonoma, non piu dentro la Home -->
+<section id="statistics" class="screen stats-screen-v5371">
+  <div class="page-head stats-page-head-v5371">
+    <div><p class="eyebrow">HANK MANAGER · v5.3.7.1</p><h1>Statistiche</h1><p class="muted small">Filtra le prestazioni per competizione e campo.</p></div>
+  </div>
+  <div id="statisticsContent" aria-live="polite"></div>
+</section>
 <section id="tactical" class="screen">
 <div class="page-head tactical-page-head"><div><p class="eyebrow">HANK MANAGER · 4.4.5 SEASON START</p><h1 id="tacticalMatchTitle">Formazione partita</h1><p class="muted" id="tacticalMatchSubtitle">Scegli i titolari direttamente sul campo.</p></div><button class="secondary compact-btn" onclick="backToMatchCenter()">← PARTITA</button></div>
 <div class="formation-layout"><div>
@@ -171,12 +178,12 @@
   <button id="nHome" onclick="show('home')"><b>⌂</b>Home</button>
   <button id="nSquad" onclick="show('squad')"><b>👥</b>Rosa</button>
   <button id="nCalendar" onclick="show('calendar')"><b>📅</b>Calendario</button>
-  <button onclick="alert('Statistiche in arrivo')"><b>📊</b>Statistiche</button>
+  <button id="nStatsLegacy" onclick="showStats()"><b>📊</b>Statistiche</button>
 </nav>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 
 <script src="js/team-logos.js"></script>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=5371"></script>
 
 
 
@@ -286,7 +293,7 @@
 <button onclick="show('home');renderDashboard()" class="active"><span>⌂</span>Home</button>
 <button onclick="show('squad');renderPlayers()"><span>♙</span>Rosa</button>
 <button onclick="show('calendar');renderEvents()"><span>▣</span>Calendario</button>
-<button onclick="showStats()"><span>▥</span>Statistiche</button>
+<button id="nStats" onclick="showStats()"><span>▥</span>Statistiche</button>
 
     <button onclick="show('society');renderSociety()" data-screen="society">
       <span>🏛</span><small>Società</small>

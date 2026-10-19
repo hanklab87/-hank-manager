@@ -302,7 +302,7 @@ let currentFilter='Tutti';
 function save(){localStorage.setItem('hank_v04',JSON.stringify(state))}
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
-  const inside=['home','squad','calendar','tactical'].includes(id);
+  const inside=['home','squad','calendar','statistics','tactical'].includes(id);
   topbar.classList.toggle('hidden',!inside);
   nav.classList.toggle('hidden',!inside);
   document.body.classList.toggle('detail-open',['matchDetails','tactical','liveMatch'].includes(id));
@@ -311,6 +311,7 @@ function show(id){
   if(id==='tactical'){renderTacticalBoard();}
   if(id==='squad'){nSquad?.classList.add('active');renderPlayers()}
   if(id==='calendar'){nCalendar?.classList.add('active');renderEvents()}
+  if(id==='statistics'){document.getElementById('nStats')?.classList.add('active');document.getElementById('nStatsLegacy')?.classList.add('active');renderTeamStatisticsV434()}
   if(id==='society'){renderSociety();}
   window.scrollTo({top:0,left:0,behavior:'auto'});
   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
@@ -960,11 +961,8 @@ function openNextMatch(){
   if(next)openMatchCenter(next.id);else alert('Nessuna partita disponibile');
 }
 function showStats(){
-  show('home');
-  setTimeout(()=>{
-    renderTeamStatisticsV434();
-    document.getElementById('dashboardV07')?.scrollIntoView({behavior:'smooth'});
-  },50);
+  // Apri una pagina dedicata: la Home non deve sovrascrivere i filtri.
+  show('statistics');
 }
 
 
@@ -3013,8 +3011,8 @@ function saveMatchRatings(id){
   save();alert('Voti salvati.');
 }
 function ratingAverageForPlayer(playerId){
-  const votes=state.events
-    .filter(e=>e.status==='Terminata'&&(currentStatsCompetition==='all'||matchCompetitionV4410(e)===currentStatsCompetition)&&e.ratings&&(e.ratings[playerId]!==undefined||e.ratings[String(playerId)]!==undefined))
+  const votes=filteredFinishedMatchesV4410()
+    .filter(e=>e.ratings&&(e.ratings[playerId]!==undefined||e.ratings[String(playerId)]!==undefined))
     .map(e=>Number(e.ratings[playerId]??e.ratings[String(playerId)]))
     .filter(Number.isFinite);
   return votes.length?votes.reduce((a,b)=>a+b,0)/votes.length:0;
@@ -3058,18 +3056,76 @@ function fantasyVoteForMatch(e,playerId){
 }
 
 let currentStatsCompetition='all';
+// Il filtro per il luogo è solo di visualizzazione: non modifica eventi, statistiche o dati cloud.
+let currentStatsVenueV537='all';
 function matchCompetitionV4410(e){
- const raw=String(e.competition||e.competitionType||e.category||e.type||e.tournament||'').toLowerCase();
+ const raw=String(e.customCompetition||e.competition||e.competitionType||e.category||e.type||e.tournament||'').toLowerCase();
  if(raw.includes('super')||raw.includes('champions'))return 'champions';
  if(raw.includes('serie')||raw.includes('campionato')||raw.includes('élite')||raw.includes('elite'))return 'league';
  return 'other';
 }
+function matchVenueV537(e){
+  const value=String(e.homeAway||'').trim().toLowerCase();
+  if(value==='casa')return 'home';
+  if(value==='trasferta')return 'away';
+  if(value==='campo neutro'||value==='neutro')return 'neutral';
+  return 'unknown'; // Non attribuire automaticamente un luogo alle vecchie partite senza dato.
+}
+function finishedMatchesByCompetitionV537(){
+  return (state.events||[]).filter(e=>e.type==='Partita'&&e.status==='Terminata'&&
+    (currentStatsCompetition==='all'||matchCompetitionV4410(e)===currentStatsCompetition));
+}
 function filteredFinishedMatchesV4410(){
- return state.events.filter(e=>e.status==='Terminata'&&(currentStatsCompetition==='all'||matchCompetitionV4410(e)===currentStatsCompetition));
+  return finishedMatchesByCompetitionV537().filter(e=>currentStatsVenueV537==='all'||matchVenueV537(e)===currentStatsVenueV537);
+}
+function changeStatsFilterV537(kind,value,mode){
+  if(kind==='competition')currentStatsCompetition=value;
+  else if(kind==='venue')currentStatsVenueV537=value;
+  if(mode==='team')renderTeamStatisticsV434();
+  else renderStatisticsV43(currentStatsTabV43);
 }
 function statsCompetitionSelectorV4410(mode){
- return `<div class="match-section-card stats-selector-v507"><label for="statsComp4410"><strong>Competizione</strong></label><select id="statsComp4410" onchange="currentStatsCompetition=this.value;${mode==='team'?'renderTeamStatisticsV434()':"renderStatisticsV43(currentStatsTabV43)"}">
- ${[['all','Tutte le competizioni'],['league','Serie A d’Élite'],['champions','Super Champions'],['other','Coppe e tornei']].map(([v,t])=>`<option value="${v}" ${currentStatsCompetition===v?'selected':''}>${t}</option>`).join('')}</select></div>`;
+ return `<div class="match-section-card stats-selector-v507 stats-filter-panel-v537 stats-filter-panel-v5371">
+   <div class="stats-filter-heading-v5371"><strong>Filtra statistiche</strong><span>CASA · TRASFERTA · NEUTRO</span></div>
+   <div class="stats-filter-grid-v537">
+     <div><label for="statsComp4410"><strong>Competizione</strong></label><select id="statsComp4410" onchange="changeStatsFilterV537('competition',this.value,'${mode}')">
+     ${[['all','Tutte le competizioni'],['league','Serie A d’Élite'],['champions','Super Champions'],['other','Coppe e tornei']].map(([v,t])=>`<option value="${v}" ${currentStatsCompetition===v?'selected':''}>${t}</option>`).join('')}</select></div>
+     <div><label for="statsVenueV537"><strong>Campo</strong></label><select id="statsVenueV537" onchange="changeStatsFilterV537('venue',this.value,'${mode}')">
+     ${[['all','Tutte le partite'],['home','Casa'],['away','Trasferta'],['neutral','Campo neutro']].map(([v,t])=>`<option value="${v}" ${currentStatsVenueV537===v?'selected':''}>${t}</option>`).join('')}</select></div>
+   </div>
+   <p class="muted small">${filteredFinishedMatchesV4410().length} partite terminate corrispondenti ai filtri selezionati.</p>
+ </div>`;
+}
+function teamNumbersForGamesV537(games){
+  const r={played:games.length,wins:0,draws:0,losses:0,goalsFor:0,goalsAgainst:0};
+  games.forEach(e=>{
+    const away=matchVenueV537(e)==='away';
+    const gf=Number(away?e.awayScore:e.homeScore)||0;
+    const ga=Number(away?e.homeScore:e.awayScore)||0;
+    r.goalsFor+=gf;r.goalsAgainst+=ga;
+    if(gf>ga)r.wins++;else if(gf<ga)r.losses++;else r.draws++;
+  });
+  r.goalDifference=r.goalsFor-r.goalsAgainst;
+  r.winRate=r.played?Math.round(r.wins/r.played*100):0;
+  return r;
+}
+function venueComparisonV537(){
+  // Il confronto rispetta la competizione, ma mostra tutte le sedi indipendentemente dal filtro Campo.
+  const games=finishedMatchesByCompetitionV537();
+  const groups=[['home','Casa'],['away','Trasferta'],['neutral','Campo neutro']];
+  const unclassified=games.filter(e=>matchVenueV537(e)==='unknown').length;
+  return `<div class="match-section-card stats-comparison-v537">
+    <h3>Confronto per campo</h3>
+    <p class="muted small">Partite terminate · ${currentStatsCompetition==='all'?'tutte le competizioni':'competizione selezionata'}. Tocca una riga per filtrare.</p>
+    <div class="stats-comparison-scroll-v537"><table class="stats-comparison-table-v537">
+      <thead><tr><th>Campo</th><th>PG</th><th>V</th><th>P</th><th>S</th><th>GF</th><th>GS</th><th>DR</th><th>Vittorie</th></tr></thead>
+      <tbody>${groups.map(([key,label])=>{
+        const n=teamNumbersForGamesV537(games.filter(e=>matchVenueV537(e)===key));
+        return `<tr class="${currentStatsVenueV537===key?'selected':''}"><th scope="row"><button type="button" class="stats-venue-link-v537" onclick="changeStatsFilterV537('venue','${key}','team')" title="Filtra: ${label}">${label}</button></th><td>${n.played}</td><td>${n.wins}</td><td>${n.draws}</td><td>${n.losses}</td><td>${n.goalsFor}</td><td>${n.goalsAgainst}</td><td>${n.goalDifference>0?'+':''}${n.goalDifference}</td><td>${n.winRate}%</td></tr>`;
+      }).join('')}</tbody>
+    </table></div>
+    ${unclassified?`<p class="muted small">${unclassified} ${unclassified===1?'partita non classificata':'partite non classificate'}: imposta Casa, Trasferta o Campo neutro nei dettagli dell'evento per includerle nel confronto.</p>`:''}
+  </div>`;
 }
 // Filtri di sola visualizzazione: non sono salvati nello stato dell'app e non modificano Supabase.
 let currentStatsRoleV506='all';
@@ -3107,7 +3163,7 @@ function aggregatedPlayerStatsV43(){
   const map={};
   state.players.filter(p=>p.role!=='Allenatore').forEach(p=>map[p.id]={
     player:p,appearances:0,starts:0,subAppearances:0,minutes:0,goals:0,assists:0,yellow:0,red:0,ownGoals:0,
-    goalsConceded:0,penaltiesSaved:0,cleanSheets:0,rating:ratingAverageForPlayer(p.id),fantasy:0,fantasyMatches:0,mvp:0
+    goalsConceded:0,penaltiesSaved:0,cleanSheets:0,rating:0,ratingSum:0,ratingMatches:0,fantasy:0,fantasyMatches:0,mvp:0
   });
   filteredFinishedMatchesV4410().forEach(e=>{
     const participants=getMatchParticipants(e);
@@ -3157,18 +3213,26 @@ function aggregatedPlayerStatsV43(){
       if(!map[id])return;
       const base=e.ratings?.[id]??e.ratings?.[String(id)];
       if(base===undefined||base==='')return;
+      const ratingNumber=Number(base);
+      if(Number.isFinite(ratingNumber)){
+        map[id].ratingSum+=ratingNumber;
+        map[id].ratingMatches++;
+      }
       map[id].fantasy+=fantasyVoteForMatch(e,id);
       map[id].fantasyMatches++;
     });
     const mvpId=Number(e.live?.mvpPlayerId||e.mvpPlayerId||0);
     if(mvpId&&map[mvpId])map[mvpId].mvp++;
   });
-  Object.values(map).forEach(x=>x.avgMinutes=x.appearances?x.minutes/x.appearances:0);
+  Object.values(map).forEach(x=>{
+    x.avgMinutes=x.appearances?x.minutes/x.appearances:0;
+    x.rating=x.ratingMatches?x.ratingSum/x.ratingMatches:0;
+  });
   return Object.values(map);
 }
 function renderStatisticsV43(tab=currentStatsTabV43){
   currentStatsTabV43=tab;
-  const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
+  const host=document.getElementById('statisticsContent')||document.getElementById('dashboardV07');
   if(!host)return;
   const labels={appearances:'Presenze',starts:'Titolare',subAppearances:'Subentrato',avgMinutes:'Minuti medi',minutes:'Minuti',goals:'Marcatori',assists:'Assist',yellow:'Ammonizioni',red:'Espulsioni',ownGoals:'Autogol',rating:'Media voto',fantasy:'Fantavoto',mvp:'MVP',cleanSheets:'Porte inviolate',goalkeepers:'Portieri'};
   if(!Object.prototype.hasOwnProperty.call(labels,tab))tab=currentStatsTabV43='appearances';
@@ -3206,7 +3270,7 @@ function lastFiveV4411(){return [...filteredFinishedMatchesV4410()].filter(e=>e.
 function teamTrendV4411(){
  const games=lastFiveV4411();let w=0,d=0,l=0,gf=0,ga=0;
  const rows=games.map(e=>{const away=e.homeAway==='Trasferta',f=Number(away?e.awayScore:e.homeScore)||0,a=Number(away?e.homeScore:e.awayScore)||0;gf+=f;ga+=a;const r=f>a?'V':f<a?'S':'P';if(r==='V')w++;else if(r==='S')l++;else d++;return `<div class="stats-row"><div class="stats-rank">${r}</div><div><strong>${escapeHtml(e.opponent||'Avversario')}</strong><small>${escapeHtml(formatDate(e.date))} · ${escapeHtml(e.homeAway||'')}</small></div><div class="stats-value">${f}–${a}</div></div>`});
- return `<div class="match-section-card"><h3>Ultime ${games.length||5} partite</h3>${games.length?`<p class="muted small">${w} vittorie · ${d} pareggi · ${l} sconfitte · ${gf} gol fatti · ${ga} subiti</p><div class="stats-ranking">${rows.join('')}</div>`:'<p class="muted small">Nessuna partita terminata per questa competizione.</p>'}</div>`;
+ return `<div class="match-section-card"><h3>Ultime ${games.length||5} partite</h3>${games.length?`<p class="muted small">${w} vittorie · ${d} pareggi · ${l} sconfitte · ${gf} gol fatti · ${ga} subiti</p><div class="stats-ranking">${rows.join('')}</div>`:'<p class="muted small">Nessuna partita terminata per i filtri selezionati.</p>'}</div>`;
 }
 function playerTrendV4411(){
  const players=state.players.filter(p=>p.role!=='Allenatore'&&playerMatchesStatsRoleV506(p)).sort((a,b)=>a.name.localeCompare(b.name,'it'));
@@ -3250,7 +3314,7 @@ function teamStatisticsV434(){
 }
 function renderTeamStatisticsV434(){
   const s=teamStatisticsV434();
-  const host=document.getElementById('dashboardV07')||document.getElementById('statisticsContent')||document.querySelector('#statistics .content');
+  const host=document.getElementById('statisticsContent')||document.getElementById('dashboardV07');
   if(!host)return;
   const labels=['0–20','21–40','41–60','61–80+'];
   host.innerHTML=`<div class="section-head"><div><h2>Statistiche squadra</h2><p class="muted small">Riepilogo delle partite terminate</p></div></div>
@@ -3262,7 +3326,10 @@ function renderTeamStatisticsV434(){
       <div class="summary-count"><strong>${s.losses}</strong><small>Sconfitte</small></div>
       <div class="summary-count"><strong>${s.goalsFor}</strong><small>Gol fatti</small></div>
       <div class="summary-count"><strong>${s.goalsAgainst}</strong><small>Gol subiti</small></div>
+      <div class="summary-count"><strong>${s.goalsFor-s.goalsAgainst>0?'+':''}${s.goalsFor-s.goalsAgainst}</strong><small>Diff. reti</small></div>
+      <div class="summary-count"><strong>${s.played?Math.round(s.wins/s.played*100):0}%</strong><small>Vittorie %</small></div>
     </div>
+    ${venueComparisonV537()}
     ${teamTrendV4411()}
     <div class="match-section-card">
       <h3>Gol per momento della partita</h3>
@@ -3327,5 +3394,5 @@ function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT'
 function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
 if(state.profile){updateCoachIdentityUI();show('home');renderBranding();renderNextMatch();renderDashboard()}
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5371').catch(()=>{}));
 }

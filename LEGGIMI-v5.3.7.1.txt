@@ -1,0 +1,24 @@
+HANK MANAGER v5.3.7.1 – FIX STATISTICHE VISIBILI
+
+PROBLEMA RISOLTO
+- La barra di navigazione secondaria aveva ancora il pulsante "Statistiche in arrivo".
+- Le statistiche si aprivano nella Home e potevano essere sovrascritte dal dashboard.
+
+ORA
+- Statistiche apre una schermata dedicata.
+- Filtri Competizione e Campo (Tutte, Casa, Trasferta, Campo neutro) ben visibili.
+- Confronto squadra per campo e statistiche giocatori filtrate.
+- Anche la media voto rispetta i filtri selezionati.
+- Versione v5.3.7.1 visibile in alto nella schermata Statistiche.
+- File JS e CSS con versione nel link per ridurre il rischio di cache obsoleta.
+
+INSTALLAZIONE
+1. Eseguire un backup dall'app.
+2. Aprire lo ZIP e copiare index.html, js/app.js, css/style.css, service-worker.js
+   nella RADICE del repository, sovrascrivendo quelli vecchi.
+   NON sostituire/eliminare altre cartelle, file cloud o dati.
+3. GitHub Desktop: Commit e Push origin. Attendere Vercel.
+4. Chiudere e riaprire la PWA; se serve, aggiornare dal browser.
+5. Toccare Statistiche nella barra inferiore. Deve apparire v5.3.7.1.
+
+Non sono state apportate modifiche ai dati salvati, alla sincronizzazione o ai modelli di eventi.
