@@ -1,0 +1,14 @@
+HANK MANAGER v5.3.4 — PATCH SOCIAL
+
+- Aumentata distanza tra linee della formazione: nomi difensori non sovrapposti al portiere.
+- Inserita selezione MVP nella sezione Condividi della partita, con nome manuale alternativo.
+- MVP mostrato nella grafica risultato finale, sotto i marcatori e sopra gli sponsor.
+- Le statistiche MVP continuano a usare l’ID giocatore se selezionato dalla rosa.
+- Nessuna modifica al cloud, localStorage o struttura delle partite esistenti.
+
+INSTALLAZIONE
+1. Esporta backup dati dall’app.
+2. Estrai ZIP e copia file e cartelle nella radice del repository (non in una sottocartella).
+3. Commit e Push origin con GitHub Desktop.
+4. Attendi deploy Vercel, chiudi e riapri PWA.
+5. Apri partita > Condividi > scegli MVP > SALVA MVP > GENERA RISULTATO.
