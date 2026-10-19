@@ -1,0 +1,27 @@
+HANK MANAGER v5.4 – TEMPLATE SOCIAL RICOSTRUITI
+
+Partendo dalla versione v5.3.2 già installata:
+- Grafica social ridisegnata con composizione verticale ispirata al modello approvato.
+- Logo HM originale in alto, non soltanto la scritta.
+- Convocati in due colonne, senza totale convocati e senza Casa/Trasferta.
+- Formazione sul campo con maglie, modulo, titolari e riserve.
+- Risultato con marcatori raggruppati per giocatore e minuti nella stessa riga.
+- Nessun assist nella grafica risultato.
+- Sponsor da Identità squadra centrati automaticamente, anche oltre quattro.
+- PNG 2160×3840.
+- Nessuna modifica al formato dei dati, backup o sincronizzazione.
+
+INSTALLAZIONE:
+1. Esporta un backup JSON dall'app prima di procedere.
+2. Estrai lo ZIP. Copia tutti i file e le cartelle contenuti NELLA RADICE
+   del repository GitHub, sostituendo gli omonimi senza cancellare altri file.
+3. Fai commit e Push origin da GitHub Desktop; attendi il deploy Vercel.
+4. Chiudi e riapri la PWA iPhone. Se vedi una versione vecchia,
+   apri il sito da Safari e ricarica dopo il deploy.
+5. Apri una partita > Condividi > Genera grafica.
+
+IMPORTANTE: il layout è ricostruito con elementi dinamici; il risultato
+non è una copia pixel-per-pixel del mockup approvato.
+
+File modificati: index.html, js/app.js (solo etichetta versione),
+service-worker.js. File nuovi: js/social-v54.js, assets/social/stadium-clean-v54.jpg.

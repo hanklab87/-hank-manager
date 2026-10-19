@@ -1,5 +1,5 @@
-const CACHE='hank-manager-v532-social-quality';
-const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./manifest.json','./js/cloud.js','./js/team-logos.js','./assets/logos/maccabi-roma.png','./assets/brand/icon-192.png','./assets/brand/icon-512.png','./assets/brand/apple-touch-icon.png','./assets/brand/favicon-32.png','./assets/social/convocati-approved.png','./assets/social/formazione-approved.png','./assets/social/risultato-approved.png'];
+const CACHE='hank-manager-v54-approved-templates';
+const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./js/social-v54.js','./assets/social/stadium-clean-v54.jpg','./manifest.json','./js/cloud.js','./js/team-logos.js','./assets/logos/maccabi-roma.png','./assets/brand/icon-192.png','./assets/brand/icon-512.png','./assets/brand/apple-touch-icon.png','./assets/brand/favicon-32.png','./assets/social/convocati-approved.png','./assets/social/formazione-approved.png','./assets/social/risultato-approved.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
   self.skipWaiting();

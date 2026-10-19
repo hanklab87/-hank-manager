@@ -2525,7 +2525,7 @@ function renderShareTabV52(e,host){
     <button class="secondary" onclick="previewShareGraphicV52('lineup')">🧩 GENERA FORMAZIONE</button>
     <button class="secondary" onclick="previewShareGraphicV52('result')">🏁 GENERA RISULTATO</button>
   </div>
-  <div class="share-social-note-v52">Motore grafico v5.3.2 · Le grafiche includono automaticamente loghi, competizione, dati gara e sponsor. Se il logo avversario esterno non è accessibile, verranno usate le iniziali senza bloccare il PNG.</div>
+  <div class="share-social-note-v52">Motore grafico v5.4 · Le grafiche includono automaticamente loghi, competizione, dati gara e sponsor. Se il logo avversario esterno non è accessibile, verranno usate le iniziali senza bloccare il PNG.</div>
   <div id="socialPreviewWrap" class="social-preview-card-v52">
     <div class="social-preview-head-v52">
       <div>
