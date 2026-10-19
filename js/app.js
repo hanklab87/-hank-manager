@@ -2115,9 +2115,10 @@ function getOpponentLogoV52(name=''){
   return '';
 }
 function teamDisplayNamesV52(e){
+  // Nei post social il Maccabi resta sempre a sinistra, come nei template approvati.
+  // La sede della partita continua a determinare l'ordine dei gol registrati.
   const team=state.society?.name||state.profile?.team||'Maccabi Roma';
-  const away=e.homeAway==='Trasferta';
-  return away?{home:e.opponent||'Avversario',away:team,myTeam:team,isAway:true}:{home:team,away:e.opponent||'Avversario',myTeam:team,isAway:false};
+  return {home:team,away:e.opponent||'Avversario',myTeam:team,isAway:e.homeAway==='Trasferta'};
 }
 function sortedCallupPlayersV52(e){
   return (e.callups||[])
@@ -2136,7 +2137,7 @@ function lineupPlayersV52(e){
 }
 function scoringRowsV52(e){
   const names=teamDisplayNamesV52(e);
-  const homeIsMine=!names.isAway;
+  const homeIsMine=true;
   const myGoals=allMatchEvents(e).filter(ev=>['goal','Gol','Rigore segnato'].includes(ev.type));
   return myGoals.map(ev=>({
     name: playerNameById(ev.playerId),
@@ -2148,12 +2149,25 @@ function scoringRowsV52(e){
 function sponsorsV52(){
   return (state.branding?.sponsors||[]).slice(0,3);
 }
+// v5.3.1: le immagini remote vanno richieste con CORS prima di disegnarle
+// su canvas; altrimenti iOS/Safari blocca toDataURL() e non genera il PNG.
+// Se un sito non consente CORS, viene usato un logo testuale senza bloccare il post.
 function hmLoadImageV52(src){
   return new Promise(resolve=>{
-    if(!src){resolve(null);return;}
+    if(!src || typeof src!=='string'){resolve(null);return;}
     const img=new Image();
-    img.onload=()=>resolve(img);
-    img.onerror=()=>resolve(null);
+    let settled=false;
+    const finish=(value)=>{
+      if(settled)return;
+      settled=true;
+      clearTimeout(timeout);
+      img.onload=null;img.onerror=null;
+      resolve(value);
+    };
+    const timeout=setTimeout(()=>finish(null),7000);
+    img.crossOrigin='anonymous';
+    img.onload=()=>finish(img);
+    img.onerror=()=>finish(null);
     img.src=src;
   });
 }
@@ -2175,16 +2189,19 @@ function drawCircleTextLogoV52(ctx,text,cx,cy,r,bg='#123e73',fg='#ffffff'){
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText((text||'?').slice(0,3),cx,cy+1);
 }
-async function drawTeamLogoV52(ctx,srcOrText,x,y,size,bg='#123e73'){
-  const img=await hmLoadImageV52(srcOrText&&String(srcOrText).startsWith('data:')?srcOrText:srcOrText);
+async function drawTeamLogoV52(ctx,srcOrText,x,y,size,bg='#123e73',fallback='FC'){
+  const img=await hmLoadImageV52(srcOrText);
   if(img){
     ctx.save();
     drawRoundedRectV52(ctx,x,y,size,size,22,'#ffffff');
     ctx.clip();
-    ctx.drawImage(img,x+6,y+6,size-12,size-12);
+    const ratio=Math.min((size-14)/img.width,(size-14)/img.height);
+    const iw=img.width*ratio,ih=img.height*ratio;
+    ctx.drawImage(img,x+(size-iw)/2,y+(size-ih)/2,iw,ih);
     ctx.restore();
   }else{
-    drawCircleTextLogoV52(ctx,srcOrText,x+size/2,y+size/2,size/2,bg);
+    const text=srcOrText && !/^(https?:|data:|\/|\.)/i.test(srcOrText)?srcOrText:fallback;
+    drawCircleTextLogoV52(ctx,text,x+size/2,y+size/2,size/2,bg);
   }
 }
 function drawHeaderGlowV52(ctx,w,h){
@@ -2211,35 +2228,172 @@ function drawBrandStripV52(ctx,w,h){
 function drawPosterMetaV52(ctx,subtitle,meta,w){
   ctx.textAlign='center';ctx.textBaseline='top';
   ctx.fillStyle='#ffffff';
-  ctx.font='800 62px Inter, Arial, sans-serif';
-  ctx.fillText(subtitle,w/2,160);
-  ctx.font='600 24px Inter, Arial, sans-serif';
-  ctx.fillStyle='rgba(255,255,255,0.85)';
-  ctx.fillText(meta,w/2,228);
+  ctx.font=`800 ${subtitle.length>18?48:62}px Inter, Arial, sans-serif`;
+  ctx.fillText(subtitle,w/2,160,w-110);
+  ctx.font='600 23px Inter, Arial, sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.9)';
+  const chunks=String(meta||'').split(' · ');
+  const lines=[];
+  let line='';
+  for(const chunk of chunks){
+    const candidate=line?line+' · '+chunk:chunk;
+    if(ctx.measureText(candidate).width>w-120 && line){lines.push(line);line=chunk;}
+    else line=candidate;
+  }
+  if(line)lines.push(line);
+  lines.slice(0,2).forEach((text,i)=>ctx.fillText(text,w/2,230+i*31,w-100));
 }
+
 async function drawSponsorsV52(ctx,w,h){
-  const sponsors=sponsorsV52();
-  drawRoundedRectV52(ctx,60,h-150,w-120,88,26,'rgba(255,255,255,0.08)');
-  ctx.fillStyle='rgba(255,255,255,0.85)';
-  ctx.font='700 20px Inter, Arial, sans-serif';
+  const sponsors=Array.isArray(state.branding?.sponsors)?state.branding.sponsors:[];
+  const rows=Math.max(1,Math.ceil(sponsors.length/4));
+  const availableHeight=110;
+  drawRoundedRectV52(ctx,60,h-162,w-120,114,26,'rgba(2,13,26,0.78)');
+  ctx.fillStyle='rgba(255,255,255,0.88)';
+  ctx.font='700 19px Inter, Arial, sans-serif';
   ctx.textAlign='left';ctx.textBaseline='middle';
-  ctx.fillText('SPONSOR',90,h-106);
-  let x=220;
-  for (const [i,s] of sponsors.entries()){
-    const cellW=240;
-    drawRoundedRectV52(ctx,x+(i*cellW),h-132,210,48,18,'rgba(255,255,255,0.12)');
-    if(s.logo){
-      const img=await hmLoadImageV52(s.logo);
-      if(img)ctx.drawImage(img,x+12+(i*cellW),h-124,32,32);
-      ctx.fillStyle='#fff';ctx.font='600 17px Inter, Arial, sans-serif';ctx.fillText(String(s.name||''),x+56+(i*cellW),h-108);
-    }else{
-      ctx.fillStyle='#fff';ctx.font='600 17px Inter, Arial, sans-serif';ctx.fillText(String(s.name||''),x+16+(i*cellW),h-108);
-    }
-  }
+  ctx.fillText('SPONSOR',82,h-142);
   if(!sponsors.length){
-    ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='600 18px Inter, Arial, sans-serif';ctx.fillText('Aggiungi gli sponsor dalla sezione EA per mostrarli anche qui.',220,h-106);
+    ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='600 18px Inter, Arial, sans-serif';
+    ctx.fillText('Inserisci gli sponsor dal profilo squadra.',82,h-96);
+    return;
+  }
+  const maxRows=Math.min(2,rows);
+  const visible=sponsors.slice(0,maxRows*4);
+  const rowHeight=66/maxRows;
+  const cellWidth=220;
+  for(const [i,s] of visible.entries()){
+    const col=i%4,row=Math.floor(i/4);
+    const x=82+col*cellWidth,y=h-125+row*rowHeight;
+    drawRoundedRectV52(ctx,x,y,205,rowHeight-3,9,'rgba(255,255,255,0.10)');
+    const img=await hmLoadImageV52(s.logo);
+    const iconSize=Math.min(31,rowHeight-8);
+    if(img){
+      const scale=Math.min(iconSize/img.width,iconSize/img.height);
+      ctx.drawImage(img,x+6,y+(rowHeight-iconSize)/2,img.width*scale,img.height*scale);
+    }
+    ctx.fillStyle='#fff';ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.font=`600 ${sponsors.length>4?13:15}px Inter, Arial, sans-serif`;
+    const label=String(s.name||'Sponsor');
+    const limit=sponsors.length>4?15:17;
+    ctx.fillText(label.length>limit?label.slice(0,limit-1)+'…':label,x+(img?44:10),y+rowHeight/2,155);
+  }
+  if(sponsors.length>visible.length){
+    ctx.fillStyle='#ffffff';ctx.font='600 12px Inter, Arial, sans-serif';
+    ctx.textAlign='right';ctx.fillText(`+${sponsors.length-visible.length} sponsor`,w-83,h-147);
   }
 }
+
+// Elementi scenografici estratti dalle grafiche approvate: Colosseo,
+// strisce verde/blu e campo. Non ridisegniamo sopra testi già impressi
+// nel file originale, che altrimenti si vedrebbero doppi.
+function drawFadedCropV531(ctx,img,sx,sy,sw,sh,dx,dy,dw,dh,fadeDirection='horizontal',opacity=0.5){
+  const layer=document.createElement('canvas');layer.width=Math.ceil(dw);layer.height=Math.ceil(dh);
+  const lc=layer.getContext('2d');
+  lc.drawImage(img,sx,sy,sw,sh,0,0,dw,dh);
+  lc.globalCompositeOperation='destination-in';
+  const gradient=fadeDirection==='horizontal'?lc.createLinearGradient(0,0,dw,0):lc.createLinearGradient(0,0,0,dh);
+  if(fadeDirection==='horizontal'){
+    gradient.addColorStop(0,'rgba(0,0,0,0)');gradient.addColorStop(.32,'rgba(0,0,0,0.85)');gradient.addColorStop(1,'rgba(0,0,0,1)');
+  }else{
+    gradient.addColorStop(0,'rgba(0,0,0,0)');gradient.addColorStop(.35,'rgba(0,0,0,0.8)');gradient.addColorStop(.7,'rgba(0,0,0,0.8)');gradient.addColorStop(1,'rgba(0,0,0,0)');
+  }
+  lc.fillStyle=gradient;lc.fillRect(0,0,dw,dh);
+  ctx.save();ctx.globalAlpha=opacity;ctx.drawImage(layer,dx,dy);ctx.restore();
+}
+async function drawCleanPosterBackdropV531(ctx,background,type,w,h){
+  drawHeaderGlowV52(ctx,w,h);
+  if(!background)return;
+  const sw=background.width,sh=background.height;
+  ctx.save();
+  ctx.globalAlpha=0.18;
+  ctx.drawImage(background,0,0,Math.floor(sw*0.13),Math.floor(sh*0.34),0,0,140,470);
+  ctx.restore();
+  drawFadedCropV531(ctx,background,Math.floor(sw*0.79),0,Math.ceil(sw*0.21),Math.floor(sh*0.31),w-285,0,285,540,'horizontal',0.60);
+  if(type==='callups'){
+    drawFadedCropV531(ctx,background,0,Math.floor(sh*0.83),sw,Math.floor(sh*0.09),0,h-350,w,300,'vertical',0.35);
+  }
+  const veil=ctx.createLinearGradient(0,0,0,h);
+  veil.addColorStop(0,'rgba(1,12,27,0.24)');
+  veil.addColorStop(0.5,'rgba(1,12,27,0.12)');
+  veil.addColorStop(1,'rgba(1,12,27,0.38)');
+  ctx.fillStyle=veil;ctx.fillRect(0,0,w,h);
+}
+
+function drawPitchV531(ctx,x,y,w,h){
+  const green=ctx.createLinearGradient(x,y,x+w,y+h);
+  green.addColorStop(0,'#145940');green.addColorStop(.55,'#0c4d3c');green.addColorStop(1,'#073c31');
+  drawRoundedRectV52(ctx,x,y,w,h,24,green);
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+  for(let i=0;i<8;i++){
+    ctx.fillStyle=i%2===0?'rgba(255,255,255,0.025)':'rgba(0,0,0,0.04)';
+    ctx.fillRect(x,y+i*h/8,w,h/8);
+  }
+  ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=3;
+  ctx.strokeRect(x+16,y+16,w-32,h-32);
+  ctx.beginPath();ctx.moveTo(x+16,y+h/2);ctx.lineTo(x+w-16,y+h/2);ctx.stroke();
+  ctx.beginPath();ctx.arc(x+w/2,y+h/2,70,0,Math.PI*2);ctx.stroke();
+  ctx.strokeRect(x+w*.25,y+16,w*.5,h*.16);
+  ctx.strokeRect(x+w*.38,y+16,w*.24,h*.065);
+  ctx.strokeRect(x+w*.25,y+h-16-h*.16,w*.5,h*.16);
+  ctx.strokeRect(x+w*.38,y+h-16-h*.065,w*.24,h*.065);
+  ctx.restore();
+}
+function drawShirtV531(ctx,x,y,number,isGoalkeeper=false){
+  ctx.save();ctx.translate(x,y);
+  ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;
+  ctx.beginPath();
+  ctx.moveTo(-19,-23);ctx.lineTo(-34,-14);ctx.lineTo(-40,4);ctx.lineTo(-28,12);
+  ctx.lineTo(-22,3);ctx.lineTo(-22,25);ctx.lineTo(22,25);ctx.lineTo(22,3);
+  ctx.lineTo(28,12);ctx.lineTo(40,4);ctx.lineTo(34,-14);ctx.lineTo(19,-23);
+  ctx.quadraticCurveTo(0,-13,-19,-23);ctx.closePath();
+  ctx.fillStyle=isGoalkeeper?'#586779':'#008657';ctx.fill();
+  ctx.shadowColor='transparent';ctx.strokeStyle='#e8fff7';ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle='#ffffff';ctx.font='900 22px Inter, Arial, sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(number||'—'),0,6,42);
+  ctx.restore();
+}
+function drawFormationPitchV531(ctx,e){
+  const px=90,py=482,pw=900,ph=530;
+  drawPitchV531(ctx,px,py,pw,ph);
+  const preset=FORMATION_PRESETS[e.lineup?.formation||'4-3-3']||FORMATION_PRESETS['4-3-3'];
+  const assignments=e.lineup?.slotAssignments||{};
+  let count=0;
+  preset.forEach((slot,i)=>{
+    const pid=assignments[i];
+    const p=state.players.find(p=>String(p.id)===String(pid));
+    if(!p)return;
+    count++;
+    const x=px+40+(pw-80)*slot[0]/100;
+    const y=py+28+(ph-95)*slot[1]/100;
+    drawShirtV531(ctx,x,y,p.number,i===0);
+    const surname=String(p.name||'').trim().split(/\s+/).slice(-1)[0]||'Giocatore';
+    drawRoundedRectV52(ctx,x-65,y+31,130,28,7,'rgba(2,13,26,0.94)');
+    ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='800 16px Inter, Arial, sans-serif';ctx.fillText(surname.toUpperCase(),x,y+45,122);
+  });
+  if(!count){
+    drawRoundedRectV52(ctx,225,700,630,80,22,'rgba(2,13,26,0.78)');
+    ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='700 24px Inter, Arial, sans-serif';ctx.fillText('Formazione non ancora inserita',540,740);
+  }
+  const {bench}=lineupPlayersV52(e);
+  drawRoundedRectV52(ctx,90,1030,900,145,20,'rgba(2,13,26,0.85)');
+  ctx.fillStyle='#7ef0ca';ctx.font='800 25px Inter, Arial, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(`MODULO ${e.lineup?.formation||'4-3-3'}  ·  PANCHINA`,115,1060);
+  if(!bench.length){
+    ctx.fillStyle='#e8fff7';ctx.font='600 19px Inter, Arial, sans-serif';ctx.fillText('Nessuna riserva selezionata',115,1110);
+  }else{
+    bench.slice(0,12).forEach((p,i)=>{
+      const col=i%4,row=Math.floor(i/4),x=115+col*220,y=1096+row*25;
+      ctx.fillStyle='#7ef0ca';ctx.font='800 17px Inter, Arial, sans-serif';ctx.fillText(String(p.number||'—'),x,y);
+      ctx.fillStyle='#ffffff';ctx.font='600 17px Inter, Arial, sans-serif';
+      ctx.fillText(String(p.name||'').split(/\s+/).slice(-1)[0],x+34,y,155);
+    });
+    if(bench.length>12){ctx.fillStyle='#ffffff';ctx.font='600 15px Inter, Arial, sans-serif';ctx.fillText(`+${bench.length-12} riserve`,830,1160);}
+  }
+}
+
 async function createShareCanvasV52(type,e){
   const canvas=document.createElement('canvas');
   canvas.width=1080; canvas.height=1350;
@@ -2249,14 +2403,13 @@ async function createShareCanvasV52(type,e){
   const oppLogo=getOpponentLogo(e.opponent||'')||getOpponentLogoV52(e.opponent||'');
   const backgrounds={callups:'assets/social/convocati-approved.png',lineup:'assets/social/formazione-approved.png',result:'assets/social/risultato-approved.png'};
   const background=await hmLoadImageV52(backgrounds[type]);
-  if(background){ctx.drawImage(background,0,0,canvas.width,canvas.height);ctx.fillStyle='rgba(2,13,26,0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);}
-  else drawHeaderGlowV52(ctx,canvas.width,canvas.height);
+  await drawCleanPosterBackdropV531(ctx,background,type,canvas.width,canvas.height);
   drawBrandStripV52(ctx,canvas.width,canvas.height);
   const titleMap={callups:'CONVOCATI',lineup:'FORMAZIONE UFFICIALE',result:'RISULTATO FINALE'};
-  const meta=[(e.competition==='Personalizza'?e.customCompetition:e.competition)||e.type||'Partita',e.round||'', formatDate(e.date||new Date().toISOString().slice(0,10)), e.time||'', e.venue||''].filter(Boolean).join(' · ');
+  const meta=[(e.competition==='Personalizza'?e.customCompetition:e.competition)||e.type||'Partita',e.round||'', formatDate(e.date||new Date().toISOString().slice(0,10)), e.time||'', e.venue||'', e.homeAway||''].filter(Boolean).join(' · ');
   drawPosterMetaV52(ctx,titleMap[type]||'GRAFICA',meta,canvas.width);
-  await drawTeamLogoV52(ctx,names.isAway?(oppLogo||initials(names.home)):(teamLogo||initials(names.home)),170,286,110,'#0b8b68');
-  await drawTeamLogoV52(ctx,names.isAway?(teamLogo||initials(names.away)):(oppLogo||initials(names.away)),800,286,110,'#123e73');
+  await drawTeamLogoV52(ctx,teamLogo||initials(names.home),170,286,110,'#0b8b68',initials(names.home));
+  await drawTeamLogoV52(ctx,oppLogo||initials(names.away),800,286,110,'#123e73',initials(names.away));
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillStyle='#ffffff';ctx.font='800 34px Inter, Arial, sans-serif';
   ctx.fillText(names.home,225,425);
@@ -2280,27 +2433,11 @@ async function createShareCanvasV52(type,e){
   }
 
   if(type==='lineup'){
-    const {starters,bench}=lineupPlayersV52(e);
-    drawRoundedRectV52(ctx,90,470,900,680,34,'rgba(255,255,255,0.08)');
-    ctx.fillStyle='#d7f4eb';ctx.font='700 26px Inter, Arial, sans-serif';ctx.textAlign='left';ctx.fillText(`Modulo: ${e.lineup?.formation||'4-3-3'}`,125,520);
-    ctx.fillStyle='#ffffff';ctx.font='800 26px Inter, Arial, sans-serif';ctx.fillText('Titolari',125,565);
-    starters.forEach((p,i)=>{
-      const y=610+(i*42);
-      ctx.fillStyle='rgba(255,255,255,0.10)'; drawRoundedRectV52(ctx,125,y-24,390,34,12,'rgba(255,255,255,0.10)');
-      ctx.fillStyle='#7ef0ca';ctx.font='800 18px Inter, Arial, sans-serif';ctx.fillText(`#${p.number||'—'}`,138,y);
-      ctx.fillStyle='#fff';ctx.font='600 18px Inter, Arial, sans-serif';ctx.fillText(p.name,198,y);
-    });
-    ctx.fillStyle='#ffffff';ctx.font='800 26px Inter, Arial, sans-serif';ctx.fillText('Riserve',565,565);
-    bench.forEach((p,i)=>{
-      const y=610+(i*42);
-      ctx.fillStyle='rgba(255,255,255,0.10)'; drawRoundedRectV52(ctx,565,y-24,390,34,12,'rgba(255,255,255,0.10)');
-      ctx.fillStyle='#7ef0ca';ctx.font='800 18px Inter, Arial, sans-serif';ctx.fillText(`#${p.number||'—'}`,578,y);
-      ctx.fillStyle='#fff';ctx.font='600 18px Inter, Arial, sans-serif';ctx.fillText(p.name,638,y);
-    });
+    drawFormationPitchV531(ctx,e);
   }
 
   if(type==='result'){
-    const score=`${Number(e.homeScore||0)} - ${Number(e.awayScore||0)}`;
+    const score=names.isAway?`${Number(e.awayScore||0)} - ${Number(e.homeScore||0)}`:`${Number(e.homeScore||0)} - ${Number(e.awayScore||0)}`;
     ctx.fillStyle='rgba(255,255,255,0.10)'; drawRoundedRectV52(ctx,180,470,720,170,40,'rgba(255,255,255,0.10)');
     ctx.fillStyle='#fff';ctx.font='900 94px Inter, Arial, sans-serif';ctx.textAlign='center';ctx.fillText(score,540,555);
     ctx.font='600 24px Inter, Arial, sans-serif';ctx.fillStyle='rgba(255,255,255,0.82)';ctx.fillText(e.status||'Terminata',540,610);
@@ -2324,19 +2461,34 @@ async function createShareCanvasV52(type,e){
   return canvas;
 }
 async function previewShareGraphicV52(type){
-  const e=getCurrentMatchDetails(); if(!e)return;
+  const e=getCurrentMatchDetails();if(!e)return;
   const wrap=document.getElementById('socialPreviewWrap');
   const img=document.getElementById('socialPreviewImage');
   const meta=document.getElementById('socialPreviewMeta');
   const hidden=document.getElementById('socialPreviewHiddenCanvas');
-  if(wrap)wrap.classList.add('loading');
-  if(type==='result'&&e.status!=='Terminata'){alert('Per creare il risultato finale, imposta prima lo stato della partita su Terminata.');if(wrap)wrap.classList.remove('loading');return;}
-  const canvas=await createShareCanvasV52(type,e);
-  const dataUrl=canvas.toDataURL('image/png');
-  if(hidden){hidden.innerHTML=''; hidden.appendChild(canvas); canvas.style.display='none';}
-  if(img)img.src=dataUrl;
-  if(meta)meta.textContent=type==='callups'?'Grafica convocati pronta':type==='lineup'?'Grafica formazione pronta':'Grafica risultato pronta';
-  if(wrap){wrap.dataset.type=type; wrap.classList.remove('loading'); wrap.classList.add('ready');}
+  if(type==='result'&&e.status!=='Terminata'){
+    alert('Per creare il risultato finale, imposta prima lo stato della partita su Terminata.');
+    return;
+  }
+  if(wrap){wrap.classList.add('loading');wrap.classList.remove('ready');delete wrap.dataset.type;}
+  // Evita di mostrare o condividere per errore il post della partita precedente.
+  if(img)img.removeAttribute('src');
+  if(meta)meta.textContent='Sto preparando la grafica…';
+  try{
+    const canvas=await createShareCanvasV52(type,e);
+    // Il browser deve poter esportare il canvas anche con loghi remoti.
+    const dataUrl=canvas.toDataURL('image/png');
+    if(hidden){hidden.innerHTML='';hidden.appendChild(canvas);canvas.style.display='none';}
+    if(img)img.src=dataUrl;
+    if(meta)meta.textContent=type==='callups'?'Grafica convocati pronta':type==='lineup'?'Grafica formazione pronta':'Grafica risultato pronta';
+    if(wrap){wrap.dataset.type=type;wrap.classList.add('ready');}
+  }catch(error){
+    console.error('Errore generazione grafica Hank Manager',error);
+    if(meta)meta.textContent='Non è stato possibile generare la grafica. Riprova oppure aggiorna l’app.';
+    alert('Non è stato possibile generare il PNG. Riprova; se il problema continua, aggiorna l’app.');
+  }finally{
+    if(wrap)wrap.classList.remove('loading');
+  }
 }
 function downloadShareGraphicV52(){
   const img=document.getElementById('socialPreviewImage'); const wrap=document.getElementById('socialPreviewWrap');
@@ -2371,7 +2523,7 @@ function renderShareTabV52(e,host){
     <button class="secondary" onclick="previewShareGraphicV52('lineup')">🧩 GENERA FORMAZIONE</button>
     <button class="secondary" onclick="previewShareGraphicV52('result')">🏁 GENERA RISULTATO</button>
   </div>
-  <div class="share-social-note-v52">Le grafiche includono automaticamente loghi, competizione, dati gara e sponsor inseriti nella tua identità squadra.</div>
+  <div class="share-social-note-v52">Motore grafico v5.3.1 · Le grafiche includono automaticamente loghi, competizione, dati gara e sponsor. Se il logo avversario esterno non è accessibile, verranno usate le iniziali senza bloccare il PNG.</div>
   <div id="socialPreviewWrap" class="social-preview-card-v52">
     <div class="social-preview-head-v52">
       <div>

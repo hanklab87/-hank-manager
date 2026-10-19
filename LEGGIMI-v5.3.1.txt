@@ -1,0 +1,21 @@
+HANK MANAGER v5.3.1 — CORREZIONE GENERAZIONE GRAFICHE
+
+CORREZIONE
+- Risolto il blocco della generazione PNG dovuto ai loghi esterni senza autorizzazione CORS.
+- Se un logo remoto non si puo caricare, compare una sigla al suo posto; il post viene comunque generato.
+- Indicatore di preparazione, messaggio di errore e anteprima aggiornata.
+- Conservati i template visivi con Colosseo e campo e gli sponsor.
+- Conservata la modifica dei dettagli partita introdotta nella v5.3.
+
+INSTALLAZIONE
+1. Apri Hank Manager ed esporta un backup JSON PRIMA di aggiornare.
+2. Estrai lo ZIP e copia i file/cartelle DIRETTAMENTE nella radice del repository GitHub, senza creare una sottocartella.
+3. Sostituisci i file con lo stesso nome e NON cancellare gli altri file o i dati dell'app.
+4. Commit e Push con GitHub Desktop; attendi la pubblicazione Vercel.
+5. Chiudi e riapri la PWA su iPhone. In una partita, apri Condividi e verifica la dicitura "Motore grafico v5.3.1".
+6. Prova Genera convocati e Genera formazione. Genera risultato funziona solo se lo stato e Terminata.
+
+NOTE
+- L'app mantiene localStorage hank_v04 e js/cloud.js invariati.
+- La grafica usa i fondi delle immagini approvate ma l'impaginazione dinamica non e ancora una replica perfetta degli originali.
+- I loghi remoti possono essere sostituiti dalle iniziali quando la sorgente non consente l'esportazione su canvas.
