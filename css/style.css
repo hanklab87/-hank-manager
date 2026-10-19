@@ -1029,3 +1029,14 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 .coach-club-section{border-top:1px solid var(--line);padding-top:4px}
 .coach-club-section>.section-head{margin-top:12px}
 @media(max-width:380px){.coach-identity-fields{grid-template-columns:1fr}.coach-identity-role{grid-column:auto}}
+
+
+.share-social-grid-v52{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.share-social-note-v52{margin-top:12px;color:var(--muted,#9fb0c4);font-size:.92rem;line-height:1.45}
+.social-preview-card-v52{margin-top:16px;border:1px solid rgba(255,255,255,.08);background:rgba(7,18,31,.65);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.social-preview-head-v52{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.share-social-actions-v52{display:flex;gap:10px;flex-wrap:wrap}
+.social-preview-image-v52{width:100%;border-radius:20px;background:linear-gradient(180deg,#0c1f3b,#0c7a62);min-height:240px;object-fit:cover;display:block}
+.social-preview-card-v52:not(.ready) .social-preview-image-v52{opacity:.18}
+.social-preview-card-v52.loading .social-preview-image-v52{opacity:.45;filter:blur(2px)}
+@media (max-width:720px){.share-social-grid-v52{grid-template-columns:1fr}.social-preview-card-v52{padding:14px}.social-preview-head-v52{flex-direction:column}.share-social-actions-v52{width:100%}.share-social-actions-v52 button{flex:1}}

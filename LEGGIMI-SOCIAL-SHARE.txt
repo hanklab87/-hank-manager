@@ -1,0 +1,18 @@
+HANK MANAGER – AGGIORNAMENTO SOCIAL SHARE
+
+Contenuto aggiornamento:
+- Nuovo tab "Condividi" nella scheda partita
+- Generazione grafica automatica: Convocati / Formazione / Risultato finale
+- Sponsor inclusi in tutte le grafiche
+- Download PNG e condivisione diretta da iPhone quando supportata
+
+File principali inclusi:
+- index.html
+- js/app.js
+- css/style.css
+
+Installazione:
+1. Fai un backup dati dall’app.
+2. Sostituisci questi file nel progetto.
+3. Pubblica / aggiorna la tua installazione come fai di solito.
+4. Apri una partita e usa il nuovo tab CONDIVIDI.
