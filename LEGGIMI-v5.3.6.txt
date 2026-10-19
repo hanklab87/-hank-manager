@@ -1,0 +1,17 @@
+HANK MANAGER v5.3.6 — RIFINITURA FORMAZIONE UFFICIALE
+
+Partendo dalla v5.3.5:
+- Campo più grande quando ci sono poche riserve, e ridimensionamento automatico quando la panchina è numerosa.
+- Distanza verticale uniforme tra linee di gioco (portiere, difesa, centrocampo, attacco) senza sovrapposizioni.
+- Cognomi più leggibili con dimensione adattiva; particelle DI/DE preservate.
+- Riquadro A DISPOSIZIONE di altezza proporzionata alle riserve.
+- Stemmi delle squadre leggermente più grandi e allineati.
+- Sponsor centrati, con loghi e nomi separati.
+- Tutte le altre funzioni, incluso MVP, restano invariate.
+
+INSTALLAZIONE
+1. Esporta un backup dall'app.
+2. Copia i file dello ZIP nella radice del repository, mantenendo le cartelle.
+3. Commit e Push origin con GitHub Desktop.
+4. Attendi Vercel, chiudi e riapri l'app sull'iPhone.
+5. Partita → Condividi → Genera formazione.

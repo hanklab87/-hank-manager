@@ -2448,7 +2448,7 @@ function hm533SponsorLayout(){
   if(!sponsors.length)return {sponsors,top:1270,height:0,perRow:0,rows:0,rowHeight:0};
   const perRow=sponsors.length<=12?4:sponsors.length<=24?6:8;
   const rows=Math.ceil(sponsors.length/perRow);
-  const rowHeight=sponsors.length>24?47:sponsors.length>12?57:69;
+  const rowHeight=sponsors.length>24?48:sponsors.length>12?59:74;
   const height=25+rows*rowHeight;
   return {sponsors,perRow,rows,rowHeight,height,top:HM533_H-18-height};
 }
@@ -2462,18 +2462,21 @@ async function hm533Sponsors(ctx,layout){
     const cellWidth=Math.min(240,970/items.length);
     const startX=(HM533_W-items.length*cellWidth)/2;
     for(let i=0;i<items.length;i++){
-      const s=items[i], cx=startX+cellWidth*(i+.5);
-      const y=top+18+row*rowHeight;
+      const s=items[i],cx=startX+cellWidth*(i+.5);
+      const y=top+17+row*rowHeight;
       const logo=await hmLoadImageV52(s.logo||'');
       if(logo){
-        const maxH=Math.max(20,rowHeight-29),maxW=Math.min(70,cellWidth*.35);
+        // Riserviamo uno spazio separato per il nome: mai sovrapporre logo e scritta.
+        const maxH=Math.max(16,Math.min(35,rowHeight-35));
+        const maxW=Math.min(88,cellWidth*.45);
         const scale=Math.min(maxW/logo.width,maxH/logo.height);
         const iw=logo.width*scale,ih=logo.height*scale;
         ctx.save();ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=4;
         ctx.drawImage(logo,cx-iw/2,y+(maxH-ih)/2,iw,ih);ctx.restore();
       }
       const label=String(s.name||'SPONSOR').toUpperCase();
-      hm533Text(ctx,label,cx,y+rowHeight-12,Math.min(17,Math.max(11,cellWidth*.085)),'#ffffff',800,'center',cellWidth-14);
+      hm533Text(ctx,label,cx,top+row*rowHeight+rowHeight-9,
+        Math.min(14,Math.max(10,cellWidth*.073)),'#ffffff',800,'center',cellWidth-16);
     }
   }
 }
@@ -2515,8 +2518,9 @@ async function hm533Teams(ctx,e,mode){
   const opponentLogo=getOpponentLogo(e.opponent||'')||getOpponentLogoV52(e.opponent||'');
   const isResult=mode==='result';
   const y=isResult?464:454;
-  await hm533Crest(ctx,clubLogo,names.home.slice(0,3),260,y,126);
-  await hm533Crest(ctx,opponentLogo,names.away.slice(0,3),820,y,126);
+  const crestSize=mode==='lineup'?140:126;
+  await hm533Crest(ctx,clubLogo,names.home.slice(0,3),260,y,crestSize);
+  await hm533Crest(ctx,opponentLogo,names.away.slice(0,3),820,y,crestSize);
   if(isResult){
     const ours=Number(names.isAway?e.awayScore:e.homeScore)||0;
     const theirs=Number(names.isAway?e.homeScore:e.awayScore)||0;
@@ -2579,66 +2583,106 @@ function hm533Jersey(ctx,x,y,number,keeper=false){
   hm533Text(ctx,String(number??'—'),0,3,19,keeper?'#132113':'#ffffff',900,'center',45);
   ctx.restore();
 }
-function hm533PlayerOnPitch(ctx,p,x,y,keeper){
+function hm536PlayerOnPitch(ctx,p,x,y,keeper,labelWidth=138,scale=1){
+  ctx.save();
+  ctx.translate(x,y);ctx.scale(scale,scale);
+  x=0;y=0;
   hm533Jersey(ctx,x,y-9,p.number,keeper);
   const surname=hm533Surname(p.name);
-  drawRoundedRectV52(ctx,x-63,y+16,126,24,4,'rgba(0,9,14,.92)');
-  hm533Text(ctx,surname,x,y+29,15,'#ffffff',800,'center',120,`Impact, 'Arial Narrow', Arial, sans-serif`);
+  const barWidth=labelWidth;
+  drawRoundedRectV52(ctx,x-barWidth/2,y+17,barWidth,27,5,'rgba(0,9,14,.94)');
+  ctx.save();
+  ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.textBaseline='middle';
+  let fontSize=18;
+  do{
+    ctx.font=`800 ${fontSize}px Impact, 'Arial Narrow', Arial, sans-serif`;
+    if(ctx.measureText(surname).width<=barWidth-12)break;
+    fontSize--;
+  }while(fontSize>13);
+  ctx.fillText(surname,x,y+31,barWidth-10);
+  ctx.restore();
+  ctx.restore();
+}
+function hm536PitchLane(slot){
+  // Raggruppa le posizioni tattiche in linee, senza alterare il modulo salvato.
+  const pos=Number(slot[1]);
+  if(pos>=85)return 'keeper';
+  if(pos>=68)return 'defence';
+  if(pos>=44)return 'midfield';
+  if(pos>=31)return 'advanced';
+  return 'attack';
+}
+function hm536BenchGeometry(count,sponsorTop){
+  const x=72,w=936,top=616;
+  // La panchina cresce solo quando aumentano le riserve.
+  const columns=count<=4?1:count<=12?2:3;
+  const rows=Math.max(1,Math.ceil(count/columns));
+  const rowGap=25;
+  const contentH=Math.max(24,rows*rowGap);
+  const benchH=57+contentH+38;
+  const maxBottom=sponsorTop-16;
+  const fieldGap=13;
+  const minFieldH=265;
+  const idealFieldH=454;
+  const fieldH=Math.max(minFieldH,Math.min(idealFieldH,maxBottom-top-fieldGap-benchH));
+  const benchY=top+fieldH+fieldGap;
+  return {fieldX:x,fieldY:top,fieldW:w,fieldH,benchX:x,benchY,benchW:w,
+    benchH:Math.min(benchH,Math.max(95,maxBottom-benchY)),columns,rows,rowGap};
 }
 function hm533Lineup(ctx,e,sponsorTop){
   const module=String(e.lineup?.formation||'4-3-3');
-  drawRoundedRectV52(ctx,408,572,264,42,10,HM533_GREEN);
-  hm533Text(ctx,`MODULO ${module}`,540,593,25,'#051e17',900,'center',252,`Impact, 'Arial Black', Arial, sans-serif`);
-  const px=72,py=628,pw=936,ph=364;
-  hm533Field(ctx,px,py,pw,ph);
+  drawRoundedRectV52(ctx,408,572,264,37,10,HM533_GREEN);
+  hm533Text(ctx,`MODULO ${module}`,540,590,24,'#051e17',900,'center',252,`Impact, 'Arial Black', Arial, sans-serif`);
+  const {bench}=lineupPlayersV52(e);
+  const g=hm536BenchGeometry(bench.length,sponsorTop);
+  hm533Field(ctx,g.fieldX,g.fieldY,g.fieldW,g.fieldH);
   const preset=FORMATION_PRESETS[module]||FORMATION_PRESETS['4-3-3'];
   const assignments=e.lineup?.slotAssignments||{};
   const starters=e.lineup?.starters||[];
+  // Distribuzione verticale uniforme tra le linee, per tutti i moduli (4-4-2, 4-3-3, 4-2-3-1 ecc.).
+  const orderedLanes=['attack','advanced','midfield','defence','keeper']
+    .filter(lane=>preset.some(slot=>hm536PitchLane(slot)===lane));
+  const minY=g.fieldY+55,maxY=g.fieldY+g.fieldH-51;
+  const laneY=new Map(orderedLanes.map((lane,i)=>[lane,
+    orderedLanes.length===1?(minY+maxY)/2:minY+(maxY-minY)*i/(orderedLanes.length-1)]));
+  const laneStep=orderedLanes.length>1?(maxY-minY)/(orderedLanes.length-1):120;
+  const playerScale=Math.min(1,Math.max(.66,(laneStep-5)/77));
   let shown=0;
   preset.forEach((pos,i)=>{
     const id=assignments[i]??starters[i];
     const p=state.players.find(player=>String(player.id)===String(id));
     if(!p)return;
     shown++;
-    const x=px+50+(pw-100)*pos[0]/100;
-    // Separa le linee: difensori e portiere non possono condividere lo spazio dei nomi.
-    // La mappatura rispetta i moduli esistenti senza modificare la formazione salvata.
-    const originalY=Number(pos[1]);
-    const pitchY=originalY>=88?94:originalY>=70?68:originalY>=49?45:originalY>=33?29:13;
-    const y=py+24+(ph-73)*pitchY/100;
-    hm533PlayerOnPitch(ctx,p,x,y,i===0);
+    const x=g.fieldX+50+(g.fieldW-100)*Number(pos[0])/100;
+    const y=laneY.get(hm536PitchLane(pos));
+    const laneSize=preset.filter(slot=>hm536PitchLane(slot)===hm536PitchLane(pos)).length;
+    hm536PlayerOnPitch(ctx,p,x,y,i===0,laneSize>=5?126:138,playerScale);
   });
-  if(!shown)hm533Text(ctx,'FORMAZIONE NON ANCORA INSERITA',540,812,28,'#ffffff',800,'center',800);
-  // I titolari sono già rappresentati sul campo: sotto mostriamo solo la panchina.
-  const {bench}=lineupPlayersV52(e);
-  const listY=1006,listBottom=sponsorTop-14,listH=Math.max(74,listBottom-listY);
-  hm533Panel(ctx,72,listY,936,listH,10,'rgba(0,15,27,.91)');
-  hm533Text(ctx,'A DISPOSIZIONE',540,listY+22,24,HM533_GREEN,900,'center',870,`Impact, 'Arial Black', Arial, sans-serif`);
+  if(!shown)hm533Text(ctx,'FORMAZIONE NON ANCORA INSERITA',540,g.fieldY+g.fieldH/2,28,'#ffffff',800,'center',800);
+
+  hm533Panel(ctx,g.benchX,g.benchY,g.benchW,g.benchH,10,'rgba(0,15,27,.91)');
+  hm533Text(ctx,'A DISPOSIZIONE',540,g.benchY+21,23,HM533_GREEN,900,'center',870,`Impact, 'Arial Black', Arial, sans-serif`);
   const coachLabel=`ALLENATORE: ${hm535CoachSurname()}`;
-  const coachY=listY+listH-19;
+  const coachY=g.benchY+g.benchH-17;
   if(bench.length){
-    // Una colonna per rose corte; più colonne solo quando serve per evitare collisioni.
-    const contentTop=listY+46;
-    const available=Math.max(18,coachY-contentTop-15);
-    const cols=bench.length<=6?1:bench.length<=12?2:3;
-    const rows=Math.ceil(bench.length/cols);
-    const gap=Math.min(25,available/rows);
-    const size=Math.max(12,Math.min(19,gap*.76));
-    const colWidth=cols===1?460:cols===2?430:290;
-    const totalWidth=cols*colWidth;
-    const firstX=540-totalWidth/2;
+    const colWidth=g.columns===1?460:g.columns===2?430:285;
+    const firstX=540-g.columns*colWidth/2;
+    const contentTop=g.benchY+43;
+    const usable=Math.max(20,coachY-contentTop-15);
+    const gap=Math.min(g.rowGap,usable/g.rows);
+    const size=Math.max(12,Math.min(20,gap*.78));
     for(let i=0;i<bench.length;i++){
-      const col=Math.floor(i/rows),row=i%rows;
+      const col=Math.floor(i/g.rows),row=i%g.rows;
       const cx=firstX+col*colWidth;
       const cy=contentTop+(row+.5)*gap;
       hm533Text(ctx,String(bench[i].number??'—'),cx+6,cy,size,HM533_GREEN,900,'left',45);
       hm533Text(ctx,hm533Surname(bench[i].name),cx+62,cy,size,'#ffffff',750,'left',colWidth-76,`Impact, 'Arial Narrow', Arial, sans-serif`);
     }
   }else{
-    hm533Text(ctx,'NESSUN GIOCATORE A DISPOSIZIONE',540,listY+55,17,'#ffffff',600,'center',800);
+    hm533Text(ctx,'NESSUN GIOCATORE A DISPOSIZIONE',540,g.benchY+55,16,'#ffffff',600,'center',800);
   }
   ctx.strokeStyle='rgba(84,241,141,.34)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(100,coachY-14);ctx.lineTo(980,coachY-14);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(100,coachY-15);ctx.lineTo(980,coachY-15);ctx.stroke();
   hm533Text(ctx,coachLabel.toUpperCase(),540,coachY,19,'#ffffff',800,'center',850,`Impact, 'Arial Narrow', Arial, sans-serif`);
 }
 function hm533GroupedScorers(e){
@@ -2831,7 +2875,7 @@ function renderShareTabV52(e,host){
     </div>
     <button class="primary" onclick="saveSocialMvpV534()">SALVA MVP</button>
   </div>
-  <div class="share-social-note-v52">Motore grafico v5.3.5 · Formazione con A DISPOSIZIONE, cognomi composti e allenatore. MVP nel risultato finale.</div>
+  <div class="share-social-note-v52">Motore grafico v5.3.6 · Campo e spaziatura ottimizzati, A DISPOSIZIONE dinamico, sponsor rifiniti e MVP.</div>
   <div id="socialPreviewWrap" class="social-preview-card-v52">
     <div class="social-preview-head-v52">
       <div>
