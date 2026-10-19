@@ -1,0 +1,15 @@
+HANK MANAGER v5.3.5 — FORMAZIONE UFFICIALE
+
+Aggiornamento basato sulla v5.3.4.
+- I cognomi con particella Di/De restano completi (es. DI CASTRO e DI CONSIGLIO).
+- Eliminato l’elenco TITOLARI sotto il campo.
+- Sostituito RISERVE con A DISPOSIZIONE: numero e cognome dei convocati in panchina.
+- Aggiunta la dicitura ALLENATORE: cognome dell’allenatore impostato nella società/profilo, con ASCOLI come ripiego.
+- Restano invariati risultato, MVP, dati, statistiche e sincronizzazione.
+
+INSTALLAZIONE
+1. Esporta un backup dei dati.
+2. Estrai lo ZIP nella cartella principale del repository (non in una sottocartella).
+3. Commit e Push origin con GitHub Desktop.
+4. Attendi il deploy Vercel e riapri la PWA.
+5. Apri una partita, scheda Condividi, Genera formazione.

@@ -2429,7 +2429,19 @@ function hm533Competition(e){
   return ((e.competition==='Personalizza'?e.customCompetition:e.competition)||e.customCompetition||e.competition||e.type||'PARTITA').toUpperCase();
 }
 function hm533Surname(name){
-  return String(name||'').trim().split(/\s+/).slice(-1)[0].toUpperCase();
+  // Preserva i cognomi composti (es. Samuel Di Castro, Marco Di Consiglio).
+  const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length)return '';
+  let start=parts.length-1;
+  const particles=new Set(['di','de','del','della','delle','dei','degli','da','dal','dallo','dalla','lo','la','van','von']);
+  while(start>0 && particles.has(parts[start-1].toLowerCase()))start--;
+  return parts.slice(start).join(' ').toUpperCase();
+}
+function hm535CoachSurname(){
+  const society=String(state.society?.coach||'').trim();
+  const profile=state.profile||{};
+  const coach=society||String([profile.firstName||'',profile.lastName||''].filter(Boolean).join(' ')||profile.name||'').trim();
+  return coach?hm533Surname(coach):'ASCOLI';
 }
 function hm533SponsorLayout(){
   const sponsors=Array.isArray(state.branding?.sponsors)?state.branding.sponsors:[];
@@ -2597,30 +2609,37 @@ function hm533Lineup(ctx,e,sponsorTop){
     hm533PlayerOnPitch(ctx,p,x,y,i===0);
   });
   if(!shown)hm533Text(ctx,'FORMAZIONE NON ANCORA INSERITA',540,812,28,'#ffffff',800,'center',800);
-  const {starters:starterPlayers,bench}=lineupPlayersV52(e);
-  const listY=1006,listBottom=sponsorTop-14,listH=Math.max(75,listBottom-listY);
-  const halfW=456;
-  hm533Panel(ctx,72,listY,halfW,listH,10,'rgba(0,15,27,.91)');
-  hm533Panel(ctx,552,listY,456,listH,10,'rgba(0,15,27,.91)');
-  hm533Text(ctx,'TITOLARI',300,listY+22,24,HM533_GREEN,900,'center',420,`Impact, 'Arial Black', Arial, sans-serif`);
-  hm533Text(ctx,'RISERVE',780,listY+22,24,HM533_GREEN,900,'center',420,`Impact, 'Arial Black', Arial, sans-serif`);
-  function drawPlayers(players,x,width){
-    if(!players.length)return;
-    const cols=players.length>18?3:2;
-    const rows=Math.ceil(players.length/cols);
-    const cellW=(width-24)/cols;
-    const gap=Math.min(30,Math.max(12,(listH-44)/rows));
-    const size=Math.min(18,Math.max(12,gap*.70));
-    for(let i=0;i<players.length;i++){
+  // I titolari sono già rappresentati sul campo: sotto mostriamo solo la panchina.
+  const {bench}=lineupPlayersV52(e);
+  const listY=1006,listBottom=sponsorTop-14,listH=Math.max(74,listBottom-listY);
+  hm533Panel(ctx,72,listY,936,listH,10,'rgba(0,15,27,.91)');
+  hm533Text(ctx,'A DISPOSIZIONE',540,listY+22,24,HM533_GREEN,900,'center',870,`Impact, 'Arial Black', Arial, sans-serif`);
+  const coachLabel=`ALLENATORE: ${hm535CoachSurname()}`;
+  const coachY=listY+listH-19;
+  if(bench.length){
+    // Una colonna per rose corte; più colonne solo quando serve per evitare collisioni.
+    const contentTop=listY+46;
+    const available=Math.max(18,coachY-contentTop-15);
+    const cols=bench.length<=6?1:bench.length<=12?2:3;
+    const rows=Math.ceil(bench.length/cols);
+    const gap=Math.min(25,available/rows);
+    const size=Math.max(12,Math.min(19,gap*.76));
+    const colWidth=cols===1?460:cols===2?430:290;
+    const totalWidth=cols*colWidth;
+    const firstX=540-totalWidth/2;
+    for(let i=0;i<bench.length;i++){
       const col=Math.floor(i/rows),row=i%rows;
-      const cx=x+12+col*cellW;
-      const cy=listY+44+row*gap;
-      hm533Text(ctx,String(players[i].number??'—'),cx,cy,size,HM533_GREEN,900,'left',33);
-      hm533Text(ctx,hm533Surname(players[i].name),cx+29,cy,size,'#ffffff',650,'left',cellW-36,`Impact, 'Arial Narrow', Arial, sans-serif`);
+      const cx=firstX+col*colWidth;
+      const cy=contentTop+(row+.5)*gap;
+      hm533Text(ctx,String(bench[i].number??'—'),cx+6,cy,size,HM533_GREEN,900,'left',45);
+      hm533Text(ctx,hm533Surname(bench[i].name),cx+62,cy,size,'#ffffff',750,'left',colWidth-76,`Impact, 'Arial Narrow', Arial, sans-serif`);
     }
+  }else{
+    hm533Text(ctx,'NESSUN GIOCATORE A DISPOSIZIONE',540,listY+55,17,'#ffffff',600,'center',800);
   }
-  drawPlayers(starterPlayers,72,halfW);
-  drawPlayers(bench,552,halfW);
+  ctx.strokeStyle='rgba(84,241,141,.34)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(100,coachY-14);ctx.lineTo(980,coachY-14);ctx.stroke();
+  hm533Text(ctx,coachLabel.toUpperCase(),540,coachY,19,'#ffffff',800,'center',850,`Impact, 'Arial Narrow', Arial, sans-serif`);
 }
 function hm533GroupedScorers(e){
   const map=new Map();
@@ -2812,7 +2831,7 @@ function renderShareTabV52(e,host){
     </div>
     <button class="primary" onclick="saveSocialMvpV534()">SALVA MVP</button>
   </div>
-  <div class="share-social-note-v52">Motore grafico v5.3.4 · Grafiche con dati gara e sponsor. Formazione con linee distanziate e MVP nel risultato finale.</div>
+  <div class="share-social-note-v52">Motore grafico v5.3.5 · Formazione con A DISPOSIZIONE, cognomi composti e allenatore. MVP nel risultato finale.</div>
   <div id="socialPreviewWrap" class="social-preview-card-v52">
     <div class="social-preview-head-v52">
       <div>
