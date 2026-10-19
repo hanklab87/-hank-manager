@@ -302,7 +302,7 @@ let currentFilter='Tutti';
 function save(){localStorage.setItem('hank_v04',JSON.stringify(state))}
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
-  const inside=['home','squad','calendar','statistics','tactical'].includes(id);
+  const inside=['home','squad','calendar','statistics','tactical','finances'].includes(id);
   topbar.classList.toggle('hidden',!inside);
   nav.classList.toggle('hidden',!inside);
   document.body.classList.toggle('detail-open',['matchDetails','tactical','liveMatch'].includes(id));
@@ -313,6 +313,7 @@ function show(id){
   if(id==='calendar'){nCalendar?.classList.add('active');renderEvents()}
   if(id==='statistics'){document.getElementById('nStats')?.classList.add('active');document.getElementById('nStatsLegacy')?.classList.add('active');renderTeamStatisticsV434()}
   if(id==='society'){renderSociety();}
+  if(id==='finances'){document.getElementById('nFinances')?.classList.add('active');renderFinances();}
   window.scrollTo({top:0,left:0,behavior:'auto'});
   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
 }
@@ -3394,5 +3395,5 @@ function formatDate(s){return new Date(s+'T12:00:00').toLocaleDateString('it-IT'
 function initials(s){return s.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
 if(state.profile){updateCoachIdentityUI();show('home');renderBranding();renderNextMatch();renderDashboard()}
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5371').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=538').catch(()=>{}));
 }

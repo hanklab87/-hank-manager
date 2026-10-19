@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06101c">
 <title>Hank Manager</title>
-<link rel="stylesheet" href="css/style.css?v=5372">
+<link rel="stylesheet" href="css/style.css?v=538">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/icon-192.png">
@@ -127,6 +127,18 @@
 <div class="lineup-actions"><button class="primary" onclick="saveMatchLineup()">SALVA FORMAZIONE</button><button class="secondary" onclick="clearMatchLineup()">SVUOTA</button></div>
 </div><div class="bench-panel"><div class="section-head"><div><h2>Panchina</h2><p class="muted small">I convocati non titolari finiscono automaticamente qui.</p></div></div><div id="reservesList" class="reserves-list"></div></div></div>
 </section>
+
+<!-- v5.3.8: registro finanziario della stagione, integrato con la rosa -->
+<section id="finances" class="screen finance-screen">
+  <div class="page-header modern-header finance-head">
+    <div><p class="eyebrow">GESTIONE ECONOMICA · v5.3.8</p><h1>Finanze</h1><p class="muted small">Entrate, spese e quote della stagione.</p></div>
+  </div>
+  <div class="finance-season-row">
+    <div class="field"><label for="financeSeason">STAGIONE</label><select id="financeSeason" onchange="financeSetSeason(this.value)"></select></div>
+    <button class="secondary finance-new-season" onclick="financeAddSeason()" type="button">＋ Stagione</button>
+  </div>
+  <div id="financeContent" aria-live="polite"></div>
+</section>
 <section id="society" class="screen society-screen">
   <div class="page-header modern-header society-page-header">
     <div>
@@ -176,7 +188,7 @@
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 
 <script src="js/team-logos.js"></script>
-<script src="js/app.js?v=5372"></script>
+<script src="js/app.js?v=538"></script>
 
 
 
@@ -291,6 +303,9 @@
     <button onclick="show('society');renderSociety()" data-screen="society">
       <span>🏛</span><small>Società</small>
     </button>
+    <button id="nFinances" onclick="show('finances')" data-screen="finances">
+      <span>€</span><small>Finanze</small>
+    </button>
 </div>
 
 
@@ -311,6 +326,7 @@
   <p class="muted small"><strong>Attenzione:</strong> il caricamento non cancella i dati locali; il recupero sostituisce i dati locali soltanto dopo backup e conferma. Non utilizzare due dispositivi contemporaneamente in questa versione.</p>
  </div>
 </div>
+<script src="js/finances.js?v=538"></script>
 <script src="js/cloud.js"></script>
 </body>
 </html>

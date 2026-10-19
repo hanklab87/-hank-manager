@@ -1065,3 +1065,60 @@ body.detail-open #matchDetails .match-tab-content{margin-bottom:28px!important}
 .stats-filter-heading-v5371 strong{font-size:15px}
 .stats-filter-heading-v5371 span{color:var(--green);font-size:9px;letter-spacing:.04em;font-weight:850}
 @media(max-width:390px){.stats-filter-heading-v5371{align-items:flex-start;flex-direction:column}}
+
+/* v5.3.8 – Finanze: mobile-first, accessibile e compatibile con i dati precedenti */
+.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important;padding:7px 4px!important}
+.bottom-nav button{min-width:0;padding:8px 0!important;font-size:9px!important;letter-spacing:-.02em}
+.bottom-nav button span{font-size:18px!important}
+.bottom-nav button small{font-size:9px}
+.finance-screen{padding-bottom:42px}
+.finance-head{margin:4px 0 14px}
+.finance-head h1{margin:4px 0 6px}
+.finance-season-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:14px}
+.finance-season-row .field{flex:1;min-width:0;margin:0}
+.finance-season-row select{width:100%}
+.finance-new-season{height:47px;white-space:nowrap;padding:0 12px!important;font-size:12px}
+.finance-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 16px}
+.finance-metric{border:1px solid var(--line);background:linear-gradient(145deg,#142a41,#0b1c2d);border-radius:18px;padding:15px 12px;min-width:0}
+.finance-metric span{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:7px}
+.finance-metric strong{display:block;font-size:clamp(18px,5.2vw,24px);font-weight:900;letter-spacing:-.04em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.finance-metric.income strong{color:var(--green)}
+.finance-metric.expense strong{color:#ffb7bd}
+.finance-metric.balance{grid-column:1/-1;background:linear-gradient(110deg,rgba(69,228,107,.12),#101f33)}
+.finance-metric.balance.negative strong{color:#ffb7bd}
+.finance-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:5px;border:1px solid var(--line);border-radius:15px;background:#091626;margin-bottom:15px}
+.finance-tabs button{border:0;border-radius:11px;background:transparent;color:var(--muted);padding:11px 3px;font-size:12px;font-weight:800}
+.finance-tabs button.active{background:rgba(69,228,107,.15);color:var(--green)}
+.finance-card{border:1px solid var(--line);border-radius:19px;background:linear-gradient(145deg,#11253c,#0a192a);padding:15px;margin-bottom:12px}
+.finance-card h2{font-size:17px;margin:0 0 8px}
+.finance-card p{line-height:1.5}
+.finance-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.finance-actions button{flex:1;min-width:120px;font-size:12px}
+.finance-line{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.finance-line:last-child{border-bottom:0}
+.finance-line strong{font-weight:850;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.finance-line small{display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-top:4px}
+.finance-line .finance-amount{font-size:14px;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}
+.finance-amount.positive{color:var(--green)}
+.finance-amount.negative{color:#ffb7bd}
+.finance-line-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.finance-line-right button{font-size:11px;padding:5px 9px;border:1px solid var(--line);background:#11263b;color:var(--text);border-radius:8px}
+.finance-player-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.finance-player-head strong{font-size:13px}
+.finance-player-head label{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:750;white-space:nowrap}
+.finance-player-head input{width:18px;height:18px;accent-color:var(--green)}
+.finance-player-detail{font-size:11px;color:var(--muted);line-height:1.6;margin:8px 0}
+.finance-player-detail b{color:var(--text)}
+.finance-player-actions{display:flex;gap:7px;flex-wrap:wrap}
+.finance-player-actions button{font-size:11px;padding:9px 11px;border-radius:10px}
+.finance-status{font-size:10px;font-weight:850;border-radius:20px;padding:5px 9px;background:rgba(255,255,255,.07);display:inline-block}
+.finance-status.paid{color:var(--green);background:rgba(69,228,107,.12)}
+.finance-status.pending{color:var(--amber);background:rgba(247,200,94,.1)}
+.finance-form .field{margin:12px 0}
+.finance-form input,.finance-form select,.finance-form textarea{width:100%;min-width:0}
+.finance-form textarea{min-height:70px}
+.finance-form-buttons{display:flex;gap:8px;margin-top:15px}
+.finance-form-buttons button{flex:1}
+.finance-empty{padding:18px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+.finance-category-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px;font-weight:800}
+@media(max-width:350px){.finance-season-row{flex-wrap:wrap}.finance-new-season{width:100%}.finance-player-head{align-items:flex-start}.finance-player-actions button{flex:1}}

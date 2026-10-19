@@ -1,0 +1,44 @@
+HANK MANAGER v5.3.8 – FINANZE
+================================
+
+NOVITÀ
+- Nuova voce Finanze, subito dopo Società nella barra inferiore.
+- Riepilogo: entrate incassate, spese sostenute, saldo e quote ancora da incassare.
+- Spese: Affiliazione, Tesseramenti, Allenamenti, Match casalinghi,
+  Match trasferte, Match in campo neutro, Lavanderia, Altre spese.
+- Entrate: Sponsor (con nome), Altre entrate, quote dei giocatori.
+- Rosa: selezione giocatori paganti/esonerati, quota dovuta per stagione,
+  versamenti anche parziali e residuo da incassare.
+- Modifica/eliminazione movimenti, stagioni separate, esportazione CSV.
+- Importi in euro con precisione ai centesimi.
+
+IMPORTANTE: il saldo considera solo i pagamenti effettivamente registrati,
+non le quote attese. Il cambio di stato pagante/esonerato non cancella
+pagamenti storici. I dati finanziari sono salvati in state.finances nello
+stesso archivio locale hank_v04; l'esportazione backup esistente li include.
+La sincronizzazione cloud esistente, quando configurata, trasferisce il
+medesimo state: fare attenzione ai conflitti fra dispositivi.
+
+INSTALLAZIONE
+1. PRIMA esportare un backup dall'app e conservarlo al sicuro.
+2. Estrarre il pacchetto ZIP e copiare/sovrascrivere SOLO i file presenti
+   nella cartella del proprio repository Hank Manager, mantenendo gli altri.
+3. GitHub Desktop: Commit -> Push origin; attendere Vercel.
+4. Riaprire l'app (se necessario chiudere/riaprire la PWA su iPhone).
+5. Aprire Finanze nella barra inferiore.
+
+FILE MODIFICATI
+- index.html
+- css/style.css
+- js/app.js
+- js/finances.js (NUOVO)
+- service-worker.js
+
+NON sovrascrivere/eliminare js/cloud.js, js/team-logos.js, manifest.json,
+assets, né i dati salvati sul dispositivo.
+
+TEST
+Sintassi JavaScript verificata con Node.js. Test logici effettuati su
+entrate sponsor, spese, quote, acconti, residui, saldo, stagioni ed
+eliminazione movimenti. NON è stato possibile effettuare un test grafico
+completo in Chromium in questo ambiente: verificare la UI su iPhone.
