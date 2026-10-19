@@ -1,0 +1,20 @@
+HANK MANAGER v5.3.2 – GRAFICHE SOCIAL
+
+Correzioni:
+- Eliminata la dicitura Casa / Trasferta dalle tre grafiche (resta nei dati evento).
+- Eliminato il testo Totale convocati.
+- Nel Risultato finale vengono mostrati solo i marcatori e i minuti, senza assist.
+- Tutti gli sponsor sono centrati automaticamente, anche con 4 o più sponsor.
+- Esportazione PNG ad alta risoluzione 2160 x 2700 (testo e dettagli vettoriali più nitidi).
+- Aggiornata cache del service worker per forzare il caricamento del codice nuovo.
+
+Questo pacchetto è un aggiornamento della v5.3.1: mantiene le modifiche agli eventi e non cambia le chiavi dei dati locali, la sincronizzazione cloud o il salvataggio.
+
+INSTALLAZIONE
+1. Esegui prima il backup dei dati dall'app.
+2. Estrai il file ZIP e copia i file nella radice del repository GitHub, senza cartelle annidate.
+3. Non eliminare le altre cartelle o i file esistenti del progetto.
+4. Commit e Push origin con GitHub Desktop; attendi il deploy Vercel.
+5. Chiudi e riapri l'app sull'iPhone. Nel tab Condividi verifica "Motore grafico v5.3.2".
+
+Nota: gli sfondi sono ancora estratti dalle immagini approvate; l'impaginazione complessiva non è una copia perfetta dei template originali. La maggiore risoluzione migliora i testi sovrapposti, ma non può aggiungere dettaglio a una foto di sfondo di risoluzione inferiore.
