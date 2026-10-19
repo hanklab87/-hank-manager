@@ -1,0 +1,9 @@
+HANK MANAGER v5.3.7.2 — PANORAMICA SEMPLIFICATA
+
+Modifiche:
+- Rimosso dalla Panoramica il pulsante Convocazioni (segnaposto non funzionante).
+- Rimossa la sezione Numeri squadra in fondo alla Home (28 giocatori, 0 partite, 0 gol).
+- Nessuna modifica alla gestione delle convocazioni dentro le partite, alla Rosa, al Calendario, alle Statistiche o ai dati salvati.
+- Aggiornato il nome cache del service worker per mostrare la nuova versione.
+
+Installazione: fare prima un backup dall'app, poi estrarre lo ZIP e sovrascrivere i file nel repository GitHub, senza cancellare gli altri file. Commit e Push; attendere Vercel.
