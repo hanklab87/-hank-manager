@@ -1056,8 +1056,29 @@ function finishMatch(id){const e=state.events.find(x=>x.id===id);if(!e||!confirm
 
 
 
+// v5.3.11: La formazione del Live deve coincidere con quella salvata prima del calcio d'inizio.
+// Dopo l'inizio, invece, la situazione sul campo (sostituzioni, espulsioni, minuti) resta autonoma.
+function liveHasStartedV5311(l){
+  if(!l)return false;
+  return Boolean(l.running||l.finished||
+    (l.phase&&l.phase!=='pre')||
+    Number(l.totalPlayingSeconds||0)>0||
+    Number(l.periodElapsedSeconds||0)>0||
+    (Array.isArray(l.events)&&l.events.length>0));
+}
+function syncPrematchLineupV5311(e){
+  if(!e)return false;
+  e.live=e.live||{};
+  if(liveHasStartedV5311(e.live))return false;
+  // Copia nuova: mai riutilizzare una formazione Live precedente al salvataggio.
+  e.live.onField={...(e.lineup.slotAssignments||{})};
+  e.live.bench=[...(e.lineup.reserves||[])];
+  // I minuti prepartita vanno inizializzati sui nuovi titolari, non sui vecchi.
+  e.live.playerMinutes={};
+  return true;
+}
 function startLiveMatch(id){
-  const e=state.events.find(x=>x.id===id);if(!e)return;
+  const e=state.events.find(x=>String(x.id)===String(id));if(!e)return;
   ensureEventLineup(e);
   if((e.lineup?.starters||[]).length!==11){
     alert('Devi inserire 11 titolari prima di iniziare.');
@@ -1077,8 +1098,11 @@ function startLiveMatch(id){
   e.live.homeScore=Number(e.live.homeScore??e.homeScore??0);
   e.live.awayScore=Number(e.live.awayScore??e.awayScore??0);
   e.live.events=Array.isArray(e.live.events)?e.live.events:[];
-  e.live.onField=Object.keys(e.live.onField||{}).length?e.live.onField:{...(e.lineup.slotAssignments||{})};
-  e.live.bench=Array.isArray(e.live.bench)&&e.live.bench.length?e.live.bench:[...(e.lineup.reserves||[])];
+  if(!syncPrematchLineupV5311(e)){
+    // Partita gia iniziata: conserviamo campo e panchina, incluse le sostituzioni.
+    e.live.onField=e.live.onField&&typeof e.live.onField==='object'?e.live.onField:{};
+    e.live.bench=Array.isArray(e.live.bench)?e.live.bench:[];
+  }
   e.live.playerMinutes=e.live.playerMinutes&&typeof e.live.playerMinutes==='object'?e.live.playerMinutes:{};
 
   Object.values(e.live.onField).forEach(pid=>{

@@ -1,0 +1,29 @@
+HANK MANAGER v5.3.11 — FIX FORMAZIONE LIVE MATCH
+
+Problema risolto:
+Il Live Match riutilizzava una vecchia formazione salvata in live.onField e una vecchia panchina live.bench, anche dopo aver modificato e salvato la formazione ufficiale.
+
+Correzione:
+- Prima del calcio d'inizio, il Live usa SEMPRE gli 11 giocatori assegnati ai ruoli in Formazione, e la panchina aggiornata.
+- Ricalcola i dati iniziali dei minuti dei nuovi titolari.
+- Dopo l'inizio della partita, NON sovrascrive campo, sostituzioni, eventi o minuti già registrati.
+- Nessuna modifica alle finanze o alle regole di calcolo, né al sistema di salvataggio/cloud.
+
+INSTALLAZIONE
+1. Esporta un backup dall'app prima di aggiornare.
+2. Estrai questo ZIP nella cartella principale del repository Hank Manager e sostituisci SOLO i file inclusi:
+   index.html
+   js/app.js
+   service-worker.js
+3. Non cancellare js/finances.js, css/, assets/, js/cloud.js o altri file.
+4. GitHub Desktop: Commit e Push origin; attendi il deploy di Vercel.
+5. Su iPhone riapri/ricarica l'app; se vedi ancora la versione precedente, chiudila e riaprila dopo il deploy.
+
+VERIFICA
+- Apri una partita NON iniziata.
+- In Formazione assegna 11 titolari, salva e verifica la disposizione.
+- Apri Live Match prima di avviare il cronometro: gli 11 e la panchina devono coincidere.
+- Verifica anche un cambio formazione prima della partita.
+- Se una partita e' gia' in corso o terminata, il Live conserva gli eventi/sostituzioni registrati.
+
+NOTA: non e' stato necessario modificare il database. I dati di partita esistenti non vengono cancellati.
