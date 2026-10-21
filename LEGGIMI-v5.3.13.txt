@@ -1,0 +1,41 @@
+HANK MANAGER v5.3.13 — SOSTITUZIONI, FOTO, FINANZE
+================================================
+
+INSTALLAZIONE
+1. Dall'app, esportare PRIMA un backup completo dei dati.
+2. Estrarre lo ZIP e copiare i file nelle stesse cartelle del repository GitHub,
+   sostituendo soltanto i file corrispondenti. NON cancellare altri file.
+3. In particolare, mantenere js/match-20261021.js, js/cloud.js, css/style.css
+   e le cartelle assets già presenti nel repository.
+4. GitHub Desktop: Commit -> Push origin. Attendere il deploy Vercel.
+5. Riaprire l'app su iPhone; se necessario chiuderla e riaprirla per aggiornare
+   la cache offline. Controllare la versione dei file.
+
+NOVITÀ
+- Calendario > Partita > Formazione > Sostituzioni effettuate:
+  ogni sostituzione è cliccabile per modificare minuto, chi esce e chi entra.
+  Pulsante AGGIUNGI SOSTITUZIONE per inserire cambi non registrati in diretta.
+  È possibile anche eliminare un cambio errato con conferma.
+- Dopo il salvataggio vengono ricostruiti i minuti giocati e la disposizione
+  dei giocatori in campo, compresi i rientri. Cambi impossibili (esce un
+  giocatore non in campo, entra uno già in campo) vengono rifiutati.
+- Le foto già presenti nelle schede giocatore sono visualizzate nella Rosa,
+  nel campo della Formazione e nel Live Match. Il numero di maglia è sotto
+  il nome; per i giocatori senza foto rimane il numero nel cerchio.
+- Le nuove foto caricate da Rosa > Modifica giocatore vengono ottimizzate
+  per ridurre la dimensione del backup. Le foto esistenti non vengono toccate.
+- Finanze: eliminato il selettore Stagione; il registro segue la stagione
+  attiva indicata in Società. I dati delle altre stagioni restano archiviati.
+
+NON MODIFICATO
+- Risultati, marcatori, assist, voti, MVP, convocazioni e formazioni salvate.
+- Entrate, spese, quote, tariffe, movimenti e override finanziari esistenti.
+- Chiavi di archiviazione (hank_v04), sincronizzazione e dati Supabase.
+- Generazione delle grafiche social (nessuna modifica ai template PNG).
+
+VERIFICHE
+- Sintassi JavaScript verificata con Node.
+- Test funzionali della ricostruzione dei minuti (inclusi rientri),
+  modifica/aggiunta/eliminazione sostituzioni, blocco dei cambi non validi.
+- Test di cambio stagione e conservazione dei movimenti finanziari.
+- Verifica grafica su iPhone ancora necessaria.

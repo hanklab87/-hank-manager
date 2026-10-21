@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#06101c">
 <title>Hank Manager</title>
 <link rel="stylesheet" href="css/style.css?v=539">
+<link rel="stylesheet" href="css/hm-v5313.css?v=5313">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/icon-192.png">
@@ -131,12 +132,9 @@
 <!-- v5.3.10: registro finanziario della stagione, integrato con la rosa -->
 <section id="finances" class="screen finance-screen">
   <div class="page-header modern-header finance-head">
-    <div><p class="eyebrow">GESTIONE ECONOMICA · v5.3.10</p><h1>Finanze</h1><p class="muted small">Entrate, spese e quote della stagione.</p></div>
+    <div><p class="eyebrow">GESTIONE ECONOMICA · v5.3.13</p><h1>Finanze</h1><p class="muted small">Entrate, spese e quote della stagione.</p></div>
   </div>
-  <div class="finance-season-row">
-    <div class="field"><label for="financeSeason">STAGIONE</label><select id="financeSeason" onchange="financeSetSeason(this.value)"></select></div>
-    <button class="secondary finance-new-season" onclick="financeAddSeason()" type="button">＋ Stagione</button>
-  </div>
+
   <div id="financeContent" aria-live="polite"></div>
 </section>
 <section id="society" class="screen society-screen">
@@ -188,7 +186,7 @@
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 
 <script src="js/team-logos.js"></script>
-<script src="js/app.js?v=5312"></script>
+<script src="js/app.js?v=5313"></script>
 
 
 
@@ -326,7 +324,7 @@
   <p class="muted small"><strong>Attenzione:</strong> il caricamento non cancella i dati locali; il recupero sostituisce i dati locali soltanto dopo backup e conferma. Non utilizzare due dispositivi contemporaneamente in questa versione.</p>
  </div>
 </div>
-<script src="js/finances.js?v=5310"></script>
+<script src="js/finances.js?v=5313"></script>
 <script src="js/match-20261021.js?v=5312"></script>
 <script src="js/cloud.js"></script>
 </body>

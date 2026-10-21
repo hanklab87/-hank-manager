@@ -372,6 +372,55 @@ function setFilter(btn){
   document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
   btn.classList.add('active');currentFilter=btn.dataset.role;renderPlayers();
 }
+// v5.3.13 – foto nella rosa e in tutti i campi, con fallback al numero.
+function hmPlayerPhotoSrc(p){
+  const value=typeof p?.photo==='string'?p.photo.trim():'';
+  return /^(data:image\/[a-z0-9.+-]+;base64,|https?:\/\/|blob:)/i.test(value)?value:'';
+}
+function hmPlayerPhoto(p){
+  const src=hmPlayerPhotoSrc(p);
+  return src?`<img class="hm-pitch-photo" src="${escapeHtml(src)}" alt="Foto di ${escapeHtml(p.name||'')}" loading="lazy">`:escapeHtml(String(p.number??'—'));
+}
+function hmPlayerLastName(p){
+  const name=String(p?.name||'').trim();
+  return escapeHtml(name.split(/\s+/).slice(-1)[0]||name);
+}
+// Riduce le foto prima di salvarle nel backup locale e nel cloud.
+function hmCompressPlayerPhoto(file){
+  return new Promise((resolve,reject)=>{
+    if(!file||!String(file.type||'').startsWith('image/')){reject(new Error('Seleziona un file immagine.'));return}
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Impossibile leggere la fotografia.'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('Formato fotografia non supportato.'));
+      img.onload=()=>{
+        try{
+          const scale=Math.min(1,420/Math.max(img.naturalWidth,img.naturalHeight));
+          const canvas=document.createElement('canvas');
+          canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+          canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+          const ctx=canvas.getContext('2d');
+          if(!ctx)throw new Error('Elaborazione foto non disponibile.');
+          ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);
+          ctx.drawImage(img,0,0,canvas.width,canvas.height);
+          resolve(canvas.toDataURL('image/jpeg',0.76));
+        }catch(err){reject(err)}
+      };
+      img.src=String(reader.result||'');
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function hmPhotoInputPreview(input){
+  const el=document.getElementById('hmPhotoPreview');
+  if(!el)return;
+  const file=input?.files?.[0];
+  if(!file)return;
+  hmCompressPlayerPhoto(file).then(src=>{
+    if(el.isConnected)el.innerHTML=`<img src="${src}" alt="Anteprima nuova fotografia">`;
+  }).catch(err=>alert(err.message||'Foto non leggibile'));
+}
 function renderPlayers(){
   const q=(document.getElementById('search')?.value||'').toLowerCase();
 
@@ -392,7 +441,7 @@ function renderPlayers(){
     return `${heading}<div class="player" onclick="openPlayer(${p.id})">
       <div class="player-left">
         <div class="avatar">
-          ${p.photo?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}
+          ${hmPlayerPhotoSrc(p)?`<img src="${escapeHtml(hmPlayerPhotoSrc(p))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}
         </div>
         <div style="min-width:0">
           <div class="pname">${escapeHtml(p.name)}</div>
@@ -413,7 +462,7 @@ function openPlayer(id){
   </div>
   <div class="hero" style="margin:12px 0">
     <div style="display:flex;align-items:center;gap:14px">
-      <div class="avatar" style="width:72px;height:72px;font-size:22px">${p.photo?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}</div>
+      <div class="avatar" style="width:72px;height:72px;font-size:22px">${hmPlayerPhotoSrc(p)?`<img src="${escapeHtml(hmPlayerPhotoSrc(p))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:initials(p.name)}</div>
       <div><div class="badge">#${p.number} · ${escapeHtml(p.role)}</div></div>
     </div>
   </div>
@@ -444,7 +493,11 @@ function fabAction(){
 }
 function playerForm(title,p={}){
   return `<div class="sheet-head"><h2>${title}</h2><button class="close" onclick="closeModal()">✕</button></div>
-  <div class="field"><label>FOTO</label><input id="pphoto" type="file" accept="image/*"></div>
+  <div class="field"><label>FOTO GIOCATORE</label>
+    <div id="hmPhotoPreview" class="hm-player-photo-preview">${hmPlayerPhotoSrc(p)?`<img src="${escapeHtml(hmPlayerPhotoSrc(p))}" alt="Foto attuale">`:'<span>Foto non caricata</span>'}</div>
+    <input id="pphoto" type="file" accept="image/*" onchange="hmPhotoInputPreview(this)">
+    <small class="muted">Le nuove fotografie vengono ottimizzate per non appesantire il backup.</small>
+  </div>
   <div class="field"><label>NOME E COGNOME</label><input id="pn" value="${escapeHtml(p.name||'')}"></div>
   <div class="field"><label>NUMERO</label><input id="pnum" type="number" value="${p.number??''}"></div>
   <div class="field"><label>RUOLO</label><select id="prole">
@@ -481,11 +534,15 @@ function addPlayer(){
   const player=readPlayerForm({id:Date.now(),apps:0,goals:0,photo:''});
   const file=document.getElementById('pphoto').files[0];
   if(file){
-    const r=new FileReader();
-    r.onload=()=>{player.photo=r.result;state.players.push(player);save();closeModal();renderPlayers()};
-    r.readAsDataURL(file);
+    hmCompressPlayerPhoto(file).then(src=>{
+      player.photo=src;state.players.push(player);
+      try{save()}catch(err){state.players.pop();alert('Spazio di archiviazione insufficiente. I dati non sono stati modificati.');return}
+      closeModal();renderPlayers();
+    }).catch(err=>alert(err.message||'Impossibile caricare la foto.'));
   }else{
-    state.players.push(player);save();closeModal();renderPlayers();
+    state.players.push(player);
+    try{save()}catch(err){state.players.pop();alert('Impossibile salvare il giocatore.');return}
+    closeModal();renderPlayers();
   }
 }
 function saveEditedPlayer(id){
@@ -493,9 +550,15 @@ function saveEditedPlayer(id){
   const updated=readPlayerForm(state.players[i]);
   if(!updated.name||!updated.number)return alert('Inserisci nome e numero');
   const file=document.getElementById('pphoto').files[0];
-  const finish=()=>{state.players[i]=updated;save();closeModal();renderPlayers()};
+  const original=state.players[i];
+  const finish=()=>{
+    state.players[i]=updated;
+    try{save()}catch(err){state.players[i]=original;alert('Spazio insufficiente per salvare la fotografia. La scheda originale è stata mantenuta.');return}
+    closeModal();renderPlayers();
+  };
   if(file){
-    const r=new FileReader();r.onload=()=>{updated.photo=r.result;finish()};r.readAsDataURL(file);
+    hmCompressPlayerPhoto(file).then(src=>{updated.photo=src;finish()})
+      .catch(err=>alert(err.message||'Impossibile caricare la foto.'));
   }else finish();
 }
 function deletePlayer(id){
@@ -993,7 +1056,7 @@ function renderTacticalBoard(){
 const pitch=document.getElementById('cleanPitch');if(!pitch)return;const e=getTacticalEvent();if(!e){pitch.innerHTML='<div class="empty-tactical">Apri una partita dal calendario.</div>';return}
 ensureEventLineup(e);document.getElementById('formationSelect').value=e.lineup.formation;document.getElementById('tacticalMatchTitle').textContent=`${state.profile?.team||'Maccabi Roma'} · ${e.opponent}`;document.getElementById('tacticalMatchSubtitle').textContent=`${e.round||''} · ${formatDate(e.date)} ${e.time||''}`;document.getElementById('lineupCounter').textContent=`${e.lineup.starters.length} titolari · ${e.lineup.reserves.length} riserve`;
 pitch.innerHTML='<div class="pitch-line half"></div><div class="pitch-line circle"></div><div class="pitch-line box-top"></div><div class="pitch-line box-bottom"></div><div class="pitch-line six-top"></div><div class="pitch-line six-bottom"></div>';
-(FORMATION_PRESETS[e.lineup.formation]||FORMATION_PRESETS['4-3-3']).forEach((s,i)=>{const pid=e.lineup.slotAssignments[i],p=state.players.find(x=>String(x.id)===String(pid)),el=document.createElement('div');el.className='formation-slot';el.style.left=s[0]+'%';el.style.top=s[1]+'%';el.innerHTML=`<button class="slot-button ${p?'filled':''}" onclick="openSlotPicker(${i},'${s[2]}')">${p?p.number:'+'}</button><span class="slot-name">${p?escapeHtml(p.name.split(' ').slice(-1)[0]):s[2]}</span><div class="slot-role">${s[2]}</div>`;pitch.appendChild(el)});renderReserves()}
+(FORMATION_PRESETS[e.lineup.formation]||FORMATION_PRESETS['4-3-3']).forEach((s,i)=>{const pid=e.lineup.slotAssignments[i],p=state.players.find(x=>String(x.id)===String(pid)),el=document.createElement('div');el.className='formation-slot';el.style.left=s[0]+'%';el.style.top=s[1]+'%';el.innerHTML=`<button class="slot-button ${p?'filled':''} ${p&&hmPlayerPhotoSrc(p)?'hm-photo-button':''}" onclick="openSlotPicker(${i},'${s[2]}')">${p?hmPlayerPhoto(p):'+'}</button><span class="slot-name">${p?hmPlayerLastName(p):s[2]}</span>${p?`<span class="hm-pitch-shirt-number">#${escapeHtml(String(p.number??'—'))}</span>`:''}<div class="slot-role">${s[2]}</div>`;pitch.appendChild(el)});renderReserves()}
 function roleOrderV44(role){
   const value=String(role||'').trim().toLowerCase();
   if(value.includes('port'))return 0;
@@ -1376,8 +1439,9 @@ function renderLivePitch(){
     el.className='live-player';
     el.style.left=s[0]+'%';
     el.style.top=s[1]+'%';
-    el.innerHTML=`<button class="live-player-btn ${mvp?'mvp-player':''}" onclick="openLivePlayerMenu(${p.id},${i})">${p.number}</button>
-      <span class="live-player-name">${escapeHtml(p.name.split(' ').slice(-1)[0])}</span>
+    el.innerHTML=`<button class="live-player-btn ${mvp?'mvp-player':''} ${hmPlayerPhotoSrc(p)?'hm-photo-button':''}" onclick="openLivePlayerMenu(${p.id},${i})">${hmPlayerPhoto(p)}</button>
+      <span class="live-player-name">${hmPlayerLastName(p)}</span>
+      <span class="hm-pitch-shirt-number">#${escapeHtml(String(p.number??'—'))}</span>
       ${mvp?'<span class="mvp-marker">⭐ MVP</span>':''}`;
     pitch.appendChild(el);
   });
@@ -1877,6 +1941,142 @@ function saveDetailsCallupsV432(){
 function lineupSubstitutionsV432(e){
   return allMatchEvents(e).filter(ev=>['sub','sostituzione'].includes(String(ev.type||'').toLowerCase()));
 }
+// v5.3.13 – origine e indice sono mantenuti per modificare anche i cambi del Live.
+function hmSubstitutionRecords(e){
+  const records=[];
+  for(const [source,events] of [['live',e.live?.events],['manual',e.matchEvents]]){
+    if(!Array.isArray(events))continue;
+    events.forEach((ev,index)=>{
+      if(['sub','sostituzione'].includes(String(ev?.type||'').toLowerCase()))
+        records.push({source,index,event:ev,order:records.length});
+    });
+  }
+  return records.sort((a,b)=>Number(a.event.minute||0)-Number(b.event.minute||0)||a.order-b.order);
+}
+function hmSubstitutionPlayerOptions(e,selected){
+  const ids=new Set([...(e.callups||[]),...(e.lineup?.starters||[]),selected].filter(x=>x!==null&&x!==undefined).map(String));
+  return state.players.filter(p=>ids.has(String(p.id)))
+    .sort((a,b)=>Number(a.number)-Number(b.number))
+    .map(p=>`<option value="${p.id}" ${String(selected)===String(p.id)?'selected':''}>#${escapeHtml(String(p.number))} ${escapeHtml(p.name)}</option>`).join('');
+}
+function hmEditSubstitution(source,index){
+  const e=getCurrentMatchDetails();if(!e)return;
+  const isNew=source==='new';
+  const events=source==='live'?e.live?.events:e.matchEvents;
+  const ev=isNew?null:events?.[index];
+  if(!isNew&&!ev)return;
+  const minute=ev?.minute??'';
+  sheet.innerHTML=`<div class="sheet-head"><div><p class="muted small">FORMAZIONE · SOSTITUZIONI</p><h2>${isNew?'Aggiungi sostituzione':'Modifica sostituzione'}</h2></div><button class="close" onclick="closeModal()">✕</button></div>
+    <p class="muted small">Puoi correggere anche i cambi registrati dal Live Match. Il minuto è quello ufficiale della partita (es. 45 per l’intervallo).</p>
+    <div class="field"><label>MINUTO</label><input id="hmSubMinute" type="number" min="0" max="200" step="1" inputmode="numeric" value="${escapeHtml(String(minute))}" placeholder="Es. 65"></div>
+    <div class="field"><label>ESCE</label><select id="hmSubOut"><option value="">Seleziona giocatore</option>${hmSubstitutionPlayerOptions(e,ev?.outId)}</select></div>
+    <div class="field"><label>ENTRA</label><select id="hmSubIn"><option value="">Seleziona giocatore</option>${hmSubstitutionPlayerOptions(e,ev?.inId)}</select></div>
+    <button class="primary" onclick="hmSaveSubstitution('${source}',${Number(index)||0})">${isNew?'AGGIUNGI CAMBIO':'SALVA MODIFICHE'}</button>
+    ${isNew?'':`<button class="danger-full" style="margin-top:10px" onclick="hmDeleteSubstitution('${source}',${Number(index)||0})">ELIMINA SOSTITUZIONE</button>`}`;
+  modal.classList.add('open');
+}
+function hmSubstitutionSnapshot(e){
+  return {
+    liveEvents:JSON.parse(JSON.stringify(e.live?.events||[])),
+    manualEvents:JSON.parse(JSON.stringify(e.matchEvents||[])),
+    playerMinutes:JSON.parse(JSON.stringify(e.live?.playerMinutes||{})),
+    onField:JSON.parse(JSON.stringify(e.live?.onField||{})),
+    bench:JSON.parse(JSON.stringify(e.live?.bench||[]))
+  };
+}
+function hmRestoreSubstitutionSnapshot(e,s){
+  e.live=e.live||{};
+  e.live.events=s.liveEvents;e.matchEvents=s.manualEvents;
+  e.live.playerMinutes=s.playerMinutes;e.live.onField=s.onField;e.live.bench=s.bench;
+}
+function hmSaveSubstitution(source,index){
+  const e=getCurrentMatchDetails();if(!e)return;
+  const raw=document.getElementById('hmSubMinute')?.value.trim();
+  const minute=Number(raw),outId=Number(document.getElementById('hmSubOut')?.value),inId=Number(document.getElementById('hmSubIn')?.value);
+  if(!raw||!Number.isInteger(minute)||minute<0||minute>200||!outId||!inId||outId===inId){
+    alert('Inserisci minuto valido, giocatore che esce e giocatore che entra (diversi).');return;
+  }
+  const snapshot=hmSubstitutionSnapshot(e);
+  const target=source==='live'?e.live.events:(e.matchEvents=e.matchEvents||[]);
+  const record={
+    id:source==='new'?`manual-sub-${Date.now()}-${Math.random().toString(36).slice(2,8)}`:target[index]?.id||`sub-${Date.now()}`,
+    type:source==='live'?'sub':'Sostituzione',minute,
+    displayMinute:String(minute),label:'🔄 Sostituzione',
+    outId,inId,detail:`${playerNameById(outId)} → ${playerNameById(inId)}`,
+    note:minute===Number(e.live?.periodLength||45)?'Intervallo':''
+  };
+  if(source==='new')target.push(record);
+  else if(target[index])Object.assign(target[index],record);
+  else return;
+  const validation=hmRebuildSubstitutionTimeline(e);
+  if(!validation.ok){hmRestoreSubstitutionSnapshot(e,snapshot);alert(validation.message);return}
+  try{save()}catch(err){hmRestoreSubstitutionSnapshot(e,snapshot);alert('Impossibile salvare: i dati precedenti sono stati mantenuti.');return}
+  closeModal();renderMatchDetails();renderMatchTab('lineup');
+}
+function hmDeleteSubstitution(source,index){
+  const e=getCurrentMatchDetails();if(!e||!confirm('Eliminare questa sostituzione?'))return;
+  const snapshot=hmSubstitutionSnapshot(e);
+  const target=source==='live'?e.live?.events:e.matchEvents;
+  if(!Array.isArray(target)||!target[index])return;
+  target.splice(index,1);
+  const validation=hmRebuildSubstitutionTimeline(e);
+  if(!validation.ok){hmRestoreSubstitutionSnapshot(e,snapshot);alert(validation.message);return}
+  try{save()}catch(err){hmRestoreSubstitutionSnapshot(e,snapshot);alert('Impossibile salvare.');return}
+  closeModal();renderMatchDetails();renderMatchTab('lineup');
+}
+// Ricalcola i minuti effettivi, inclusi i rientri, senza modificare voti,
+// gol, convocati, dati finanziari o aggregati storici dei giocatori.
+function hmRebuildSubstitutionTimeline(e){
+  const initial=e.lineup?.slotAssignments||{};
+  const slots=Object.keys(initial).filter(k=>initial[k]!==null&&initial[k]!==undefined&&initial[k]!=='');
+  if(!slots.length)return {ok:true};
+  const onField={};
+  slots.forEach(k=>onField[k]=Number(initial[k]));
+  const active=new Map();const durations=new Map();
+  slots.forEach(k=>active.set(String(onField[k]),0));
+  const all=hmSubstitutionRecords(e);
+  for(const row of all){
+    const ev=row.event;
+    const out=String(ev.outId),inside=String(ev.inId),minute=Number(ev.minute);
+    if(!Number.isInteger(minute)||minute<0||minute>200)return {ok:false,message:'Il minuto di una sostituzione non è valido.'};
+    const slot=Object.keys(onField).find(k=>String(onField[k])===out);
+    if(slot===undefined)return {ok:false,message:`Al minuto ${minute} ${playerNameById(ev.outId)} non risulta in campo. Controlla l’ordine dei cambi.`};
+    if(Object.values(onField).some(id=>String(id)===inside))return {ok:false,message:`Al minuto ${minute} ${playerNameById(ev.inId)} risulta già in campo.`};
+    const from=active.get(out)??0;
+    if(minute<from)return {ok:false,message:`Il minuto ${minute} è precedente all’ingresso di ${playerNameById(ev.outId)}.`};
+    durations.set(out,(durations.get(out)||0)+minute-from);
+    active.delete(out);active.set(inside,minute);
+    onField[slot]=Number(ev.inId);
+    ev.slotIndex=Number(slot);
+  }
+  const phase=String(e.live?.phase||'pre');
+  const finished=phase==='finished'||e.status==='Terminata';
+  const lastMinute=Math.max(0,...all.map(x=>Number(x.event.minute)||0));
+  const actual=Number(e.live?.totalPlayingSeconds||0)/60;
+  const current=finished?Math.max(Number(e.live?.periodLength||40)*2,Math.floor(actual),lastMinute):
+    Math.max(lastMinute,typeof numericOfficialMinuteV44==='function'?numericOfficialMinuteV44(e):0);
+  for(const [id,start] of active)durations.set(id,(durations.get(id)||0)+Math.max(0,current-start));
+  const starterIds=new Set(slots.map(k=>String(initial[k])));
+  const allIds=new Set([...durations.keys(),...active.keys()]);
+  const playerMinutes={};
+  for(const id of allIds){
+    const started=starterIds.has(id)?0:
+      Math.min(...all.filter(x=>String(x.event.inId)===id).map(x=>Number(x.event.minute)));
+    const ended=active.has(id)?(finished?current:null):
+      Math.max(...all.filter(x=>String(x.event.outId)===id).map(x=>Number(x.event.minute)));
+    playerMinutes[id]={minutes:Math.max(0,durations.get(id)||0),starter:starterIds.has(id),
+      startedAtOfficialMinute:Number.isFinite(started)?started:0,
+      endedAtOfficialMinute:ended,
+      startedAtSeconds:0,endedAtSeconds:finished?current*60:null};
+  }
+  e.live=e.live||{};
+  e.live.playerMinutes=playerMinutes;
+  e.live.onField=onField;
+  const used=new Set(Object.values(onField).map(String));
+  e.live.bench=[...(e.callups||[])].filter(id=>!used.has(String(id)));
+  return {ok:true};
+}
+
 function renderLineupTabV432(e,host){
   ensureEventLineup(e);
   const assignments=e.lineup?.slotAssignments||{};
@@ -1897,12 +2097,13 @@ function renderLineupTabV432(e,host){
     const id=assignments[i];
     const p=state.players.find(x=>String(x.id)===String(id));if(!p)return '';
     return `<div class="lineup-preview-player" style="left:${s[0]}%;top:${s[1]}%">
-      <div class="lineup-preview-number">${p.number}</div>
-      <span class="lineup-preview-name">${escapeHtml(p.name.split(' ').slice(-1)[0])}</span>
+      <div class="lineup-preview-number ${hmPlayerPhotoSrc(p)?'hm-photo-button':''}">${hmPlayerPhoto(p)}</div>
+      <span class="lineup-preview-name">${hmPlayerLastName(p)}</span>
+      <span class="hm-pitch-shirt-number">#${escapeHtml(String(p.number??'—'))}</span>
     </div>`;
   }).join('');
 
-  const subs=lineupSubstitutionsV432(e);
+  const subs=hmSubstitutionRecords(e);
 
   host.innerHTML=`<div class="section-head">
     <div>
@@ -1930,12 +2131,14 @@ function renderLineupTabV432(e,host){
       </div>
 
       <h3 class="lineup-section-title">Sostituzioni effettuate</h3>
+      <p class="muted small">Tocca una sostituzione per correggere minuto o giocatori.</p>
       <div class="substitution-list">
-        ${subs.map(ev=>`<div class="substitution-row">
-          <strong>${escapeHtml(ev.detail||`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`)}</strong>
-          <small>${ev.minute!==''?ev.minute+"'":''}</small>
-        </div>`).join('')||'<p class="muted small">Nessuna sostituzione registrata.</p>'}
+        ${subs.map(({event:ev,source,index})=>`<button type="button" class="substitution-row hm-sub-edit" onclick="hmEditSubstitution('${source}',${index})" aria-label="Modifica sostituzione ${escapeHtml(playerNameById(ev.outId))} per ${escapeHtml(playerNameById(ev.inId))}">
+          <span><strong>${escapeHtml(`${playerNameById(ev.outId)} → ${playerNameById(ev.inId)}`)}</strong><small>${ev.minute!==''?ev.minute+"'":''}</small></span>
+          <span class="hm-sub-edit-icon">✎</span>
+        </button>`).join('')||'<p class="muted small">Nessuna sostituzione registrata.</p>'}
       </div>
+      <button class="secondary hm-add-sub" type="button" onclick="hmEditSubstitution('new',0)">＋ AGGIUNGI SOSTITUZIONE</button>
     </div>
   </div>`;
 }

@@ -159,6 +159,8 @@ function financeSeasonDefault(){
 function financeInit(){
   if(!state.finances||typeof state.finances!=='object'||Array.isArray(state.finances))state.finances={seasons:{}};
   if(!state.finances.seasons||typeof state.finances.seasons!=='object'||Array.isArray(state.finances.seasons))state.finances.seasons={};
+  // Un'eventuale migrazione può selezionare esplicitamente la stagione storica.
+  // La schermata Finanze forza invece sempre la stagione attiva in Società.
   if(!financeActiveSeason)financeActiveSeason=financeSeasonDefault();
   if(!state.finances.seasons[financeActiveSeason])state.finances.seasons[financeActiveSeason]={entries:[],players:{}};
   const data=state.finances.seasons[financeActiveSeason];
@@ -209,12 +211,12 @@ function financeTab(tab){
   financeActiveTab=tab;renderFinances();
 }
 function renderFinances(){
+  // Nessun selettore manuale: il registro visualizzato segue Società.
+  // Le stagioni precedenti restano archiviate in state.finances.seasons.
+  financeActiveSeason=financeSeasonDefault();
   const data=financeInit();
-  const selector=document.getElementById('financeSeason');
   const content=document.getElementById('financeContent');
-  if(!selector||!content)return;
-  const seasons=Object.keys(state.finances.seasons).sort((a,b)=>b.localeCompare(a));
-  selector.innerHTML=seasons.map(s=>`<option value="${financeE(s)}" ${s===financeActiveSeason?'selected':''}>${financeE(s)}</option>`).join('');
+  if(!content)return;
   const t=financeTotals(data);
   const metric=(name,value,cls='')=>`<div class="finance-metric ${cls}"><span>${name}</span><strong>${financeEuro(value)}</strong></div>`;
   content.innerHTML=`

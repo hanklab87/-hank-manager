@@ -1,0 +1,11 @@
+/* Hank Manager 5.3.13 – foto giocatori e sostituzioni modificabili */
+.slot-button.hm-photo-button,.live-player-btn.hm-photo-button,.lineup-preview-number.hm-photo-button{overflow:hidden;padding:0;background:#152a3b;border-style:solid}
+.hm-pitch-photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.hm-pitch-shirt-number{display:block;margin:3px auto 0;color:#eaf3f5;font-size:10px;font-weight:900;line-height:1.1;text-shadow:0 1px 4px #000}
+.lineup-preview-player .hm-pitch-shirt-number{font-size:9px}
+.hm-sub-edit{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;color:inherit;cursor:pointer;font:inherit}
+.hm-sub-edit:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.hm-sub-edit-icon{font-size:18px;flex:none;color:var(--green)}
+.hm-add-sub{width:100%;margin-top:10px}
+.hm-player-photo-preview{display:grid;place-items:center;width:88px;height:88px;border-radius:20px;border:1px solid var(--line);background:#102236;overflow:hidden;color:var(--muted);font-size:10px;text-align:center}
+.hm-player-photo-preview img{width:100%;height:100%;object-fit:cover}
