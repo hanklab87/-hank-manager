@@ -1,5 +1,5 @@
-const CACHE='hank-manager-v5311-live-lineup';
-const ASSETS=['./','./index.html','./css/style.css?v=539','./js/app.js?v=5311','./js/finances.js?v=5310','./manifest.json','./js/cloud.js','./js/team-logos.js','./assets/logos/maccabi-roma.png','./assets/brand/icon-192.png','./assets/brand/icon-512.png','./assets/brand/apple-touch-icon.png','./assets/brand/favicon-32.png','./assets/social/convocati-approved.png','./assets/social/formazione-approved.png','./assets/social/risultato-approved.png','./assets/social/poster-background-v533.png'];
+const CACHE='hank-manager-v5312-vermicino-20261021';
+const ASSETS=['./','./index.html','./css/style.css?v=539','./js/app.js?v=5312','./js/finances.js?v=5310','./js/match-20261021.js?v=5312','./manifest.json','./js/cloud.js','./js/team-logos.js','./assets/logos/maccabi-roma.png','./assets/brand/icon-192.png','./assets/brand/icon-512.png','./assets/brand/apple-touch-icon.png','./assets/brand/favicon-32.png','./assets/social/convocati-approved.png','./assets/social/formazione-approved.png','./assets/social/risultato-approved.png','./assets/social/poster-background-v533.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
   self.skipWaiting();

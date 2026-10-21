@@ -1,0 +1,46 @@
+HANK MANAGER v5.3.12 — MACCABI ROMA / ATLETICO VERMICINO (21/10/2026)
+
+AGGIORNAMENTO
+Compila automaticamente la partita Super Champions del 21 ottobre 2026.
+Usa la gara Atletico Vermicino già presente in Calendario (originariamente datata 19/10),
+anziché crearne una nuova. Se la partita era già parzialmente compilata,
+una copia dei suoi dati precedenti viene conservata in state.matchMigrationBackups.
+
+RISULTATO: Atletico Vermicino 0 - 6 Maccabi Roma (Trasferta secondo calendario).
+MARCATORI: Francesco Araujo 16' (assist Gioia); Venturi 24'; Venturi 42' (assist Gabbani);
+Edoardo Maroder 70'; Venturi 74' (assist Gazzo); Venturi 80' (assist Fortes).
+AMMONIZIONE: Samuel Di Castro 67'.
+FORMAZIONE: 4-3-3, Tommaso Maroder; Pavoncello, Spagnoletto, Di Castro, Fortes;
+Fellah, Gabbani, Gioia; Francesco Araujo, Venturi, Gianni Araujo.
+CAMBI 45': Gazzo per Spagnoletto, Sabia per Gioia, Fiorentini per Pavoncello,
+Edoardo Maroder per Fellah.
+CAMBI 65': Gioia per Gabbani, Pavoncello per Francesco Araujo,
+Fellah per Gianni Araujo. Nota: l'abbinamento dei due fratelli Araujo ai due
+rientri è una ricostruzione modificabile perché non specificato esattamente.
+MVP: Silvio Venturi, voto 8. Voti di tutti i 15 partecipanti inseriti.
+FINANZE: spese automatiche 160 EUR partita + 10 EUR lavanderia per questa gara,
+una sola volta, senza creare movimenti manuali o cambiare altre tariffe.
+
+PROTEZIONE DATI
+- La migrazione è eseguita una sola volta per archivio e non duplica la partita.
+- Non cambia altre partite, rosa, quote, entrate, sponsor o altre spese manuali.
+- Se il nome di un giocatore non è presente nella rosa, la migrazione non
+  inserisce giocatori con ID inventati e non salva dati incompleti.
+- Se hai già registrato manualmente la stessa spesa nelle Finanze, verifica
+  che non sia duplicata rispetto alla spesa automatica.
+- Non sovrascrivere i dati locali con un backup cloud vecchio dopo l'aggiornamento.
+
+INSTALLAZIONE
+1. ESPORTA UN BACKUP dall'app prima di aggiornare.
+2. Estrai lo ZIP nella cartella principale del repository e sostituisci SOLO
+   i file presenti nello ZIP. Non eliminare css/, assets/, js/cloud.js ecc.
+3. GitHub Desktop: Commit > Push origin; attendi Vercel.
+4. Apri Hank Manager sul dispositivo che contiene i dati più aggiornati,
+   ricarica e verifica la partita del 21/10, la scheda Statistiche e Finanze.
+5. Se usi il cloud, verifica che i dati sul dispositivo siano corretti PRIMA
+   di caricarli online, per non sovrascrivere la copia più recente.
+
+VERIFICHE
+Test JavaScript: sei gol, quattro gol Venturi, quattro assist, sette cambi,
+15 voti, MVP, ammonizione, 990 minuti complessivi, 160+10 euro automatici,
+riutilizzo della partita, idempotenza e conservazione dei movimenti esistenti.
